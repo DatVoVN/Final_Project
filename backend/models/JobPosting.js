@@ -1,80 +1,51 @@
+// models/JobPosting.js
 const mongoose = require("mongoose");
 
 const jobPostingSchema = new mongoose.Schema(
   {
-    company: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
-      required: [true, "Job posting must belong to a company"],
-    },
-    postedByUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Developer",
-    },
     title: {
       type: String,
-      required: [true, "Job title is required"],
+      required: true,
       trim: true,
     },
     description: {
       type: String,
-      required: [true, "Job description is required"],
-      trim: true,
+      required: true,
     },
     requirements: {
       type: String,
-      trim: true,
+      required: true,
     },
-    benefits: {
-      type: String,
-      trim: true,
-    },
-    location: {
-      type: String,
-      required: [true, "Location is required"],
-      trim: true,
-    },
-    jobType: {
-      type: String,
-      required: [true, "Job type is required"],
-      enum: ["Full-time", "Part-time", "Contract", "Internship"],
-    },
-    salaryMin: {
+    salary: {
       type: Number,
+      required: true,
     },
-    salaryMax: {
-      type: Number,
+    employer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    salaryCurrency: {
+    city: {
       type: String,
-      default: "VND",
-      trim: true,
+      required: true,
     },
-    skillsRequired: {
-      type: [String],
-      default: [],
-    },
-    status: {
-      type: String,
-      enum: ["draft", "published", "archived", "filled"],
-      default: "draft",
-    },
-    applicationDeadline: {
+    postedDate: {
       type: Date,
+      default: Date.now,
     },
-    publishedAt: {
-      type: Date,
-    },
+    applicants: [
+      {
+        candidate: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Candidate",
+        },
+        appliedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
+
   { timestamps: true }
 );
 
-jobPostingSchema.index({ company: 1 });
-jobPostingSchema.index({ status: 1 });
-jobPostingSchema.index({ location: 1 });
-jobPostingSchema.index({ jobType: 1 });
-jobPostingSchema.index({ skillsRequired: 1 });
-
 const JobPosting = mongoose.model("JobPosting", jobPostingSchema);
-
 module.exports = JobPosting;

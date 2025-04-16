@@ -1,4 +1,5 @@
 const sgMail = require("@sendgrid/mail");
+require("dotenv").config();
 if (!process.env.SENDGRID_API_KEY) {
   console.error("❌ SENDGRID_API_KEY chưa được cấu hình trong .env");
 }
@@ -17,6 +18,7 @@ const sendEmail = async ({ email, subject, message }) => {
       subject,
       text: message,
     };
+    console.log(msg);
 
     await sgMail.send(msg);
     console.log(`✅ Email đã gửi đến ${email}`);

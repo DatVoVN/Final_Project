@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/Admin"); // <- Đúng model admin
+const Admin = require("../models/Admin");
 
 exports.protectAdmin = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -15,7 +15,7 @@ exports.protectAdmin = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
-    const admin = await Admin.findById(decoded.id); // <- dùng đúng model
+    const admin = await Admin.findById(decoded.id);
     if (!admin || admin.role !== "admin") {
       return res.status(403).json({ message: "Access denied. Admin only." });
     }

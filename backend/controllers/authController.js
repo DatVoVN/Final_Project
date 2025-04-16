@@ -4,7 +4,6 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Candidate = require("../models/Candidate");
 const otpGenerator = require("otp-generator");
-const { sendOtpEmail } = require("../utils/mailer");
 const sendEmail = require("../utils/email");
 const authController = {
   registerEmployer: async (req, res) => {
@@ -71,15 +70,11 @@ const authController = {
   loginEmployer: async (req, res) => {
     try {
       const { email, password } = req.body;
-
-      // Kiểm tra đầu vào
       if (!email || !password) {
         return res
           .status(400)
           .json({ message: "Vui lòng nhập email và mật khẩu." });
       }
-
-      // Tìm user và ép lấy thêm field password
       const user = await User.findOne({ email }).select("+password");
 
       if (!user || user.role !== "employer") {
@@ -87,23 +82,17 @@ const authController = {
           .status(401)
           .json({ message: "Email hoặc mật khẩu không đúng." });
       }
-
-      // Kiểm tra tài khoản đã được admin duyệt chưa
       if (!user.isActive) {
         return res
           .status(403)
           .json({ message: "Tài khoản chưa được admin duyệt." });
       }
-
-      // So sánh mật khẩu
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res
           .status(401)
           .json({ message: "Email hoặc mật khẩu không đúng." });
       }
-
-      // Tạo JWT token
       const token = jwt.sign(
         { userId: user._id, role: user.role },
         process.env.SECRET_KEY,
@@ -147,7 +136,7 @@ const authController = {
         specialChars: false,
         digits: true,
       });
-      const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+      const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
       let candidateToProcess;
       if (existingCandidate) {
@@ -156,7 +145,7 @@ const authController = {
             .status(400)
             .json({ message: "Email đã được đăng ký và xác thực." });
         } else {
-          const hashedPassword = await bcrypt.hash(password, 10); // Dùng giá trị salt khác với user? Nên nhất quán (ví dụ 12)
+          const hashedPassword = await bcrypt.hash(password, 10);
           existingCandidate.password = hashedPassword;
           existingCandidate.fullName = fullName;
           existingCandidate.otp = otp;
@@ -164,7 +153,7 @@ const authController = {
           candidateToProcess = existingCandidate;
         }
       } else {
-        const hashedPassword = await bcrypt.hash(password, 10); // Nên dùng salt = 12 như User
+        const hashedPassword = await bcrypt.hash(password, 10);
         candidateToProcess = new Candidate({
           fullName,
           email: normalizedEmail,
@@ -172,12 +161,23 @@ const authController = {
           otp,
           otpExpires,
           isVerified: false,
+          role: "candidate",
         });
       }
 
-      const emailSent = await sendOtpEmail(normalizedEmail, otp);
-      if (!emailSent) {
-        console.error(`Failed to send OTP email to ${normalizedEmail}.`);
+      await sendEmail({
+        email: normalizedEmail,
+        subject: "Xác thực tài khoản",
+        message: `Mã OTP của bạn là: ${otp}`,
+      });
+      try {
+        await sendEmail({
+          email: normalizedEmail,
+          subject: "Xác thực tài khoản",
+          message: `Mã OTP của bạn là: ${otp}`,
+        });
+      } catch (error) {
+        console.error(`Failed to send OTP email to ${normalizedEmail}:`, error);
         return res
           .status(500)
           .json({ message: "Lỗi hệ thống khi gửi email xác thực." });
@@ -198,6 +198,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server trong quá trình đăng ký." });
     }
   },
+
   resendOtp: async (req, res) => {
     const { email } = req.body;
     if (!email)
@@ -228,12 +229,22 @@ const authController = {
       candidate.otp = otp;
       candidate.otpExpires = otpExpires;
 
-      const emailSent = await sendOtpEmail(normalizedEmail, otp);
-      if (!emailSent) {
-        console.error(`Failed to resend OTP email to ${normalizedEmail}.`);
+      await sendEmail({
+        email: normalizedEmail,
+        subject: "Xác thực tài khoản",
+        message: `Mã OTP của bạn là: ${otp}`,
+      });
+      try {
+        await sendEmail({
+          email: normalizedEmail,
+          subject: "Xác thực tài khoản",
+          message: `Mã OTP của bạn là: ${otp}`,
+        });
+      } catch (error) {
+        console.error(`Failed to send OTP email to ${normalizedEmail}:`, error);
         return res
           .status(500)
-          .json({ message: "Lỗi hệ thống khi gửi lại email xác thực." });
+          .json({ message: "Lỗi hệ thống khi gửi email xác thực." });
       }
 
       await candidate.save();
@@ -247,6 +258,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server khi gửi lại OTP." });
     }
   },
+
   verifyOtp: async (req, res) => {
     const { email, otp } = req.body;
 
@@ -279,7 +291,6 @@ const authController = {
           .json({ message: "Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại." });
       }
 
-      // Xác thực thành công
       candidate.isVerified = true;
       candidate.otp = undefined;
       candidate.otpExpires = undefined;
@@ -292,84 +303,15 @@ const authController = {
       res.status(500).json({ message: "Lỗi server khi xác thực OTP." });
     }
   },
-  // loginCandidate: async (req, res) => {
-  //   try {
-  //     const { email, password } = req.body;
-  //     if (!email || !password) {
-  //       return res
-  //         .status(400)
-  //         .json({ message: "Vui lòng nhập email và mật khẩu." });
-  //     }
-  //     const normalizedEmail = email.toLowerCase().trim();
-  //     const candidate = await Candidate.findOne({
-  //       email: normalizedEmail,
-  //     }).select("+password"); // Lấy cả password
-
-  //     if (!candidate) {
-  //       return res
-  //         .status(401)
-  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
-  //     }
-
-  //     // *** KIỂM TRA XÁC THỰC ***
-  //     if (!candidate.isVerified) {
-  //       console.log(`Login attempt for unverified email: ${normalizedEmail}`);
-  //       return res.status(403).json({
-  //         // 403 Forbidden
-  //         message:
-  //           "Tài khoản chưa được xác thực. Vui lòng kiểm tra email hoặc yêu cầu gửi lại OTP.",
-  //         verificationRequired: true,
-  //         email: normalizedEmail,
-  //       });
-  //     }
-
-  //     const isMatch = await bcrypt.compare(password, candidate.password);
-  //     if (!isMatch) {
-  //       return res
-  //         .status(401)
-  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
-  //     }
-
-  //     // Tạo token nếu mọi thứ OK
-  //     const token = jwt.sign(
-  //       { id: candidate._id, email: candidate.email, role: "candidate" },
-  //       process.env.JWT_SECRET, // Dùng JWT_SECRET nhất quán
-  //       { expiresIn: "7d" }
-  //     );
-
-  //     // Không gửi password về client
-  //     candidate.password = undefined;
-
-  //     res.status(200).json({
-  //       message: "Đăng nhập thành công!",
-  //       token,
-  //       candidate: {
-  //         // Chỉ trả về thông tin cần thiết
-  //         id: candidate._id,
-  //         fullName: candidate.fullName,
-  //         email: candidate.email,
-  //         // avatarUrl: candidate.avatarUrl, // Thêm nếu có
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Lỗi đăng nhập Candidate:", error);
-  //     res.status(500).json({ message: "Lỗi server" });
-  //   }
-  // },
   loginCandidate: async (req, res) => {
     try {
       const { email, password } = req.body;
-
-      // Kiểm tra email và mật khẩu đã được nhập chưa
       if (!email || !password) {
         return res
           .status(400)
           .json({ message: "Vui lòng nhập email và mật khẩu." });
       }
-
       const normalizedEmail = email.toLowerCase().trim();
-
-      // Tìm candidate trong database và lấy password để so sánh
       const candidate = await Candidate.findOne({
         email: normalizedEmail,
       }).select("+password"); // Lấy cả password
@@ -380,7 +322,18 @@ const authController = {
           .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
       }
 
-      // Kiểm tra mật khẩu có khớp không
+      // *** KIỂM TRA XÁC THỰC ***
+      if (!candidate.isVerified) {
+        console.log(`Login attempt for unverified email: ${normalizedEmail}`);
+        return res.status(403).json({
+          // 403 Forbidden
+          message:
+            "Tài khoản chưa được xác thực. Vui lòng kiểm tra email hoặc yêu cầu gửi lại OTP.",
+          verificationRequired: true,
+          email: normalizedEmail,
+        });
+      }
+
       const isMatch = await bcrypt.compare(password, candidate.password);
       if (!isMatch) {
         return res
@@ -391,15 +344,18 @@ const authController = {
       // Tạo token nếu mọi thứ OK
       const token = jwt.sign(
         { id: candidate._id, email: candidate.email, role: "candidate" },
-        process.env.SECRET_KEY,
+        process.env.SECRET_KEY, // Dùng JWT_SECRET nhất quán
         { expiresIn: "7d" }
       );
 
+      // Không gửi password về client
       candidate.password = undefined;
+
       res.status(200).json({
         message: "Đăng nhập thành công!",
         token,
         candidate: {
+          // Chỉ trả về thông tin cần thiết
           id: candidate._id,
           fullName: candidate.fullName,
           email: candidate.email,
@@ -410,6 +366,60 @@ const authController = {
       res.status(500).json({ message: "Lỗi server" });
     }
   },
+  // loginCandidate: async (req, res) => {
+  //   try {
+  //     const { email, password } = req.body;
+
+  //     // Kiểm tra email và mật khẩu đã được nhập chưa
+  //     if (!email || !password) {
+  //       return res
+  //         .status(400)
+  //         .json({ message: "Vui lòng nhập email và mật khẩu." });
+  //     }
+
+  //     const normalizedEmail = email.toLowerCase().trim();
+
+  //     // Tìm candidate trong database và lấy password để so sánh
+  //     const candidate = await Candidate.findOne({
+  //       email: normalizedEmail,
+  //     }).select("+password"); // Lấy cả password
+
+  //     if (!candidate) {
+  //       return res
+  //         .status(401)
+  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
+  //     }
+
+  //     // Kiểm tra mật khẩu có khớp không
+  //     const isMatch = await bcrypt.compare(password, candidate.password);
+  //     if (!isMatch) {
+  //       return res
+  //         .status(401)
+  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
+  //     }
+
+  //     // Tạo token nếu mọi thứ OK
+  //     const token = jwt.sign(
+  //       { id: candidate._id, email: candidate.email, role: "candidate" },
+  //       process.env.SECRET_KEY,
+  //       { expiresIn: "7d" }
+  //     );
+
+  //     candidate.password = undefined;
+  //     res.status(200).json({
+  //       message: "Đăng nhập thành công!",
+  //       token,
+  //       candidate: {
+  //         id: candidate._id,
+  //         fullName: candidate.fullName,
+  //         email: candidate.email,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Lỗi đăng nhập Candidate:", error);
+  //     res.status(500).json({ message: "Lỗi server" });
+  //   }
+  // },
   logoutCandidate: async (req, res) => {
     try {
       res.clearCookie("token", {

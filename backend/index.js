@@ -8,6 +8,7 @@ const app = express();
 const candidateRoutes = require("./routes/candidate");
 const path = require("path");
 const adminRouter = require("./routes/admin");
+const developerRouter = require("./routes/developer");
 // MIDDLEWARE
 app.use(cors());
 app.use(cookieParser());
@@ -30,6 +31,7 @@ connectDB();
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/candidates", candidateRoutes);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/developer", developerRouter);
 // START SERVER
 app.listen(8000, () => {
   console.log("Server running on port 8000");

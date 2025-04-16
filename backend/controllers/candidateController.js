@@ -1,6 +1,91 @@
 const Candidate = require("../models/Candidate");
 const path = require("path");
 const fs = require("fs");
+const JobPosting = require("../models/JobPosting");
+// Ứng tuyển
+const applyToJob = async (req, res) => {
+  try {
+    const candidateId = req.userId;
+    const { jobId } = req.body;
+
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài đăng tuyển dụng." });
+    }
+
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const alreadyApplied = job.applicants.some(
+      (app) => app.candidate.toString() === candidateId
+    );
+    if (alreadyApplied) {
+      return res
+        .status(400)
+        .json({ message: "Bạn đã ứng tuyển bài đăng này rồi." });
+    }
+
+    candidate.appliedJobs.push(jobId);
+    await candidate.save();
+
+    job.applicants.push({ candidate: candidateId });
+    await job.save();
+
+    res.status(200).json({ message: "Ứng tuyển thành công." });
+  } catch (error) {
+    console.error("Lỗi khi ứng tuyển:", error);
+    res.status(500).json({ message: "Lỗi server." });
+  }
+};
+const unapplyFromJob = async (req, res) => {
+  try {
+    const candidateId = req.userId;
+    const { jobId } = req.body;
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài đăng tuyển dụng." });
+    }
+
+    // Tìm ứng viên
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    // Kiểm tra nếu ứng viên đã ứng tuyển công việc này
+    const appliedIndex = candidate.appliedJobs.findIndex(
+      (id) => id.toString() === jobId
+    );
+    if (appliedIndex === -1) {
+      return res
+        .status(400)
+        .json({ message: "Bạn chưa ứng tuyển bài đăng này." });
+    }
+
+    candidate.appliedJobs.splice(appliedIndex, 1);
+    await candidate.save();
+
+    // Xóa ứng viên khỏi job.applicants
+    await JobPosting.updateOne(
+      { _id: jobId },
+      { $pull: { applicants: { candidate: candidateId } } }
+    );
+
+    // Kiểm tra lại dữ liệu job sau khi cập nhật
+    const updatedJob = await JobPosting.findById(jobId);
+
+    res.status(200).json({ message: "Huỷ ứng tuyển thành công." });
+  } catch (error) {
+    console.error("Lỗi khi huỷ ứng tuyển:", error);
+    res.status(500).json({ message: "Lỗi server khi huỷ ứng tuyển." });
+  }
+};
 
 // Controller xử lý upload CV
 const uploadCV = async (req, res) => {
@@ -123,7 +208,6 @@ const getCandidateInfoByID = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 // Controller lấy thông tin cá nhân của ứng viên đang đăng nhập
 const getMyInfo = async (req, res) => {
   try {
@@ -270,10 +354,6 @@ const deleteCV = async (req, res) => {
     }
     const userId = req.user.id;
     const candidate = await Candidate.findById(userId);
-    console.log(userId);
-
-    console.log("Candidate found:", candidate);
-
     if (!candidate) {
       return res
         .status(404)
@@ -288,16 +368,10 @@ const deleteCV = async (req, res) => {
     candidate.cvUrl = undefined;
     await candidate.save();
     console.log("Candidate saved successfully (cvUrl removed).");
-
-    // ---- KIỂM TRA VÀ GỌI deleteFileIfExists ----
     let deleted = false;
     try {
-      console.log(`Attempting to delete file with path: ${currentCvPath}`);
-      // *** GIẢ SỬ deleteFileIfExists LÀ ASYNC ***
       deleted = await deleteFileIfExists(currentCvPath);
-      console.log(`deleteFileIfExists returned: ${deleted}`);
     } catch (fileError) {
-      console.error("Error thrown by deleteFileIfExists:", fileError);
       deleted = false;
     }
 
@@ -314,7 +388,7 @@ const deleteCV = async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("Error in deleteCV handler:", err); // Log lỗi tổng thể
+    console.error("Error in deleteCV handler:", err);
     if (err.name === "ValidationError") {
       const errors = Object.values(err.errors).map((el) => ({
         field: el.path,
@@ -337,4 +411,6 @@ module.exports = {
   updateMyInfo,
   updateMyAvatar,
   deleteCV,
+  applyToJob,
+  unapplyFromJob,
 };

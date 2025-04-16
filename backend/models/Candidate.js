@@ -17,13 +17,14 @@ const CandidateSchema = new mongoose.Schema({
   address: { type: String },
   avatarUrl: { type: String },
   cvUrl: { type: String },
-  appliedJobs: [],
+  appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "JobPosting" }],
   otp: { type: String },
   otpExpires: { type: Date },
   isVerified: { type: Boolean, default: false },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  role: { type: String, default: "candidate" },
 });
 CandidateSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
