@@ -6,6 +6,8 @@ const {
   getApplicantsForJob,
   getAllJobPostings,
   getEmployerJobPostings,
+  getMyInfo,
+  updateMyCompany,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 // ai cũm có thể xem các bài đăng
@@ -16,5 +18,8 @@ router.get("/employer/jobs", protectEmployer, getEmployerJobPostings);
 router.post("/job-postings", protectEmployer, createJobPosting);
 // xem ai đã ứng tuyển trong cái bài đăng đó
 router.get("/job/:jobId/applicants", protectEmployer, getApplicantsForJob);
-
+// xem thong tin cua developer
+router.get("/me", protectEmployer, getMyInfo);
+// cập nhât công ty
+router.put("/my-company", protectEmployer, updateMyCompany);
 module.exports = router;

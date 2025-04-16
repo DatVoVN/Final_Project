@@ -338,13 +338,13 @@ const authController = {
       if (!isMatch) {
         return res
           .status(401)
-          .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
+          .json({ message: "Email hoặc mật khẩu không đúng." });
       }
 
       // Tạo token nếu mọi thứ OK
       const token = jwt.sign(
         { id: candidate._id, email: candidate.email, role: "candidate" },
-        process.env.SECRET_KEY, // Dùng JWT_SECRET nhất quán
+        process.env.SECRET_KEY,
         { expiresIn: "7d" }
       );
 

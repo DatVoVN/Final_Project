@@ -1,6 +1,7 @@
 // controllers/developerController.js
 const JobPosting = require("../models/JobPosting");
-
+const User = require("../models/User");
+const Company = require("../models/Company");
 exports.createJobPosting = async (req, res) => {
   try {
     const { title, description, requirements, salary, city } = req.body;
@@ -84,6 +85,72 @@ exports.getEmployerJobPostings = async (req, res) => {
     res
       .status(500)
       .json({ message: "Lỗi server khi lấy bài đăng tuyển dụng." });
+  }
+};
+exports.getMyInfo = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).select("-password").populate({
+      path: "company",
+      select: "-__v -createdAt -updatedAt", // loại các field không cần nếu muốn
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Không tìm thấy thông tin người dùng.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy thông tin cá nhân thành công.",
+      data: user,
+    });
+  } catch (err) {
+    console.error("Error getting my info:", err);
+    res.status(500).json({
+      message: "Lỗi server",
+      error: err.message,
+    });
+  }
+};
+// update công ty
+exports.updateMyCompany = async (req, res) => {
+  try {
+    const companyId = req.user.company;
+
+    if (!companyId) {
+      return res
+        .status(400)
+        .json({ message: "Người dùng không thuộc công ty nào." });
+    }
+
+    const allowedFields = ["name", "email", "address", "description"];
+    const updateData = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    const updatedCompany = await Company.findByIdAndUpdate(
+      companyId,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCompany) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật thông tin công ty thành công.",
+      data: updatedCompany,
+    });
+  } catch (error) {
+    console.error("Lỗi cập nhật công ty:", error);
+    res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
 // Xem tat ca bai ung tuyen

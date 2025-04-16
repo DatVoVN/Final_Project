@@ -58,7 +58,6 @@ const unapplyFromJob = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
 
-    // Kiểm tra nếu ứng viên đã ứng tuyển công việc này
     const appliedIndex = candidate.appliedJobs.findIndex(
       (id) => id.toString() === jobId
     );
@@ -137,7 +136,6 @@ const uploadCV = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 // Controller cập nhật CV (chỉ cho user tự cập nhật)
 const updateCV = async (req, res) => {
   try {
@@ -190,7 +188,6 @@ const updateCV = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 // Controller lấy thông tin ứng viên theo ID
 const getCandidateInfoByID = async (req, res) => {
   try {
@@ -227,7 +224,6 @@ const getMyInfo = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 // Controller cập nhật thông tin cá nhân
 const updateMyInfo = async (req, res) => {
   try {

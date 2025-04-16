@@ -10,13 +10,8 @@ const CompanySchema = new mongoose.Schema(
     },
     address: { type: String },
     email: { type: String },
-    taxCode: { type: String, required: true, unique: true }, // mã số thuế
+    taxCode: { type: String, required: true, unique: true },
     description: { type: String },
-    status: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
-    },
   },
   { timestamps: true }
 );
