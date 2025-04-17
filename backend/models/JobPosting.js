@@ -33,6 +33,11 @@ const jobPostingSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: false,
+    },
     applicants: [
       {
         candidate: {

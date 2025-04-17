@@ -170,3 +170,67 @@ exports.getAllJobPostings = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy danh sách job." });
   }
 };
+exports.getAllCompany = async (req, res) => {
+  try {
+    const companys = await Company.find();
+    if (companys.length === 0) {
+      return res.status(404).json({ message: "Chưa có công ty nào" });
+    }
+    res.status(200).json({ companys });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách company:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy danh sách company." });
+  }
+};
+exports.getCompaniesByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    let filter = {};
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    const companies = await Company.find(filter);
+
+    res.status(200).json({
+      message: "Lấy danh sách công ty thành công.",
+      data: companies,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+//Lấy số job của công ty
+exports.getJobsByCompany = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+
+    const jobs = await JobPosting.find({ company: companyId })
+      .populate("employer", "fullName email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Lấy danh sách bài đăng của công ty thành công.",
+      data: jobs,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+// exports.getJobsByEmployer = async (req, res) => {
+//   try {
+//     const employerId = req.user.id;
+
+//     const jobs = await JobPosting.find({ employer: employerId })
+//       .populate("company", "name")
+//       .sort({ createdAt: -1 });
+
+//     res.status(200).json({
+//       message: "Lấy danh sách bài đăng của bạn thành công.",
+//       data: jobs,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: "Lỗi server", error: err.message });
+//   }
+// };

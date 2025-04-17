@@ -4,7 +4,7 @@ const Admin = require("../models/Admin");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const sendEmail = require("../utils/email");
-
+const Candidate = require("../models/Candidate");
 exports.loginAdmin = async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -114,5 +114,26 @@ exports.rejectEmployer = async (req, res) => {
   } catch (error) {
     console.error("Lỗi từ chối:", error);
     res.status(500).json({ message: "Lỗi server." });
+  }
+};
+
+exports.getSummaryStats = async (req, res) => {
+  try {
+    const [companyCount, employerCount, candidateCount] = await Promise.all([
+      Company.countDocuments(),
+      User.countDocuments({ role: "employer" }),
+      Candidate.countDocuments({ role: "candidate" }),
+    ]);
+
+    res.status(200).json({
+      message: "Thống kê thành công.",
+      data: {
+        companies: companyCount,
+        employers: employerCount,
+        candidates: candidateCount,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };

@@ -5,9 +5,12 @@ const candidateController = require("../controllers/candidateController");
 const verifyToken = require("../middleware/verifyToken");
 const uploadAvatar = require("../middleware/uploadAvatar");
 const protectCandidate = require("../middleware/protectCandidate");
+const { restrictTo } = require("../middleware/authMiddleware");
 // Route upload CV
 // Xdm thông tin cá nhân
 router.get("/me", verifyToken, candidateController.getMyInfo);
+// Get start average review
+router.get("/average-star/:id", candidateController.getCompanyWithReviews);
 // APPLY vào bài đăng
 router.post(
   "/apply",
@@ -47,5 +50,22 @@ router.put(
   verifyToken,
   uploadCVMiddleware.single("cv"),
   candidateController.updateCV
+);
+// Review
+router.post(
+  "/:companyId",
+  verifyToken,
+  protectCandidate,
+  restrictTo("candidate"),
+  candidateController.createOrUpdateReview
+);
+
+// update review
+router.put(
+  "/:companyId",
+  verifyToken,
+  protectCandidate,
+  restrictTo("candidate"),
+  candidateController.updateReview
 );
 module.exports = router;

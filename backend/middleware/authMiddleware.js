@@ -27,3 +27,14 @@ exports.protectAdmin = async (req, res, next) => {
     res.status(401).json({ message: "Invalid or expired token." });
   }
 };
+// middlewares/authMiddleware.js
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Bạn không có quyền truy cập chức năng này." });
+    }
+    next();
+  };
+};

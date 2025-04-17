@@ -23,4 +23,5 @@ router.patch(
   protectAdmin,
   adminController.rejectEmployer
 );
+router.get("/stat", adminController.getSummaryStats);
 module.exports = router;

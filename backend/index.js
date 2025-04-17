@@ -9,6 +9,7 @@ const candidateRoutes = require("./routes/candidate");
 const path = require("path");
 const adminRouter = require("./routes/admin");
 const developerRouter = require("./routes/developer");
+const blogRouter = require("./routes/blog");
 // MIDDLEWARE
 app.use(cors());
 app.use(cookieParser());
@@ -32,6 +33,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/candidates", candidateRoutes);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/developer", developerRouter);
+app.use("/api/v1/blog", blogRouter);
 // START SERVER
 app.listen(8000, () => {
   console.log("Server running on port 8000");

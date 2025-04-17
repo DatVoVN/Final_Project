@@ -1,7 +1,10 @@
 const Candidate = require("../models/Candidate");
 const path = require("path");
 const fs = require("fs");
+const mongoose = require("mongoose");
 const JobPosting = require("../models/JobPosting");
+const Company = require("../models/Company");
+const Review = require("../models/Review");
 // Ứng tuyển
 const applyToJob = async (req, res) => {
   try {
@@ -85,7 +88,99 @@ const unapplyFromJob = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi huỷ ứng tuyển." });
   }
 };
+// Danh gia cong ty
+const createOrUpdateReview = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { rating, comment } = req.body;
+    const candidateId = req.user.id;
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+    const review = await Review.findOneAndUpdate(
+      { company: companyId, candidate: candidateId },
+      { rating, comment },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
+    res.status(200).json({
+      message: "Đánh giá công ty thành công.",
+      data: review,
+    });
+  } catch (err) {
+    console.error("Lỗi khi đánh giá công ty:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+// Cap nhat lai dánh giá
+const updateReview = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { rating, comment } = req.body;
+    const candidateId = req.user.id;
+
+    // Kiểm tra company tồn tại
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+
+    // Tìm review của ứng viên với công ty này
+    const review = await Review.findOne({
+      company: companyId,
+      candidate: candidateId,
+    });
+
+    if (!review) {
+      return res
+        .status(404)
+        .json({ message: "Bạn chưa đánh giá công ty này." });
+    }
+
+    // Cập nhật đánh giá
+    review.rating = rating ?? review.rating;
+    review.comment = comment ?? review.comment;
+    await review.save();
+
+    res.status(200).json({
+      message: "Cập nhật đánh giá thành công.",
+      data: review,
+    });
+  } catch (err) {
+    console.error("Lỗi khi cập nhật đánh giá:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+
+// Sao trung binh
+const getCompanyWithReviews = async (req, res) => {
+  try {
+    const companyId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      return res.status(400).json({ message: "ID công ty không hợp lệ." });
+    }
+
+    const reviews = await Review.find({ company: companyId }).populate(
+      "candidate",
+      "fullName"
+    );
+
+    const avgRating =
+      reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length || 0;
+
+    res.status(200).json({
+      message: "Lấy đánh giá thành công.",
+      data: {
+        reviews,
+        avgRating: avgRating.toFixed(1),
+        totalReviews: reviews.length,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
 // Controller xử lý upload CV
 const uploadCV = async (req, res) => {
   try {
@@ -342,6 +437,7 @@ const updateMyAvatar = async (req, res) => {
       .json({ message: "Lỗi server khi cập nhật avatar.", error: err.message });
   }
 };
+
 const deleteCV = async (req, res) => {
   try {
     console.log("User from request:", req.user);
@@ -409,4 +505,7 @@ module.exports = {
   deleteCV,
   applyToJob,
   unapplyFromJob,
+  createOrUpdateReview,
+  getCompanyWithReviews,
+  updateReview,
 };
