@@ -9,11 +9,38 @@ const CompanySchema = new mongoose.Schema(
       trim: true,
     },
     address: { type: String },
+    city: { type: String },
     email: { type: String },
     taxCode: { type: String, required: true, unique: true },
     description: { type: String },
+    overview: { type: String },
+
+    avatarUrl: {
+      type: String,
+      default: "",
+    },
+
+    // Trường mới
+    companySize: {
+      type: Number, // số lượng nhân viên
+      default: 0,
+    },
+    overtimePolicy: {
+      type: String,
+      default: "",
+    },
+    workingDays: {
+      type: {
+        from: { type: String },
+        to: { type: String },
+      },
+      default: { from: "Monday", to: "Friday" },
+    },
+    languages: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
-
 module.exports = mongoose.model("Company", CompanySchema);

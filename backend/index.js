@@ -10,11 +10,17 @@ const path = require("path");
 const adminRouter = require("./routes/admin");
 const developerRouter = require("./routes/developer");
 const blogRouter = require("./routes/blog");
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true,
+};
 // MIDDLEWARE
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 dotenv.config();
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // CONNECT MONGODB
 async function connectDB() {

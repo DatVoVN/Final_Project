@@ -161,10 +161,9 @@ const getCompanyWithReviews = async (req, res) => {
       return res.status(400).json({ message: "ID công ty không hợp lệ." });
     }
 
-    const reviews = await Review.find({ company: companyId }).populate(
-      "candidate",
-      "fullName"
-    );
+    const reviews = await Review.find({ company: companyId })
+      .populate("candidate", "fullName")
+      .populate("company", "name");
 
     const avgRating =
       reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length || 0;

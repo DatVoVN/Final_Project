@@ -2,37 +2,72 @@
 const JobPosting = require("../models/JobPosting");
 const User = require("../models/User");
 const Company = require("../models/Company");
+const Review = require("../models/Review");
 exports.createJobPosting = async (req, res) => {
   try {
-    const { title, description, requirements, salary, city } = req.body;
-    const employerId = req.userId;
-    if (!title || !description || !requirements || !salary || !city) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng cung cấp đầy đủ thông tin." });
+    const {
+      title,
+      description,
+      requirements,
+      salary,
+      deadline,
+      jobType,
+      experienceLevel,
+      locationType,
+      remote,
+      languages,
+      benefits,
+    } = req.body;
+
+    const userId = req.user?._id;
+
+    // Lấy user và populate công ty
+    const user = await User.findById(userId).populate("company");
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại." });
     }
 
-    // Tạo bài tuyển dụng mới
+    if (
+      !title ||
+      !description ||
+      !requirements ||
+      !salary ||
+      !experienceLevel
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng cung cấp đầy đủ thông tin bắt buộc." });
+    }
+
     const newJobPosting = new JobPosting({
       title,
       description,
       requirements,
       salary,
-
-      city,
-      employer: req.user._id,
+      deadline,
+      jobType: jobType || "Full-time",
+      experienceLevel,
+      locationType: locationType || "Onsite",
+      remote: remote || false,
+      languages: languages || [],
+      benefits: benefits || [],
+      employer: user._id,
+      company: user.company?._id || null,
     });
+
     await newJobPosting.save();
 
     res.status(201).json({
       message: "Bài tuyển dụng đã được đăng thành công.",
       jobPosting: newJobPosting,
+      companyInfo: user.company || null,
     });
   } catch (error) {
     console.error("Lỗi đăng bài tuyển dụng:", error);
-    res.status(500).json({ message: "Lỗi server." });
+    res.status(500).json({ message: "Đã xảy ra lỗi khi tạo bài tuyển dụng." });
   }
 };
+
 exports.getApplicantsForJob = async (req, res) => {
   try {
     const { jobId } = req.params;
@@ -125,7 +160,17 @@ exports.updateMyCompany = async (req, res) => {
         .json({ message: "Người dùng không thuộc công ty nào." });
     }
 
-    const allowedFields = ["name", "email", "address", "description"];
+    const allowedFields = [
+      "email",
+      "address",
+      "description",
+      "avatarUrl",
+      "overview",
+      "companySize",
+      "overtimePolicy",
+      "languages",
+    ];
+
     const updateData = {};
 
     allowedFields.forEach((field) => {
@@ -133,6 +178,33 @@ exports.updateMyCompany = async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
+
+    // Nếu có workingDays trong req.body (có thể gửi dạng object hoặc JSON string)
+    if (req.body.workingDays) {
+      try {
+        // Nếu là chuỗi JSON thì parse ra object
+        const workingDays =
+          typeof req.body.workingDays === "string"
+            ? JSON.parse(req.body.workingDays)
+            : req.body.workingDays;
+
+        if (workingDays.from && workingDays.to) {
+          updateData.workingDays = {
+            from: workingDays.from,
+            to: workingDays.to,
+          };
+        }
+      } catch (err) {
+        return res
+          .status(400)
+          .json({ message: "Dữ liệu workingDays không hợp lệ." });
+      }
+    }
+
+    // Nếu có file ảnh
+    if (req.file) {
+      updateData.avatarUrl = `uploads/avatars/${req.file.filename}`;
+    }
 
     const updatedCompany = await Company.findByIdAndUpdate(
       companyId,
@@ -153,30 +225,126 @@ exports.updateMyCompany = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+
+// Lay thong tin company theo ID
+exports.getCompanyById = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const company = await Company.findById(companyId).lean();
+
+    if (!company) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+    if (company.avatarUrl) {
+      company.avatarUrl = `${req.protocol}://${req.get("host")}/${
+        company.avatarUrl
+      }`;
+    }
+
+    res.status(200).json({
+      message: "Lấy thông tin công ty thành công.",
+      data: company,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin công ty:", error);
+    res.status(500).json({
+      message: "Lỗi server khi lấy thông tin công ty.",
+      error: error.message,
+    });
+  }
+};
+// Láy review cua tưng công ty
+exports.getCompanyReviews = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const companyExists = await Company.findById(companyId).select("_id");
+    if (!companyExists) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+
+    const reviews = await Review.find({ company: companyId })
+      .populate("candidate", "fullName email avatarUrl")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: `Lấy danh sách đánh giá cho công ty ${companyId} thành công.`,
+      data: reviews,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy đánh giá công ty:", error);
+    res.status(500).json({
+      message: "Lỗi server khi lấy đánh giá công ty.",
+      error: error.message,
+    });
+  }
+};
 // Xem tat ca bai ung tuyen
 exports.getAllJobPostings = async (req, res) => {
   try {
     // Lấy tất cả các bài tuyển dụng
-    const jobs = await JobPosting.find();
+    const data = await JobPosting.find().populate({
+      path: "company",
+      select: "",
+    });
 
     // Kiểm tra xem có job nào không
-    if (jobs.length === 0) {
+    if (data.length === 0) {
       return res.status(404).json({ message: "Chưa có bài tuyển dụng nào." });
     }
 
-    res.status(200).json({ jobs });
+    res.status(200).json({ data });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách job:", error);
     res.status(500).json({ message: "Lỗi server khi lấy danh sách job." });
   }
 };
+exports.getJobPostingById = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const job = await JobPosting.findById(jobId).populate("company");
+
+    if (!job) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài tuyển dụng." });
+    }
+    res.status(200).json({ data: job });
+  } catch (error) {
+    console.error("Lỗi khi lấy bài tuyển dụng theo ID:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy bài tuyển dụng." });
+  }
+};
 exports.getAllCompany = async (req, res) => {
   try {
-    const companys = await Company.find();
-    if (companys.length === 0) {
+    const companies = await Company.aggregate([
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "company",
+          as: "reviews",
+        },
+      },
+      {
+        $addFields: {
+          averageStar: {
+            $cond: [
+              { $gt: [{ $size: "$reviews" }, 0] },
+              { $avg: "$reviews.rating" },
+              0,
+            ],
+          },
+        },
+      },
+    ]);
+
+    if (companies.length === 0) {
       return res.status(404).json({ message: "Chưa có công ty nào" });
     }
-    res.status(200).json({ companys });
+
+    res.status(200).json({ companies });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách company:", error);
     res.status(500).json({ message: "Lỗi server khi lấy danh sách company." });
@@ -205,9 +373,9 @@ exports.getCompaniesByName = async (req, res) => {
 exports.getJobsByCompany = async (req, res) => {
   try {
     const companyId = req.params.companyId;
-
     const jobs = await JobPosting.find({ company: companyId })
       .populate("employer", "fullName email")
+      .populate("company", "avatarUrl")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -234,3 +402,19 @@ exports.getJobsByCompany = async (req, res) => {
 //     res.status(500).json({ message: "Lỗi server", error: err.message });
 //   }
 // };
+exports.getJobPostingByIdFix = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const data = await JobPosting.findById(jobId).populate("company");
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài tuyển dụng." });
+    }
+    res.status(200).json({ data });
+  } catch (error) {
+    console.error("Lỗi khi lấy bài tuyển dụng theo ID:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy bài tuyển dụng." });
+  }
+};

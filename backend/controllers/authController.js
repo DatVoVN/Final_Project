@@ -18,7 +18,6 @@ const authController = {
         city,
       } = req.body;
 
-      // In ra các giá trị đã nhận được từ client để kiểm tra
       console.log("Dữ liệu nhận được từ client:", req.body);
 
       // Kiểm tra email đã tồn tại chưa
@@ -27,37 +26,40 @@ const authController = {
         return res.status(400).json({ message: "Email đã tồn tại." });
       }
 
-      // Kiểm tra xem công ty đã tồn tại chưa, nếu chưa thì tạo mới
-      let company = await Company.findOne({ taxCode });
-      if (!company) {
-        company = new Company({
-          name: companyName,
-          taxCode,
-          city,
-        });
-        await company.save();
-        console.log("Công ty mới tạo:", company);
+      // Kiểm tra taxCode đã tồn tại chưa
+      const existingCompany = await Company.findOne({ taxCode });
+      if (existingCompany) {
+        return res
+          .status(400)
+          .json({
+            message: "Mã số thuế đã tồn tại. Không thể đăng ký công ty.",
+          });
       }
 
-      // Tạo user mới với công ty đã xác định
+      // Tạo công ty mới nếu chưa tồn tại
+      const company = new Company({
+        name: companyName,
+        taxCode,
+        city,
+      });
+      await company.save();
+      console.log("Công ty mới tạo:", company);
+
+      // Tạo user mới
       const newUser = new User({
         email,
         password,
         fullName,
         phoneNumber,
-        company: company._id, // Gán ID công ty vào trường `company` của user
+        company: company._id,
         role: "employer",
-        isActive: false, // Chờ admin duyệt
-        isRejected: false, // Mặc định không bị từ chối
+        isActive: false,
+        isRejected: false,
       });
 
-      // In ra thông tin user mới sẽ được lưu vào DB
       console.log("Thông tin user mới:", newUser);
-
-      // Lưu user vào DB
       await newUser.save();
 
-      // Trả về kết quả thành công
       res.status(201).json({
         message: "Tài khoản đã được tạo, chờ admin duyệt.",
       });
