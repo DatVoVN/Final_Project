@@ -68,4 +68,10 @@ router.put(
   restrictTo("candidate"),
   candidateController.updateReview
 );
+router.get(
+  "/check-applied/:jobId",
+  verifyToken,
+  protectCandidate,
+  candidateController.checkAppliedStatus
+);
 module.exports = router;

@@ -225,7 +225,6 @@ exports.updateMyCompany = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 // Lay thong tin company theo ID
 exports.getCompanyById = async (req, res) => {
   try {
@@ -300,6 +299,84 @@ exports.getAllJobPostings = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy danh sách job." });
   }
 };
+// search Job
+exports.searchJob = async (req, res) => {
+  console.log("Received Query Params for searchJob:", req.query);
+  try {
+    const { title, city, languages, experienceLevel, companyName } = req.query;
+    const jobQuery = {}; // Renamed to avoid conflict with 'query' keyword
+
+    if (title) {
+      jobQuery.title = { $regex: title, $options: "i" };
+    }
+
+    if (experienceLevel) {
+      // Add validation for enum values if needed
+      jobQuery.experienceLevel = experienceLevel;
+    }
+
+    if (languages) {
+      const langArray = Array.isArray(languages)
+        ? languages
+        : languages.split(",");
+      jobQuery.languages = {
+        $all: langArray.map((lang) => lang.trim()).filter((lang) => lang),
+      };
+
+      jobQuery.languages = {
+        $in: langArray.map((lang) => lang.trim()).filter((lang) => lang),
+      };
+    }
+
+    // Handling company related filters (city, companyName)
+    if (city || companyName) {
+      const companyFilter = {};
+
+      if (city) {
+        companyFilter.city = { $regex: city, $options: "i" };
+      }
+      if (companyName) {
+        companyFilter.name = { $regex: companyName, $options: "i" };
+      }
+      const companies = await Company.find(companyFilter).select("_id").lean();
+
+      if (companies.length === 0) {
+        return res.status(200).json({
+          message: "Tìm kiếm thành công",
+          data: [],
+        });
+      }
+
+      const companyIds = companies.map((c) => c._id);
+      jobQuery.company = { $in: companyIds };
+    }
+
+    console.log("Executing Job Query:", jobQuery);
+
+    const jobs = await JobPosting.find(jobQuery)
+      .populate({
+        path: "company",
+        select: "name city address avatarUrl",
+      })
+      .populate({
+        path: "employer",
+        select: "fullName email",
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Tìm kiếm thành công",
+      data: jobs,
+    });
+  } catch (error) {
+    console.error("Lỗi server khi tìm kiếm job:", error);
+    res.status(500).json({
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+
 exports.getJobPostingById = async (req, res) => {
   try {
     const jobId = req.params.id;

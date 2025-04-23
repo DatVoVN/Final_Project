@@ -71,7 +71,6 @@ const jobPostingSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-
     // Ứng viên đã nộp
     applicants: [
       {

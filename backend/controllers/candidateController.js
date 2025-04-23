@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const JobPosting = require("../models/JobPosting");
 const Company = require("../models/Company");
 const Review = require("../models/Review");
+const deleteFileIfExists = require("../helper/deleteFileIfExists");
 // Ứng tuyển
 const applyToJob = async (req, res) => {
   try {
@@ -34,7 +35,6 @@ const applyToJob = async (req, res) => {
 
     candidate.appliedJobs.push(jobId);
     await candidate.save();
-
     job.applicants.push({ candidate: candidateId });
     await job.save();
 
@@ -48,6 +48,7 @@ const unapplyFromJob = async (req, res) => {
   try {
     const candidateId = req.userId;
     const { jobId } = req.body;
+
     const job = await JobPosting.findById(jobId);
     if (!job) {
       return res
@@ -55,22 +56,15 @@ const unapplyFromJob = async (req, res) => {
         .json({ message: "Không tìm thấy bài đăng tuyển dụng." });
     }
 
-    // Tìm ứng viên
     const candidate = await Candidate.findById(candidateId);
     if (!candidate) {
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
 
-    const appliedIndex = candidate.appliedJobs.findIndex(
-      (id) => id.toString() === jobId
+    // Filter all occurrences of jobId from appliedJobs
+    candidate.appliedJobs = candidate.appliedJobs.filter(
+      (id) => id.toString() !== jobId.toString()
     );
-    if (appliedIndex === -1) {
-      return res
-        .status(400)
-        .json({ message: "Bạn chưa ứng tuyển bài đăng này." });
-    }
-
-    candidate.appliedJobs.splice(appliedIndex, 1);
     await candidate.save();
 
     // Xóa ứng viên khỏi job.applicants
@@ -79,13 +73,29 @@ const unapplyFromJob = async (req, res) => {
       { $pull: { applicants: { candidate: candidateId } } }
     );
 
-    // Kiểm tra lại dữ liệu job sau khi cập nhật
-    const updatedJob = await JobPosting.findById(jobId);
-
     res.status(200).json({ message: "Huỷ ứng tuyển thành công." });
   } catch (error) {
     console.error("Lỗi khi huỷ ứng tuyển:", error);
     res.status(500).json({ message: "Lỗi server khi huỷ ứng tuyển." });
+  }
+};
+// check xem da ưng tuyen hay chưa
+const checkAppliedStatus = async (req, res) => {
+  try {
+    const candidateId = req.userId;
+    const { jobId } = req.params;
+
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) return res.status(404).json({ hasApplied: false });
+
+    const hasApplied = candidate.appliedJobs.some(
+      (id) => id.toString() === jobId
+    );
+
+    return res.status(200).json({ hasApplied });
+  } catch (err) {
+    console.error("Lỗi check trạng thái ứng tuyển:", err);
+    return res.status(500).json({ hasApplied: false });
   }
 };
 // Danh gia cong ty
@@ -152,7 +162,6 @@ const updateReview = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 // Sao trung binh
 const getCompanyWithReviews = async (req, res) => {
   try {
@@ -383,8 +392,8 @@ const updateMyInfo = async (req, res) => {
 };
 const updateMyAvatar = async (req, res) => {
   try {
-    const candidate = await Candidate.findOne({ userId: userId }); // Hoặc tên trường đúng
-    console.log("Candidate found:", candidate); // Log kết quả tìm kiếm
+    const userId = req.userId;
+    const candidate = await Candidate.findOne({ userId });
 
     if (!candidate) {
       if (req.file && req.file.path && fs.existsSync(req.file.path)) {
@@ -507,4 +516,5 @@ module.exports = {
   createOrUpdateReview,
   getCompanyWithReviews,
   updateReview,
+  checkAppliedStatus,
 };

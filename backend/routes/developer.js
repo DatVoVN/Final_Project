@@ -15,6 +15,7 @@ const {
   getCompanyReviews,
   getJobPostingById,
   getJobPostingByIdFix,
+  searchJob,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
@@ -48,4 +49,5 @@ router.get("/jobs/company/:companyId", getJobsByCompany);
 // Lay job theo id
 router.get("/jobs/jobdetail/:id", getJobPostingById);
 router.get("/jobs/:id", getJobPostingByIdFix);
+router.get("/searchJob", searchJob);
 module.exports = router;

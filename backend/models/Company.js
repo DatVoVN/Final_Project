@@ -22,7 +22,7 @@ const CompanySchema = new mongoose.Schema(
 
     // Trường mới
     companySize: {
-      type: Number, // số lượng nhân viên
+      type: Number,
       default: 0,
     },
     overtimePolicy: {

@@ -1,0 +1,338 @@
+[
+  {
+    "role_name": "Backend Developer",
+    "required_skills": [
+      "python",
+      "java",
+      "c#",
+      ".net",
+      "php",
+      "ruby",
+      "go",
+      "node.js",
+      "sql",
+      "api",
+      "rest",
+      "git"
+    ],
+    "preferred_skills": [
+      "nosql",
+      "mongodb",
+      "postgresql",
+      "docker",
+      "kubernetes",
+      "aws",
+      "azure",
+      "gcp",
+      "microservices",
+      "message queue",
+      "linux",
+      "system design",
+      "performance tuning"
+    ],
+    "keywords": [
+      "server-side",
+      "database",
+      "logic",
+      "scalability",
+      "performance",
+      "api development",
+      "back-end",
+      "backend"
+    ],
+    "experience_keywords": [
+      "backend",
+      "server",
+      "api developer",
+      "software engineer"
+    ],
+    "min_experience_years": 1
+  },
+  {
+    "role_name": "Frontend Developer",
+    "required_skills": [
+      "html",
+      "css",
+      "javascript",
+      "react",
+      "angular",
+      "vue",
+      "git",
+      "api consumption"
+    ],
+    "preferred_skills": [
+      "typescript",
+      "sass",
+      "less",
+      "webpack",
+      "npm",
+      "yarn",
+      "jest",
+      "cypress",
+      "ui/ux principles",
+      "responsive design",
+      "state management",
+      "next.js",
+      "nuxt.js"
+    ],
+    "keywords": [
+      "user interface",
+      "ui",
+      "ux",
+      "client-side",
+      "web application",
+      "component",
+      "front-end",
+      "frontend"
+    ],
+    "experience_keywords": [
+      "frontend",
+      "ui developer",
+      "web developer",
+      "javascript developer",
+      "react developer",
+      "angular developer",
+      "vue developer"
+    ],
+    "min_experience_years": 1
+  },
+  {
+    "role_name": "Fullstack Developer",
+    "required_skills": [
+      "html",
+      "css",
+      "javascript",
+      "react",
+      "angular",
+      "vue",
+      "python",
+      "java",
+      "c#",
+      "node.js",
+      "sql",
+      "api",
+      "rest",
+      "git"
+    ],
+    "preferred_skills": [
+      "typescript",
+      "nosql",
+      "docker",
+      "cloud",
+      "aws",
+      "azure",
+      "gcp",
+      "microservices",
+      "system design",
+      "devops principles"
+    ],
+    "keywords": [
+      "full-stack",
+      "web application",
+      "end-to-end",
+      "database",
+      "api",
+      "ui"
+    ],
+    "experience_keywords": [
+      "fullstack",
+      "full stack",
+      "software engineer",
+      "web developer"
+    ],
+    "min_experience_years": 2
+  },
+  {
+    "role_name": "Data Scientist",
+    "required_skills": [
+      "python",
+      "r",
+      "sql",
+      "machine learning",
+      "statistics",
+      "data analysis",
+      "pandas",
+      "numpy",
+      "scikit-learn"
+    ],
+    "preferred_skills": [
+      "deep learning",
+      "tensorflow",
+      "keras",
+      "pytorch",
+      "spark",
+      "hadoop",
+      "cloud",
+      "aws",
+      "azure",
+      "gcp",
+      "data visualization",
+      "tableau",
+      "power bi",
+      "communication skills",
+      "domain knowledge"
+    ],
+    "keywords": [
+      "modeling",
+      "prediction",
+      "algorithms",
+      "statistical analysis",
+      "a/b testing",
+      "insights",
+      "machine learning",
+      "ai"
+    ],
+    "experience_keywords": [
+      "data scientist",
+      "machine learning engineer",
+      "researcher",
+      "statistician",
+      "analyst"
+    ],
+    "min_experience_years": 2
+  },
+  {
+    "role_name": "Data Engineer",
+    "required_skills": [
+      "python",
+      "java",
+      "scala",
+      "sql",
+      "etl",
+      "data warehousing",
+      "data modeling",
+      "spark",
+      "hadoop",
+      "kafka"
+    ],
+    "preferred_skills": [
+      "cloud",
+      "aws",
+      "azure",
+      "gcp",
+      "data pipeline orchestration",
+      "airflow",
+      "nosql",
+      "docker",
+      "kubernetes",
+      "linux",
+      "bash"
+    ],
+    "keywords": [
+      "data pipeline",
+      "etl",
+      "elt",
+      "data warehouse",
+      "big data",
+      "data lake",
+      "database administration"
+    ],
+    "experience_keywords": [
+      "data engineer",
+      "etl developer",
+      "big data engineer"
+    ],
+    "min_experience_years": 2
+  },
+  {
+    "role_name": "DevOps Engineer",
+    "required_skills": [
+      "linux",
+      "bash",
+      "powershell",
+      "git",
+      "docker",
+      "kubernetes",
+      "k8s",
+      "ci/cd",
+      "jenkins",
+      "gitlab ci",
+      "github actions",
+      "aws",
+      "azure",
+      "gcp",
+      "cloud",
+      "terraform",
+      "ansible"
+    ],
+    "preferred_skills": [
+      "python",
+      "go",
+      "monitoring",
+      "prometheus",
+      "grafana",
+      "datadog",
+      "logging",
+      "elk",
+      "networking",
+      "security principles",
+      "infrastructure as code",
+      "iac",
+      "system administration"
+    ],
+    "keywords": [
+      "infrastructure",
+      "automation",
+      "deployment",
+      "ci/cd pipeline",
+      "cloud infrastructure",
+      "scalability",
+      "reliability",
+      "monitoring"
+    ],
+    "experience_keywords": [
+      "devops",
+      "sre",
+      "site reliability",
+      "infrastructure engineer",
+      "cloud engineer",
+      "sysadmin"
+    ],
+    "min_experience_years": 2
+  },
+  {
+    "role_name": "QA Engineer / Tester",
+    "required_skills": [
+      "testing methodologies",
+      "test planning",
+      "test case design",
+      "bug tracking",
+      "jira"
+    ],
+    "preferred_skills": [
+      "automation testing",
+      "selenium",
+      "cypress",
+      "playwright",
+      "appium",
+      "api testing",
+      "postman",
+      "rest assured",
+      "performance testing",
+      "jmeter",
+      "k6",
+      "sql",
+      "python",
+      "java",
+      "javascript",
+      "git",
+      "ci/cd integration"
+    ],
+    "keywords": [
+      "quality assurance",
+      "testing",
+      "test automation",
+      "manual testing",
+      "regression testing",
+      "software quality"
+    ],
+    "experience_keywords": [
+      "qa engineer",
+      "tester",
+      "quality assurance",
+      "automation engineer",
+      "sdet"
+    ],
+    "min_experience_years": 0
+  }
+]
