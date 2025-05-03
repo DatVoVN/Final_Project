@@ -6,7 +6,8 @@ const JobPosting = require("../models/JobPosting");
 const Company = require("../models/Company");
 const Review = require("../models/Review");
 const deleteFileIfExists = require("../helper/deleteFileIfExists");
-// Ứng tuyển
+////////////////  ỨNG TUYỂN JOB ///////////////////
+/// Ứng tuyển
 const applyToJob = async (req, res) => {
   try {
     const candidateId = req.userId;
@@ -44,6 +45,7 @@ const applyToJob = async (req, res) => {
     res.status(500).json({ message: "Lỗi server." });
   }
 };
+/// Hủy ứng tuyển
 const unapplyFromJob = async (req, res) => {
   try {
     const candidateId = req.userId;
@@ -79,7 +81,7 @@ const unapplyFromJob = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi huỷ ứng tuyển." });
   }
 };
-// check xem da ưng tuyen hay chưa
+/// Check xem đang ở trạng thái ứng tuyển hay chưa ứng tuyển
 const checkAppliedStatus = async (req, res) => {
   try {
     const candidateId = req.userId;
@@ -98,7 +100,7 @@ const checkAppliedStatus = async (req, res) => {
     return res.status(500).json({ hasApplied: false });
   }
 };
-// Danh gia cong ty
+// Đánh giá công ty
 const createOrUpdateReview = async (req, res) => {
   try {
     const { companyId } = req.params;
@@ -123,7 +125,7 @@ const createOrUpdateReview = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Cap nhat lai dánh giá
+// Cập nhật lại đánh giá của công ty
 const updateReview = async (req, res) => {
   try {
     const { companyId } = req.params;
@@ -162,7 +164,7 @@ const updateReview = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Sao trung binh
+// Lấy sao trung bình của công ty
 const getCompanyWithReviews = async (req, res) => {
   try {
     const companyId = req.params.id;
@@ -189,6 +191,7 @@ const getCompanyWithReviews = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+///////////////////// CV ///////////////////////////
 // Controller xử lý upload CV
 const uploadCV = async (req, res) => {
   try {
@@ -239,7 +242,7 @@ const uploadCV = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Controller cập nhật CV (chỉ cho user tự cập nhật)
+// Controller cập nhật CV
 const updateCV = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -291,7 +294,66 @@ const updateCV = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Controller lấy thông tin ứng viên theo ID
+/// Controller xóa CV
+const deleteCV = async (req, res) => {
+  try {
+    console.log("User from request:", req.user);
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+    const userId = req.user.id;
+    const candidate = await Candidate.findById(userId);
+    if (!candidate) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hồ sơ ứng viên." });
+    }
+    if (!candidate.cvUrl) {
+      return res.status(400).json({ message: "Không có CV nào để xóa." });
+    }
+    const currentCvPath = candidate.cvUrl;
+    console.log("Current CV Path from DB:", currentCvPath);
+
+    candidate.cvUrl = undefined;
+    await candidate.save();
+    console.log("Candidate saved successfully (cvUrl removed).");
+    let deleted = false;
+    try {
+      deleted = await deleteFileIfExists(currentCvPath);
+    } catch (fileError) {
+      deleted = false;
+    }
+
+    if (deleted) {
+      res.status(200).json({ message: "Xóa CV thành công!" });
+    } else {
+      console.warn(
+        `Physical file deletion failed or file not found for path: ${currentCvPath}`
+      );
+      res.status(200).json({
+        message:
+          "Đã xóa thông tin CV khỏi hồ sơ, nhưng file vật lý không tồn tại hoặc có lỗi khi xóa.",
+        warning: `File not found or deletion error for path: ${currentCvPath}`,
+      });
+    }
+  } catch (err) {
+    console.error("Error in deleteCV handler:", err);
+    if (err.name === "ValidationError") {
+      const errors = Object.values(err.errors).map((el) => ({
+        field: el.path,
+        message: el.message,
+      }));
+      return res
+        .status(400)
+        .json({ message: "Lỗi validation khi xóa CV.", errors: errors });
+    }
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi xóa CV.", error: err.message });
+  }
+};
+////////////////////// INFO //////////////////////
+/// Controller lấy thông tin ứng viên theo ID
 const getCandidateInfoByID = async (req, res) => {
   try {
     const { id } = req.params;
@@ -308,7 +370,7 @@ const getCandidateInfoByID = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Controller lấy thông tin cá nhân của ứng viên đang đăng nhập
+/// Controller lấy thông tin cá nhân của ứng viên đang đăng nhập
 const getMyInfo = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -327,7 +389,7 @@ const getMyInfo = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-// Controller cập nhật thông tin cá nhân
+/// Controller cập nhật thông tin cá nhân
 const updateMyInfo = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -390,6 +452,7 @@ const updateMyInfo = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+/////////////////////////// AVATAR //////////////////////////////
 const updateMyAvatar = async (req, res) => {
   try {
     const userId = req.userId;
@@ -443,64 +506,6 @@ const updateMyAvatar = async (req, res) => {
     res
       .status(500)
       .json({ message: "Lỗi server khi cập nhật avatar.", error: err.message });
-  }
-};
-
-const deleteCV = async (req, res) => {
-  try {
-    console.log("User from request:", req.user);
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ message: "Xác thực không hợp lệ." });
-    }
-    const userId = req.user.id;
-    const candidate = await Candidate.findById(userId);
-    if (!candidate) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy hồ sơ ứng viên." });
-    }
-    if (!candidate.cvUrl) {
-      return res.status(400).json({ message: "Không có CV nào để xóa." });
-    }
-    const currentCvPath = candidate.cvUrl;
-    console.log("Current CV Path from DB:", currentCvPath);
-
-    candidate.cvUrl = undefined;
-    await candidate.save();
-    console.log("Candidate saved successfully (cvUrl removed).");
-    let deleted = false;
-    try {
-      deleted = await deleteFileIfExists(currentCvPath);
-    } catch (fileError) {
-      deleted = false;
-    }
-
-    if (deleted) {
-      res.status(200).json({ message: "Xóa CV thành công!" });
-    } else {
-      console.warn(
-        `Physical file deletion failed or file not found for path: ${currentCvPath}`
-      );
-      res.status(200).json({
-        message:
-          "Đã xóa thông tin CV khỏi hồ sơ, nhưng file vật lý không tồn tại hoặc có lỗi khi xóa.",
-        warning: `File not found or deletion error for path: ${currentCvPath}`,
-      });
-    }
-  } catch (err) {
-    console.error("Error in deleteCV handler:", err);
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map((el) => ({
-        field: el.path,
-        message: el.message,
-      }));
-      return res
-        .status(400)
-        .json({ message: "Lỗi validation khi xóa CV.", errors: errors });
-    }
-    res
-      .status(500)
-      .json({ message: "Lỗi server khi xóa CV.", error: err.message });
   }
 };
 module.exports = {

@@ -1,5 +1,5 @@
 const Blog = require("../models/Blog");
-
+/// Thêm blog
 exports.createBlog = async (req, res) => {
   try {
     const { title, content, imageUrl } = req.body;
@@ -13,8 +13,7 @@ exports.createBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
-// 🟡 Chỉnh sửa blog
+// Chỉnh sửa blog
 exports.updateBlog = async (req, res) => {
   try {
     const blogId = req.params.id;
@@ -36,7 +35,7 @@ exports.updateBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-// 🔴 Xóa blog
+// Xóa blog
 exports.deleteBlog = async (req, res) => {
   try {
     const blogId = req.params.id;
@@ -53,6 +52,7 @@ exports.deleteBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+// lấy tất cả blog
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().sort({ createdAt: -1 }); // sắp xếp mới nhất trước

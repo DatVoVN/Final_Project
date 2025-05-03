@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const blogController = require("../controllers/blogController");
 const { protectAdmin } = require("../middleware/authMiddleware");
+////////////////////////// BLOG ////////////////////////////////
+/// lấy tất cả blog
 router.get("/", blogController.getAllBlogs);
 // Thêm blog
 router.post("/", protectAdmin, blogController.createBlog);

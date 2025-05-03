@@ -1,4 +1,3 @@
-// models/Company.js
 const mongoose = require("mongoose");
 
 const CompanySchema = new mongoose.Schema(
@@ -19,8 +18,6 @@ const CompanySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
-    // Trường mới
     companySize: {
       type: Number,
       default: 0,

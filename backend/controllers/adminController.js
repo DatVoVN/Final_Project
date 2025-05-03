@@ -5,6 +5,9 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const sendEmail = require("../utils/email");
 const Candidate = require("../models/Candidate");
+const JobPosting = require("../models/JobPosting");
+//////////////////////////////////////ADMIN//////////////////////////////////
+///////// AUTH
 exports.loginAdmin = async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -45,6 +48,8 @@ exports.loginAdmin = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi đăng nhập" });
   }
 };
+//////// QUẢN LÝ VIỆC ĐĂNG KÍ DEVELOPER
+/// Lấy xam danh sách đăng kí nhà tuyển dụng
 exports.getPendingEmployers = async (req, res) => {
   try {
     const pendingEmployers = await User.find({
@@ -59,6 +64,7 @@ exports.getPendingEmployers = async (req, res) => {
     res.status(500).json({ message: "Lỗi server." });
   }
 };
+/// Chấp nhận đăng kí
 exports.approveEmployer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -89,6 +95,7 @@ exports.approveEmployer = async (req, res) => {
     res.status(500).json({ message: "Lỗi server." });
   }
 };
+/// Từ chối đăng kí
 exports.rejectEmployer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -116,7 +123,8 @@ exports.rejectEmployer = async (req, res) => {
     res.status(500).json({ message: "Lỗi server." });
   }
 };
-
+//////// THỐNG KÊ
+/// Thống kê
 exports.getSummaryStats = async (req, res) => {
   try {
     const [companyCount, employerCount, candidateCount] = await Promise.all([
@@ -135,5 +143,108 @@ exports.getSummaryStats = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+/////////////////////////// CRUD //////////////////////////////////
+/// Xóa developer
+exports.deleteEmployerByAdmin = async (req, res) => {
+  try {
+    const employerId = req.params.id;
+
+    const employer = await User.findById(employerId);
+    if (!employer) {
+      return res
+        .status(404)
+        .json({ message: "Người tuyển dụng không tồn tại." });
+    }
+
+    if (employer.role !== "employer") {
+      return res
+        .status(400)
+        .json({ message: "Người dùng này không phải là nhà tuyển dụng." });
+    }
+
+    const companyId = employer.company;
+    await User.findByIdAndDelete(employerId);
+    const remainingUsers = await User.find({ company: companyId });
+
+    if (remainingUsers.length === 0) {
+      await JobPosting.deleteMany({ company: companyId });
+      await Company.findByIdAndDelete(companyId);
+    }
+    res
+      .status(200)
+      .json({ message: "Đã xoá nhà tuyển dụng và dữ liệu liên quan." });
+  } catch (error) {
+    console.error("Lỗi khi xoá nhà tuyển dụng:", error);
+    res.status(500).json({ message: "Lỗi server trong quá trình xoá." });
+  }
+};
+/// Xem tất cả developer hiện có
+exports.getAllEmployers = async (req, res) => {
+  try {
+    const employers = await User.find({ role: "employer" }).select("-password");
+
+    if (!employers.length) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy người tuyển dụng." });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách người tuyển dụng thành công.",
+      employers: employers,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách người tuyển dụng:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
+  }
+};
+/// Xem tất cả candidate hiện có
+exports.getAllCandidates = async (req, res) => {
+  try {
+    const candidates = await Candidate.find({ role: "candidate" }).select(
+      "-password"
+    );
+
+    if (!candidates.length) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy người ứng viên nào." });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách ứng viên thành công.",
+      candidates: candidates,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách ứng viên:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
+  }
+};
+/// Xóa candidate
+exports.deleteCandidateByAdmin = async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Ứng viên không tồn tại." });
+    }
+
+    if (candidate.role !== "candidate") {
+      return res
+        .status(400)
+        .json({ message: "Người dùng này không phải là ứng viên." });
+    }
+    await Candidate.findByIdAndDelete(candidateId);
+    await JobPosting.updateMany(
+      { "applicants.candidate": candidateId },
+      { $pull: { applicants: { candidate: candidateId } } }
+    );
+
+    res.status(200).json({ message: "Ứng viên đã được xóa thành công." });
+  } catch (error) {
+    console.error("Lỗi khi xóa ứng viên:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi xóa ứng viên." });
   }
 };

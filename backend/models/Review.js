@@ -1,6 +1,4 @@
-// models/Review.js
 const mongoose = require("mongoose");
-
 const reviewSchema = new mongoose.Schema(
   {
     company: {
@@ -26,8 +24,6 @@ const reviewSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Đảm bảo 1 candidate chỉ review 1 company 1 lần
 reviewSchema.index({ company: 1, candidate: 1 }, { unique: true });
 
 module.exports = mongoose.model("Review", reviewSchema);

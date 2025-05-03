@@ -6,44 +6,41 @@ const verifyToken = require("../middleware/verifyToken");
 const uploadAvatar = require("../middleware/uploadAvatar");
 const protectCandidate = require("../middleware/protectCandidate");
 const { restrictTo } = require("../middleware/authMiddleware");
-// Route upload CV
-// Xdm thông tin cá nhân
+
+/////////////////////////// THÔNG TIN ////////////////////////////////////
+/// Xem thông tin cá nhân
 router.get("/me", verifyToken, candidateController.getMyInfo);
-// Get start average review
+/// Lấy thông và update thông tin
+router.get("/:id", verifyToken, candidateController.getCandidateInfoByID);
+router.put("/updateInfo", verifyToken, candidateController.updateMyInfo);
+///////////////////////// CÔNG TY //////////////////////////////////////
+/// Get start average review của công ty
 router.get("/average-star/:id", candidateController.getCompanyWithReviews);
-// APPLY vào bài đăng
+/////////////////////////// BÀI ĐĂNG /////////////////////////////////////
+/// APPLY vào bài đăng
 router.post(
   "/apply",
   verifyToken,
   protectCandidate,
   candidateController.applyToJob
 );
-// Hủy apply
+/// Hủy apply
 router.post(
   "/unapply",
   verifyToken,
   protectCandidate,
   candidateController.unapplyFromJob
 );
-// Lấy thông và update thông tin
-router.get("/:id", verifyToken, candidateController.getCandidateInfoByID);
-router.put("/updateInfo", verifyToken, candidateController.updateMyInfo);
-// Xóa CV
+/// Xem trạng thái apply
+router.get(
+  "/check-applied/:jobId",
+  verifyToken,
+  protectCandidate,
+  candidateController.checkAppliedStatus
+);
+////////////////////////////////////////// CV /////////////////////////////////
+/// Xóa CV
 router.delete("/delete-cv", verifyToken, candidateController.deleteCV);
-// Cập nhật Avatar
-router.put(
-  "/me/avatar",
-  verifyToken,
-  uploadAvatar.single("avatar"),
-  candidateController.updateMyAvatar
-);
-// Uplaod CV
-router.post(
-  "/upload-cv/:id",
-  verifyToken,
-  uploadCVMiddleware.single("cv"),
-  candidateController.uploadCV
-);
 // Cập nhật CV
 router.put(
   "/update-cv",
@@ -51,7 +48,23 @@ router.put(
   uploadCVMiddleware.single("cv"),
   candidateController.updateCV
 );
-// Review
+/// Upload CV
+router.post(
+  "/upload-cv/:id",
+  verifyToken,
+  uploadCVMiddleware.single("cv"),
+  candidateController.uploadCV
+);
+/////////////////////////////////////////// AVATAR ///////////////////////////////
+/// Cập nhật Avatar
+router.put(
+  "/me/avatar",
+  verifyToken,
+  uploadAvatar.single("avatar"),
+  candidateController.updateMyAvatar
+);
+//////////////////////////////// Review /////////////////////////////////////////////
+/// Đăng review công ty
 router.post(
   "/:companyId",
   verifyToken,
@@ -59,8 +72,7 @@ router.post(
   restrictTo("candidate"),
   candidateController.createOrUpdateReview
 );
-
-// update review
+// update review công ty
 router.put(
   "/:companyId",
   verifyToken,
@@ -68,10 +80,5 @@ router.put(
   restrictTo("candidate"),
   candidateController.updateReview
 );
-router.get(
-  "/check-applied/:jobId",
-  verifyToken,
-  protectCandidate,
-  candidateController.checkAppliedStatus
-);
+
 module.exports = router;

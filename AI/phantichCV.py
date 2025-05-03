@@ -1,7 +1,7 @@
 import spacy
 from spacy.matcher import PhraseMatcher, Matcher
 import re
-import fitz  # PyMuPDF
+import fitz
 from docx import Document
 import os
 from collections import Counter
@@ -12,8 +12,6 @@ try:
 except OSError:
     print("spaCy model not found. Please download: python -m spacy download en_core_web_sm (or en_core_web_md)")
     exit()
-
-# DANH SÁCH KỸ NĂNG CẦN TÌM (CẦN RẤT CHI TIẾT VÀ ĐẦY ĐỦ)
 IT_SKILLS = [
     # Programming Languages
     "python", "java", "c++", "c#", ".net", "javascript", "typescript", "php", "ruby", "go", "swift", "kotlin", "scala", "rust",
@@ -57,10 +55,10 @@ JOB_ROLES_DB_FILE = 'job_roles_db.json'
 DEFAULT_JOB_ROLES_DB = [
     {
         "role_name": "Backend Developer",
-        "required_skills": ["python", "java", "c#", ".net", "php", "ruby", "go", "sql", "api", "rest", "git", "docker"], # Dùng OR logic ở đây (ít nhất 1)
+        "required_skills": ["python", "java", "c#", ".net", "php", "ruby", "go", "sql", "api", "rest", "git", "docker"],
         "preferred_skills": ["nosql", "microservices", "message queue", "cloud", "kubernetes", "linux"],
         "keywords": ["server-side", "database", "scalability", "performance", "logic", "api development"],
-        "experience_keywords": ["backend", "server", "api developer"], # Từ khóa trong kinh nghiệm làm việc
+        "experience_keywords": ["backend", "server", "api developer"],
         "min_experience_years": 1
     },
     {
@@ -77,7 +75,7 @@ DEFAULT_JOB_ROLES_DB = [
         "preferred_skills": ["deep learning", "tensorflow", "pytorch", "spark", "hadoop", "cloud", "data visualization", "tableau", "power bi"],
         "keywords": ["modeling", "prediction", "algorithms", "statistical analysis", "a/b testing", "insights"],
         "experience_keywords": ["data scientist", "machine learning engineer", "researcher"],
-        "min_experience_years": 2 # Thường yêu cầu kinh nghiệm hơn
+        "min_experience_years": 2
     },
     {
          "role_name": "DevOps Engineer",
@@ -87,8 +85,7 @@ DEFAULT_JOB_ROLES_DB = [
          "experience_keywords": ["devops", "sre", "site reliability", "infrastructure engineer", "cloud engineer"],
          "min_experience_years": 2
     },
-    # === THÊM NHIỀU VỊ TRÍ KHÁC VÀO ĐÂY ===
-    # (Fullstack, QA, Cloud Architect, Data Engineer, Mobile Dev, etc.)
+
 ]
 
 def load_job_roles_db(filepath=JOB_ROLES_DB_FILE):
@@ -102,13 +99,9 @@ def load_job_roles_db(filepath=JOB_ROLES_DB_FILE):
     return DEFAULT_JOB_ROLES_DB
 
 JOB_ROLES_DB = load_job_roles_db()
-
-# --- 3. CV Parsing Functions ---
 def extract_text(file_path):
-    # (Giống code trước: extract_text_from_pdf, docx, txt)
     _, extension = os.path.splitext(file_path.lower())
     if extension == ".pdf":
-        # ... (code đọc pdf) ...
         try:
             doc = fitz.open(file_path)
             text = ""
@@ -120,7 +113,6 @@ def extract_text(file_path):
             print(f"Error reading PDF {file_path}: {e}")
             return None
     elif extension == ".docx":
-         # ... (code đọc docx) ...
         try:
             doc = Document(file_path)
             text = "\n".join([para.text for para in doc.paragraphs])
@@ -144,7 +136,6 @@ def extract_skills_from_doc(doc):
     """Trích xuất kỹ năng dùng PhraseMatcher."""
     matches = skill_matcher(doc)
     found_skills = set()
-    # Sử dụng Counter để đếm tần suất, có thể dùng để trọng số sau này
     skill_counts = Counter()
     for match_id, start, end in matches:
         skill = doc[start:end].text.lower()
@@ -158,16 +149,10 @@ def estimate_experience_years(text):
     years = re.findall(r'\b(19[89]\d|20[012]\d)\b', text)
     if not years:
         return 0
-    # Chuyển sang số nguyên
     numeric_years = sorted([int(y) for y in years])
-    # Ước tính dựa trên khoảng cách giữa năm sớm nhất và muộn nhất
-    # Giả định năm muộn nhất là gần đây nhất
     if len(numeric_years) >= 2:
-         # Cộng 1 vì khoảng thời gian từ 2020-2022 là 3 năm (2020, 2021, 2022)
         return numeric_years[-1] - numeric_years[0] + 1
     elif len(numeric_years) == 1:
-        # Nếu chỉ có 1 năm, giả sử ít nhất 1 năm kinh nghiệm
-        # Hoặc có thể so sánh với năm hiện tại (cần import datetime)
         from datetime import datetime
         current_year = datetime.now().year
         if numeric_years[0] <= current_year:
@@ -189,10 +174,6 @@ def calculate_job_match_score(cv_data, job_role):
     # --- a. Skill Matching ---
     required_skills_role = set(job_role.get('required_skills', []))
     preferred_skills_role = set(job_role.get('preferred_skills', []))
-
-    # Có thể có nhiều cách định nghĩa required: cần TẤT CẢ hay chỉ MỘT SỐ?
-    # Ví dụ: Cần ít nhất 1 kỹ năng trong danh sách required chính
-    # Hoặc tính % kỹ năng required có trong CV
     required_match_count = len(cv_skills.intersection(required_skills_role))
     preferred_match_count = len(cv_skills.intersection(preferred_skills_role))
 
@@ -205,41 +186,21 @@ def calculate_job_match_score(cv_data, job_role):
     # --- b. Keyword Matching (trong toàn bộ text) ---
     keyword_score = 0
     role_keywords = job_role.get('keywords', [])
-    max_keyword_score = len(role_keywords) * 1 # Mỗi keyword 1 điểm
+    max_keyword_score = len(role_keywords) * 1
     for keyword in role_keywords:
         if keyword.lower() in cv_text_lower:
             keyword_score += 1
     score += keyword_score
     max_score += max_keyword_score
 
-    # --- c. Experience Matching ---
-    # i. Số năm kinh nghiệm
     exp_year_score = 0
     min_exp = job_role.get('min_experience_years', 0)
     max_exp_year_score = 10 # Điểm tối đa cho kinh nghiệm năm
     if cv_experience_years >= min_exp:
-        # Cho điểm nếu đạt yêu cầu tối thiểu
-        # Có thể cho thêm điểm nếu vượt xa yêu cầu
         exp_year_score = 5 + min(5, cv_experience_years - min_exp) # Tối đa 10 điểm
     score += exp_year_score
     max_score += max_exp_year_score
 
-    # ii. Từ khóa trong kinh nghiệm (nếu có thể tách section kinh nghiệm)
-    # Đây là phần nâng cao, cần tách được phần mô tả kinh nghiệm
-    # Tạm thời bỏ qua hoặc dùng keyword matching chung ở trên
-    # exp_keyword_score = 0
-    # max_exp_keyword_score = 0
-    # experience_keywords_role = job_role.get('experience_keywords', [])
-    # # Giả sử cv_data['experience_text'] chứa text phần kinh nghiệm
-    # if 'experience_text' in cv_data:
-    #     #... match keywords in experience_text ...
-    # score += exp_keyword_score
-    # max_score += max_exp_keyword_score
-
-
-    # --- d. Chuẩn hóa điểm (tùy chọn) ---
-    # final_score = (score / max_score) * 100 if max_score > 0 else 0
-    # Hoặc trả về điểm thô
     final_score = score
 
     return final_score
@@ -259,26 +220,20 @@ def suggest_jobs_from_cv(file_path):
     # Trích xuất thông tin cần thiết từ CV
     skills, skill_counts = extract_skills_from_doc(doc)
     estimated_years = estimate_experience_years(text)
-    # (Có thể thêm trích xuất học vấn, chứng chỉ ở đây)
 
     cv_data = {
         'skills': skills,
-        'skill_counts': dict(skill_counts), # Chuyển Counter thành dict để dễ serialize
+        'skill_counts': dict(skill_counts),
         'estimated_years_experience': estimated_years,
         'full_text': text,
-        # 'experience_text': extract_experience_section(doc) # Nâng cao
-        # 'education_info': extract_education(doc) # Nâng cao
     }
-
-    # Tính điểm cho từng vai trò trong DB
     job_scores = []
     for role in JOB_ROLES_DB:
         match_score = calculate_job_match_score(cv_data, role)
-        if match_score > 0: # Chỉ xem xét các vai trò có điểm > 0
+        if match_score > 0:
             job_scores.append({
                 "role_name": role["role_name"],
                 "score": match_score,
-                # Có thể thêm thông tin chi tiết về việc match (ví dụ: skills nào khớp)
             })
 
     # Sắp xếp theo điểm giảm dần
@@ -288,17 +243,16 @@ def suggest_jobs_from_cv(file_path):
     analysis_result = {
         "file_path": file_path,
         "extracted_skills": sorted(skills),
-        "skill_frequency": dict(skill_counts.most_common(10)), # Top 10 kỹ năng phổ biến
+        "skill_frequency": dict(skill_counts.most_common(10)),
         "estimated_experience_years": estimated_years,
-        "suggested_roles": job_scores[:5] # Lấy top 5 đề xuất
+        "suggested_roles": job_scores[:5]
     }
 
     return analysis_result
 
 # --- 6. Example Usage ---
 if __name__ == "__main__":
-    # Thay đổi đường dẫn này tới file CV bạn muốn phân tích
-    cv_file_path = "path/to/your/it_cv.pdf" # Hoặc .docx, .txt
+    cv_file_path = "path/to/your/it_cv.pdf"
 
     if not os.path.exists(cv_file_path):
         print(f"Error: File not found at {cv_file_path}")
@@ -319,9 +273,3 @@ if __name__ == "__main__":
                     print(f"{i+1}. {item['role_name']} (Score: {item['score']:.2f})")
             else:
                 print("No suitable job roles found based on the current criteria.")
-
-            # Lưu kết quả vào JSON (tùy chọn)
-            # output_file = os.path.splitext(cv_file_path)[0] + '_analysis.json'
-            # with open(output_file, 'w', encoding='utf-8') as f:
-            #     json.dump(suggestions, f, indent=4, ensure_ascii=False)
-            # print(f"\nAnalysis saved to: {output_file}")

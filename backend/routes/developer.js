@@ -16,38 +16,60 @@ const {
   getJobPostingById,
   getJobPostingByIdFix,
   searchJob,
+  deleteJobPosting,
+  reactivateJobPosting,
+  deactivateJobPosting,
+  updateJobPosting,
+  getJobPostingByIdByDeveloper,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
-// ai cũm có thể xem các bài đăng
+//////////////////////// CÁI GÌ CŨNG XEM ĐƯỢC //////////////////////////////
+/// Ai cũm có thể xem các bài đăng
 router.get("/jobs", getAllJobPostings);
-// ai cum cos the xem company
+// ai cum có  thể xem company
 router.get("/companys", getAllCompany);
 // route xem chi tiết cong ty
 router.get("/companys/:companyId", getCompanyById);
 // route xem review cong ty
 router.get("/reviews/:companyId", getCompanyReviews);
-// chỉ có nhà tuyển dụng xem được thôi
+////////////////////////////// XEM BÀI ĐĂNG //////////////////////////////////
+/// Lấy thông tin bài đăng của mình
 router.get("/employer/jobs", protectEmployer, getEmployerJobPostings);
-// Route đăng bài tuyển dụng
+/// Route đăng bài tuyển dụng
 router.post("/job-postings", protectEmployer, createJobPosting);
-// xem ai đã ứng tuyển trong cái bài đăng đó
+// Xem ai đã ứng tuyển trong cái bài đăng đó
 router.get("/job/:jobId/applicants", protectEmployer, getApplicantsForJob);
-// xem thong tin cua developer
+// Lấy job theo công ty
+router.get("/jobs/company/:companyId", getJobsByCompany);
+/// Lay job theo id
+router.get("/jobs/jobdetail/:id", getJobPostingById);
+router.get("/jobs/:id", getJobPostingByIdFix);
+/// Tìm kiếm job
+router.get("/searchJob", searchJob);
+//////////////////////////////// THÔNG TIN ////////////////////////////////////
+/// xem thong tin cua developer
 router.get("/me", protectEmployer, getMyInfo);
-// cập nhât công ty
+/// cập nhât công ty
 router.put(
   "/my-company",
   protectEmployer,
   uploadAvatar.single("avatarUrl"),
   updateMyCompany
 );
+///////////////////////////////// COMPANY ////////////////////////////////////////
 // Filter tên công ty theo tên
 router.get("/", getCompaniesByName);
-// Lay job theo công ty
-router.get("/jobs/company/:companyId", getJobsByCompany);
-// Lay job theo id
-router.get("/jobs/jobdetail/:id", getJobPostingById);
-router.get("/jobs/:id", getJobPostingByIdFix);
-router.get("/searchJob", searchJob);
+
+//////////////////////////////////////////////// CRUD bai đăng//////////////////////////////////////////////////
+/// Xoa bài đăng
+router.delete("/jobs/:id", protectEmployer, deleteJobPosting);
+/// Ẩn và hiện bài đăng
+router.patch("/jobs/:id/reactivate", protectEmployer, reactivateJobPosting);
+router.patch("/jobs/:id/deactivate", protectEmployer, deactivateJobPosting);
+// chỉnh sửa bài đăng
+router.put("/jobs/:id", protectEmployer, updateJobPosting);
+// lấy thông tin bài dằn theo id
+router.get("/jobs/detail/:id", getJobPostingByIdByDeveloper);
+
 module.exports = router;

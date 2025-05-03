@@ -6,6 +6,8 @@ const Candidate = require("../models/Candidate");
 const otpGenerator = require("otp-generator");
 const sendEmail = require("../utils/email");
 const authController = {
+  ////////////////////////// AUTH /////////////////////////
+  /// Đăng kí developer
   registerEmployer: async (req, res) => {
     try {
       const {
@@ -29,11 +31,9 @@ const authController = {
       // Kiểm tra taxCode đã tồn tại chưa
       const existingCompany = await Company.findOne({ taxCode });
       if (existingCompany) {
-        return res
-          .status(400)
-          .json({
-            message: "Mã số thuế đã tồn tại. Không thể đăng ký công ty.",
-          });
+        return res.status(400).json({
+          message: "Mã số thuế đã tồn tại. Không thể đăng ký công ty.",
+        });
       }
 
       // Tạo công ty mới nếu chưa tồn tại
@@ -68,7 +68,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server." });
     }
   },
-
+  /// Đăng nhập developer
   loginEmployer: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -116,7 +116,8 @@ const authController = {
       res.status(500).json({ message: "Lỗi server." });
     }
   },
-  // === CANDIDATE ===
+  ////////////////////////////CANDIDATE////////////////////
+  /// Đăng kí ứng viên
   registerCandidate: async (req, res) => {
     const { fullName, email, password } = req.body;
 
@@ -200,7 +201,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server trong quá trình đăng ký." });
     }
   },
-
+  /// Gửi mã OTP và resend lại mã OTP
   resendOtp: async (req, res) => {
     const { email } = req.body;
     if (!email)
@@ -260,7 +261,6 @@ const authController = {
       res.status(500).json({ message: "Lỗi server khi gửi lại OTP." });
     }
   },
-
   verifyOtp: async (req, res) => {
     const { email, otp } = req.body;
 
@@ -305,6 +305,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server khi xác thực OTP." });
     }
   },
+  /// Đăng nhập ứng viên
   loginCandidate: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -368,60 +369,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server" });
     }
   },
-  // loginCandidate: async (req, res) => {
-  //   try {
-  //     const { email, password } = req.body;
-
-  //     // Kiểm tra email và mật khẩu đã được nhập chưa
-  //     if (!email || !password) {
-  //       return res
-  //         .status(400)
-  //         .json({ message: "Vui lòng nhập email và mật khẩu." });
-  //     }
-
-  //     const normalizedEmail = email.toLowerCase().trim();
-
-  //     // Tìm candidate trong database và lấy password để so sánh
-  //     const candidate = await Candidate.findOne({
-  //       email: normalizedEmail,
-  //     }).select("+password"); // Lấy cả password
-
-  //     if (!candidate) {
-  //       return res
-  //         .status(401)
-  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
-  //     }
-
-  //     // Kiểm tra mật khẩu có khớp không
-  //     const isMatch = await bcrypt.compare(password, candidate.password);
-  //     if (!isMatch) {
-  //       return res
-  //         .status(401)
-  //         .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
-  //     }
-
-  //     // Tạo token nếu mọi thứ OK
-  //     const token = jwt.sign(
-  //       { id: candidate._id, email: candidate.email, role: "candidate" },
-  //       process.env.SECRET_KEY,
-  //       { expiresIn: "7d" }
-  //     );
-
-  //     candidate.password = undefined;
-  //     res.status(200).json({
-  //       message: "Đăng nhập thành công!",
-  //       token,
-  //       candidate: {
-  //         id: candidate._id,
-  //         fullName: candidate.fullName,
-  //         email: candidate.email,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Lỗi đăng nhập Candidate:", error);
-  //     res.status(500).json({ message: "Lỗi server" });
-  //   }
-  // },
+  /// Đắng xuất ứng viên
   logoutCandidate: async (req, res) => {
     try {
       res.clearCookie("token", {

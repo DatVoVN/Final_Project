@@ -62,7 +62,6 @@ const jobPostingSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // Kỹ năng yêu cầu
     languages: {
       type: [String],
       default: [],
@@ -71,7 +70,6 @@ const jobPostingSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    // Ứng viên đã nộp
     applicants: [
       {
         candidate: {
