@@ -8,9 +8,10 @@ const axios = require("axios");
 
 exports.createBlog = async (req, res) => {
   try {
-    const { title, content, excerpt, imageUrl } = req.body;
+    const { title, content, excerpt } = req.body;
     const slug = slugify(title, { lower: true, strict: true });
 
+    // Kiểm tra blog đã tồn tại với slug
     const existing = await Blog.findOne({ slug });
     if (existing) {
       return res
@@ -18,41 +19,24 @@ exports.createBlog = async (req, res) => {
         .json({ message: "Blog với tiêu đề này đã tồn tại." });
     }
 
+    // Xử lý ảnh (chỉ upload từ máy tính)
     let savedImagePath = "";
-
-    // Nếu có imageUrl, thì tải ảnh về server
-    if (imageUrl) {
-      const imageExt = path.extname(imageUrl).split("?")[0];
-      const imageName = `${slug}-${Date.now()}${imageExt}`;
-      const imagePath = path.join(__dirname, "../uploads", imageName);
-
-      const response = await axios({
-        url: imageUrl,
-        method: "GET",
-        responseType: "stream",
-      });
-
-      const writer = fs.createWriteStream(imagePath);
-      response.data.pipe(writer);
-
-      // Đợi file được ghi xong
-      await new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
-      });
-
-      savedImagePath = `/uploads/${imageName}`;
+    if (req.file) {
+      savedImagePath = `/uploads/blogs/${req.file.filename}`; // Lưu đường dẫn ảnh upload từ máy tính
+    } else {
+      return res.status(400).json({ message: "Ảnh là bắt buộc." }); // Nếu không có ảnh
     }
 
+    // Tạo mới blog
     const blog = new Blog({
       title,
       content,
       excerpt,
-      imageUrl: savedImagePath, // Lưu đường dẫn ảnh local
+      imageUrl: savedImagePath,
       slug,
     });
 
-    await blog.save();
+    await blog.save(); // Lưu blog vào database
 
     res.status(201).json({ message: "Tạo blog thành công", data: blog });
   } catch (error) {
@@ -65,21 +49,53 @@ exports.createBlog = async (req, res) => {
 exports.updateBlog = async (req, res) => {
   try {
     const blogId = req.params.id;
-    const { title, content, excerpt, imageUrl } = req.body;
+    const { title, content, excerpt, slug } = req.body;
+    const file = req.file;
 
-    const slug = slugify(title, { lower: true, strict: true });
+    console.log("ID:", blogId);
+    console.log("Body:", req.body);
+    console.log("File:", file);
 
-    const blog = await Blog.findByIdAndUpdate(
-      blogId,
-      { title, content, excerpt, imageUrl, slug },
-      { new: true }
-    );
+    if (!title || !content || !excerpt) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc" });
+    }
 
-    if (!blog) {
+    const slugified = slug || slugify(title, { lower: true, strict: true });
+
+    const existingBlog = await Blog.findById(blogId);
+    if (!existingBlog) {
       return res.status(404).json({ message: "Không tìm thấy blog" });
     }
 
-    res.status(200).json({ message: "Cập nhật blog thành công", data: blog });
+    let updatedImageUrl = existingBlog.imageUrl;
+
+    if (file) {
+      const oldImagePath = path.join(
+        __dirname,
+        "../",
+        existingBlog.imageUrl || ""
+      );
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+      updatedImageUrl = `/uploads/blogs/${file.filename}`;
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      {
+        title,
+        content,
+        excerpt,
+        slug: slugified,
+        imageUrl: updatedImageUrl,
+      },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "Cập nhật blog thành công", data: updatedBlog });
   } catch (error) {
     console.error("Lỗi khi cập nhật blog:", error);
     res.status(500).json({ message: "Lỗi server", error: error.message });

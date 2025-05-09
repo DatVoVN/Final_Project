@@ -13,6 +13,11 @@
       "icon": "ShoppingCart",
       "href": "/accountDevelopers"
     },
+    {
+      "name": "Blog",
+      "icon": "ShoppingCart",
+      "href": "/blog"
+    },
     { "name": "Settings", "icon": "Settings", "href": "" },
     { "name": "Logout", "icon": "Settings", "href": "/logout" }
   ]

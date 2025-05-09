@@ -455,45 +455,59 @@ const updateMyInfo = async (req, res) => {
 /////////////////////////// AVATAR //////////////////////////////
 const updateMyAvatar = async (req, res) => {
   try {
-    const userId = req.userId;
-    const candidate = await Candidate.findOne({ userId });
+    const userId = req.user.id || req.userId; // lấy từ verifyToken
+    console.log("➡️ userId từ token:", userId);
 
+    // Tìm ứng viên bằng _id
+    const candidate = await Candidate.findById(userId);
     if (!candidate) {
-      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      console.log("❌ Không tìm thấy candidate với userId:", userId);
+      if (req.file?.path && fs.existsSync(req.file.path)) {
         deleteFileIfExists(req.file.path);
       }
       return res
         .status(404)
         .json({ message: "Không tìm thấy thông tin người dùng." });
     }
+
     if (!req.file) {
       return res
         .status(400)
         .json({ message: "Vui lòng chọn file ảnh đại diện." });
     }
+
+    // Xóa avatar cũ nếu có
     if (candidate.avatarUrl) {
-      deleteFileIfExists(candidate.avatarUrl);
+      const oldAvatarPath = path.join(
+        __dirname,
+        "..",
+        candidate.avatarUrl.replace(/^\//, "")
+      );
+      console.log("🧹 Xoá avatar cũ:", oldAvatarPath);
+      deleteFileIfExists(oldAvatarPath);
     }
+
+    // Gán avatar mới
     const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
     candidate.avatarUrl = newAvatarUrl;
     candidate.updatedAt = Date.now();
+
+    // Lưu lại
     await candidate.save();
+
+    console.log("✅ Cập nhật avatar thành công.");
 
     res.status(200).json({
       message: "Cập nhật ảnh đại diện thành công.",
       avatarUrl: newAvatarUrl,
     });
   } catch (err) {
-    console.error("Error updating avatar:", err);
-    // Xóa file vừa upload nếu có lỗi xảy ra trong quá trình xử lý DB
-    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-      console.log(
-        `Attempting to delete uploaded avatar file due to error: ${req.file.path}`
-      );
-      // Chuyển đổi path tương đối nếu cần trước khi xóa
-      deleteFileIfExists(req.file.path); // Thử xóa bằng helper
+    console.error("❌ Lỗi khi cập nhật avatar:", err);
+
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      deleteFileIfExists(req.file.path);
     }
-    // Xử lý lỗi Validation (ít gặp với upload file trừ khi có hook phức tạp)
+
     if (err.name === "ValidationError") {
       const errors = Object.values(err.errors).map((el) => ({
         field: el.path,
@@ -501,13 +515,71 @@ const updateMyAvatar = async (req, res) => {
       }));
       return res
         .status(400)
-        .json({ message: "Lỗi validation khi lưu avatar.", errors: errors });
+        .json({ message: "Lỗi validation khi lưu avatar.", errors });
     }
-    res
-      .status(500)
-      .json({ message: "Lỗi server khi cập nhật avatar.", error: err.message });
+
+    res.status(500).json({
+      message: "Lỗi server khi cập nhật avatar.",
+      error: err.message,
+    });
   }
 };
+
+const uploadAvatar = async (req, res) => {
+  try {
+    const userId = req.params.id; // Lấy userId từ route params
+    const candidate = await Candidate.findById(userId); // Tìm ứng viên theo userId
+
+    if (!candidate) {
+      if (req.file?.path && fs.existsSync(req.file.path)) {
+        deleteFileIfExists(req.file.path); // Xóa file nếu không tìm thấy ứng viên
+      }
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng chọn file ảnh đại diện." });
+    }
+
+    // Xóa avatar cũ nếu có
+    if (candidate.avatarUrl) {
+      const oldAvatarPath = path.join(
+        __dirname,
+        "..",
+        candidate.avatarUrl.replace(/^\//, "")
+      );
+      deleteFileIfExists(oldAvatarPath);
+    }
+
+    // Gán avatar mới
+    const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
+    candidate.avatarUrl = newAvatarUrl;
+    candidate.updatedAt = Date.now();
+
+    // Lưu candidate vào DB
+    await candidate.save();
+
+    res.status(200).json({
+      message: "Cập nhật ảnh đại diện thành công.",
+      avatarUrl: newAvatarUrl,
+    });
+  } catch (err) {
+    console.error("❌ Error updating avatar:", err);
+
+    // Nếu upload thành công nhưng save thất bại → xóa ảnh
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      deleteFileIfExists(req.file.path);
+    }
+
+    res.status(500).json({
+      message: "Lỗi server khi cập nhật avatar.",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   uploadCV,
   getCandidateInfoByID,
@@ -522,4 +594,5 @@ module.exports = {
   getCompanyWithReviews,
   updateReview,
   checkAppliedStatus,
+  uploadAvatar,
 };

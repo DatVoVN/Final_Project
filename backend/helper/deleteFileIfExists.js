@@ -1,19 +1,21 @@
 const fs = require("fs");
+const path = require("path");
 
 /**
- * Xoá file nếu tồn tại.
- * @param {string} filePath - Đường dẫn tuyệt đối đến file cần xoá.
+ * Xóa file nếu tồn tại.
+ * @param {string} filePath - Đường dẫn tuyệt đối đến file cần xóa.
  */
 const deleteFileIfExists = (filePath) => {
   try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`Đã xoá file: ${filePath}`);
+    const absolutePath = path.resolve(filePath); // đảm bảo là đường dẫn tuyệt đối
+    if (fs.existsSync(absolutePath)) {
+      fs.unlinkSync(absolutePath);
+      console.log(`✅ Đã xóa file: ${absolutePath}`);
     } else {
-      console.log(`File không tồn tại: ${filePath}`);
+      console.warn(`⚠️ File không tồn tại: ${absolutePath}`);
     }
   } catch (err) {
-    console.error("Lỗi khi xoá file:", err);
+    console.error("❌ Lỗi khi xóa file:", err);
   }
 };
 
