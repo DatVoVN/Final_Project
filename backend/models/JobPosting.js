@@ -51,7 +51,12 @@ const jobPostingSchema = new mongoose.Schema(
       enum: ["Intern", "Fresher", "Junior", "Mid", "Senior", "Lead"],
       required: true,
     },
-
+    vacancies: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1,
+    },
     locationType: {
       type: String,
       enum: ["Onsite", "Hybrid", "Remote"],
@@ -79,6 +84,15 @@ const jobPostingSchema = new mongoose.Schema(
         appliedAt: {
           type: Date,
           default: Date.now,
+        },
+        status: {
+          type: String,
+          enum: ["pending", "approved", "rejected"],
+          default: "pending",
+        },
+        note: {
+          type: String,
+          default: "",
         },
       },
     ],

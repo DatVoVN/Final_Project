@@ -52,18 +52,47 @@ exports.loginAdmin = async (req, res) => {
 /// Lấy xam danh sách đăng kí nhà tuyển dụng
 exports.getPendingEmployers = async (req, res) => {
   try {
-    const pendingEmployers = await User.find({
-      role: "employer",
-      isActive: false,
-      isRejected: false,
-    }).populate("company"); // Populate thông tin công ty
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json(pendingEmployers);
+    const [total, pendingEmployers] = await Promise.all([
+      User.countDocuments({
+        role: "employer",
+        isActive: false,
+        isRejected: false,
+      }),
+      User.find({
+        role: "employer",
+        isActive: false,
+        isRejected: false,
+      })
+        .populate("company") // Lấy thông tin công ty liên quan
+        .skip(skip)
+        .limit(limit),
+    ]);
+    const employersWithCompanyDetails = pendingEmployers.map((user) => {
+      const companyName = user.company ? user.company.name : null;
+      const taxCode = user.company ? user.company.taxCode : null;
+      return {
+        ...user.toObject(),
+        companyName,
+        taxCode,
+      };
+    });
+
+    res.status(200).json({
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+      items: employersWithCompanyDetails,
+    });
   } catch (error) {
     console.error("Lỗi lấy danh sách:", error);
     res.status(500).json({ message: "Lỗi server." });
   }
 };
+
 /// Chấp nhận đăng kí
 exports.approveEmployer = async (req, res) => {
   try {
@@ -99,20 +128,28 @@ exports.approveEmployer = async (req, res) => {
 exports.rejectEmployer = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id).populate("company");
 
     if (!user || user.role !== "employer") {
       return res.status(404).json({ message: "Không tìm thấy người dùng." });
     }
+    if (user.company) {
+      const otherEmployers = await User.countDocuments({
+        company: user.company._id,
+      });
+      if (otherEmployers === 1) {
+        await Company.findByIdAndDelete(user.company._id);
+      }
+    }
 
-    // Gửi email trước khi xóa
+    // Gửi email trước khi xóa user
     await sendEmail({
       email: user.email,
       subject: "Tài khoản của bạn đã bị từ chối",
       message: `Xin chào ${user.fullName}, rất tiếc, tài khoản của bạn đã bị từ chối.`,
     });
 
-    // Xoá user
+    // Xóa user
     await User.findByIdAndDelete(id);
 
     res
@@ -183,7 +220,9 @@ exports.deleteEmployerByAdmin = async (req, res) => {
 /// Xem tất cả developer hiện có
 exports.getAllEmployers = async (req, res) => {
   try {
-    const employers = await User.find({ role: "employer" }).select("-password");
+    const employers = await User.find({ role: "employer" })
+      .select("-password")
+      .populate("company");
 
     if (!employers.length) {
       return res
@@ -246,5 +285,40 @@ exports.deleteCandidateByAdmin = async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi xóa ứng viên:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi xóa ứng viên." });
+  }
+};
+/// Xem tất cả job hiện có
+
+exports.getAllJob = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const jobPostings = await JobPosting.find({})
+      .skip(skip)
+      .limit(limit)
+      .select("-password")
+      .populate("company")
+      .populate("employer");
+
+    if (!jobPostings.length) {
+      return res.status(404).json({ message: "Không tìm thấy công việc nào." });
+    }
+    const totalJobs = await JobPosting.countDocuments({});
+    const totalPages = Math.ceil(totalJobs / limit);
+
+    res.status(200).json({
+      message: "Lấy danh sách công việc thành công.",
+      jobPostings: jobPostings,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalJobs: totalJobs,
+      },
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách công việc:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
   }
 };

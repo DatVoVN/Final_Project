@@ -41,4 +41,5 @@ router.delete(
   protectAdmin,
   adminController.deleteCandidateByAdmin
 );
+router.get("/jobs", protectAdmin, adminController.getAllJob);
 module.exports = router;

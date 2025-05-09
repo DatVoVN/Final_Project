@@ -1,0 +1,19 @@
+{
+  "sidebarItems": [
+    { "name": "Dashboard", "icon": "House", "href": "/" },
+    { "name": "Account", "icon": "ShoppingBag", "href": "/account" },
+    { "name": "Job", "icon": "Users", "href": "/job" },
+    {
+      "name": "Candidates",
+      "icon": "DollarSign",
+      "href": "/accountCandidates"
+    },
+    {
+      "name": "Developers",
+      "icon": "ShoppingCart",
+      "href": "/accountDevelopers"
+    },
+    { "name": "Settings", "icon": "Settings", "href": "" },
+    { "name": "Logout", "icon": "Settings", "href": "/logout" }
+  ]
+}

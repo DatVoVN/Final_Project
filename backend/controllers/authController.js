@@ -51,7 +51,7 @@ const authController = {
         password,
         fullName,
         phoneNumber,
-        company: company._id,
+        company: company._id, // Liên kết người dùng với công ty vừa tạo
         role: "employer",
         isActive: false,
         isRejected: false,
@@ -68,6 +68,7 @@ const authController = {
       res.status(500).json({ message: "Lỗi server." });
     }
   },
+
   /// Đăng nhập developer
   loginEmployer: async (req, res) => {
     try {

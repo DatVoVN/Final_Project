@@ -21,14 +21,18 @@ const {
   deactivateJobPosting,
   updateJobPosting,
   getJobPostingByIdByDeveloper,
+  searchCompany,
+  handleApplicantDecision,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
 //////////////////////// CÁI GÌ CŨNG XEM ĐƯỢC //////////////////////////////
 /// Ai cũm có thể xem các bài đăng
 router.get("/jobs", getAllJobPostings);
-// ai cum có  thể xem company
+// ai cum có thể xem company
 router.get("/companys", getAllCompany);
+// ai cum tim kiem cong ty theo ten
+router.get("/companys/search", searchCompany);
 // route xem chi tiết cong ty
 router.get("/companys/:companyId", getCompanyById);
 // route xem review cong ty
@@ -71,5 +75,10 @@ router.patch("/jobs/:id/deactivate", protectEmployer, deactivateJobPosting);
 router.put("/jobs/:id", protectEmployer, updateJobPosting);
 // lấy thông tin bài dằn theo id
 router.get("/jobs/detail/:id", getJobPostingByIdByDeveloper);
-
+/// Chap nhạn CV hay loai CV
+router.patch(
+  "/jobs/:jobId/applicants/:applicantId",
+  protectEmployer,
+  handleApplicantDecision
+);
 module.exports = router;

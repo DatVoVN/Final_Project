@@ -11,4 +11,6 @@ router.post("/", protectAdmin, blogController.createBlog);
 router.put("/:id", protectAdmin, blogController.updateBlog);
 // Xóa blog
 router.delete("/:id", protectAdmin, blogController.deleteBlog);
+// lấy blog theo id
+router.get("/:id", blogController.getBlogById);
 module.exports = router;

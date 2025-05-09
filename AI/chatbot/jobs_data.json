@@ -1,0 +1,192 @@
+[
+  {
+    "company_id": "C001",
+    "company_name": "ABC Solutions",
+    "industry": "Công nghệ thông tin / Phát triển phần mềm",
+    "company_description": "ABC Solutions là công ty công nghệ năng động, chuyên cung cấp các giải pháp phần mềm tùy chỉnh và sản phẩm công nghệ tiên tiến.",
+    "website": "https://www.abcsolutions-example.com",
+    "locations": ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng"],
+    "culture": "Môi trường làm việc mở, hợp tác, khuyến khích học hỏi và sáng tạo. Đề cao sự phát triển cá nhân.",
+    "benefits_summary": "Lương cạnh tranh, Thưởng tháng 13 & hiệu suất, Bảo hiểm sức khỏe PVI, 15 ngày phép, Đào tạo, Du lịch...",
+    "jobs": [
+      {
+        "job_id": "J001",
+        "title": "Software Engineer (Python/Django)",
+        "description": "Phát triển và bảo trì các sản phẩm web cốt lõi sử dụng Python và Django.",
+        "requirements": [
+          "2+ năm kinh nghiệm Python, Django.",
+          "Hiểu biết về RESTful APIs, Celery.",
+          "Kinh nghiệm với Git, Docker.",
+          "Tiếng Anh đọc hiểu tốt."
+        ],
+        "location": "Hà Nội",
+        "salary_range": "18-35 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J002",
+        "title": "Frontend Developer (ReactJS/TypeScript)",
+        "description": "Xây dựng giao diện người dùng hiện đại sử dụng ReactJS và TypeScript.",
+        "requirements": [
+          "2+ năm kinh nghiệm ReactJS.",
+          "Thành thạo HTML, CSS, JavaScript, TypeScript.",
+          "Kinh nghiệm với Redux Toolkit/React Query.",
+          "Tư duy UI/UX tốt."
+        ],
+        "location": "TP. Hồ Chí Minh",
+        "salary_range": "15-30 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J006",
+        "title": "Chuyên viên Tuyển dụng (IT Recruiter)",
+        "description": "Tìm kiếm, thu hút và tuyển dụng các vị trí nhân sự thuộc khối Công nghệ thông tin.",
+        "requirements": [
+          "1+ năm kinh nghiệm tuyển dụng IT.",
+          "Am hiểu thị trường lao động IT.",
+          "Kỹ năng sourcing, phỏng vấn tốt.",
+          "Giao tiếp tốt, chủ động."
+        ],
+        "location": "Hà Nội",
+        "salary_range": "12-20 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J010",
+        "title": "Thực tập sinh Phát triển Phần mềm (Intern)",
+        "description": "Cơ hội học hỏi và tham gia vào các dự án thực tế dưới sự hướng dẫn.",
+        "requirements": [
+          "Sinh viên năm cuối/mới tốt nghiệp CNTT.",
+          "Nền tảng lập trình (Python/Java/JS).",
+          "Ham học hỏi, có trách nhiệm.",
+          "Thực tập Full-time > 3 tháng."
+        ],
+        "location": "Hà Nội",
+        "salary_range": "Hỗ trợ thực tập (3-5 triệu VND)",
+        "type": "Internship (Full-time)"
+      }
+    ]
+  },
+  {
+    "company_id": "C002",
+    "company_name": "MegaMart Online",
+    "industry": "Thương mại điện tử / Bán lẻ",
+    "company_description": "MegaMart Online là nền tảng thương mại điện tử hàng đầu với đa dạng sản phẩm và dịch vụ giao hàng nhanh chóng.",
+    "website": "https://www.megamart-example.vn",
+    "locations": ["TP. Hồ Chí Minh", "Bình Dương", "Đà Nẵng"],
+    "culture": "Môi trường làm việc tốc độ nhanh, định hướng kết quả. Chú trọng trải nghiệm khách hàng và hiệu quả vận hành.",
+    "benefits_summary": "Lương thưởng theo hiệu quả, Bảo hiểm đầy đủ, Giảm giá mua hàng nội bộ, Team building, Cơ hội thăng tiến...",
+    "jobs": [
+      {
+        "job_id": "J005",
+        "title": "Digital Marketing Specialist",
+        "description": "Quản lý và tối ưu các chiến dịch quảng cáo trả phí (Google Ads, Facebook Ads), thực hiện SEO.",
+        "requirements": [
+          "2+ năm kinh nghiệm Digital Marketing.",
+          "Kinh nghiệm chạy Google Ads, Facebook Ads.",
+          "Hiểu biết sâu về SEO, SEM, Social Media.",
+          "Thành thạo Google Analytics."
+        ],
+        "location": "TP. Hồ Chí Minh",
+        "salary_range": "15-25 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J008",
+        "title": "Data Analyst",
+        "description": "Phân tích dữ liệu kinh doanh và khách hàng để đưa ra insights, xây dựng báo cáo.",
+        "requirements": [
+          "1+ năm kinh nghiệm Data Analyst.",
+          "Thành thạo SQL.",
+          "Kinh nghiệm Python (Pandas) hoặc R.",
+          "Kinh nghiệm Tableau/Power BI."
+        ],
+        "location": "TP. Hồ Chí Minh",
+        "salary_range": "16-30 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J009",
+        "title": "Nhân viên Hỗ trợ Khách hàng",
+        "description": "Tiếp nhận và giải đáp thắc mắc, yêu cầu hỗ trợ của khách hàng qua điện thoại, email, chat.",
+        "requirements": [
+          "Giọng nói rõ ràng, kỹ năng giao tiếp tốt.",
+          "Kiên nhẫn, nhiệt tình, xử lý tình huống tốt.",
+          "Ưu tiên có kinh nghiệm CSKH.",
+          "Sử dụng máy tính văn phòng."
+        ],
+        "location": "TP. Hồ Chí Minh",
+        "salary_range": "7-10 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J011",
+        "title": "Quản lý Kho hàng (Warehouse Supervisor)",
+        "description": "Giám sát hoạt động nhập, xuất, tồn kho hàng hóa. Quản lý đội ngũ nhân viên kho.",
+        "requirements": [
+          "Ít nhất 2 năm kinh nghiệm quản lý kho, ưu tiên ngành bán lẻ/TMĐT.",
+          "Kỹ năng quản lý, sắp xếp công việc.",
+          "Hiểu biết về quy trình kho vận.",
+          "Có khả năng làm việc theo ca."
+        ],
+        "location": "Bình Dương",
+        "salary_range": "12-18 triệu VND",
+        "type": "Full-time"
+      }
+    ]
+  },
+  {
+    "company_id": "C003",
+    "company_name": "Pixel Perfect Creatives",
+    "industry": "Thiết kế / Quảng cáo / Marketing",
+    "company_description": "Agency sáng tạo chuyên cung cấp các dịch vụ thiết kế thương hiệu, UI/UX, và các chiến dịch marketing độc đáo.",
+    "website": "https://www.pixelperfect-example.com",
+    "locations": ["Đà Nẵng", "Remote"],
+    "culture": "Đề cao sự sáng tạo, tự do và tinh thần nghệ thuật. Môi trường làm việc linh hoạt, tôn trọng ý tưởng cá nhân.",
+    "benefits_summary": "Lương hấp dẫn, Thưởng dự án, Chế độ làm việc linh hoạt/remote, Bảo hiểm, Workshop sáng tạo...",
+    "jobs": [
+      {
+        "job_id": "J007",
+        "title": "UI/UX Designer (Mid-level)",
+        "description": "Thiết kế giao diện và trải nghiệm người dùng cho website và ứng dụng di động của khách hàng.",
+        "requirements": [
+          "2+ năm kinh nghiệm UI/UX Designer.",
+          "Thành thạo Figma/Sketch/Adobe XD.",
+          "Kiến thức vững về nguyên tắc thiết kế.",
+          "Portfolio chất lượng là bắt buộc."
+        ],
+        "location": "Đà Nẵng",
+        "salary_range": "16-30 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J004",
+        "title": "Content Marketing Executive",
+        "description": "Sản xuất nội dung sáng tạo (bài viết, social posts, scripts) cho các chiến dịch marketing.",
+        "requirements": [
+          "1+ năm kinh nghiệm content marketing.",
+          "Kỹ năng viết tiếng Việt/Anh xuất sắc.",
+          "Hiểu biết về SEO content.",
+          "Portfolio bài viết/dự án."
+        ],
+        "location": "Remote",
+        "salary_range": "12-20 triệu VND",
+        "type": "Full-time"
+      },
+      {
+        "job_id": "J012",
+        "title": "Graphic Designer",
+        "description": "Thiết kế các ấn phẩm marketing (banner, poster, infographic...), bộ nhận diện thương hiệu.",
+        "requirements": [
+          "Ít nhất 1 năm kinh nghiệm Graphic Design.",
+          "Thành thạo Adobe Illustrator, Photoshop, InDesign.",
+          "Có tư duy thẩm mỹ tốt, sáng tạo.",
+          "Portfolio các sản phẩm thiết kế."
+        ],
+        "location": "Đà Nẵng",
+        "salary_range": "10-18 triệu VND",
+        "type": "Full-time"
+      }
+    ]
+  }
+]
