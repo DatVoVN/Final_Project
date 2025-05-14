@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   const login = (token) => {
     Cookies.set("adminToken", token, { expires: 7 });
     setIsAuthenticated(true);
-    router.replace("/overview"); // replace để không quay lại login
+    router.replace("/overview");
   };
 
   const logout = () => {

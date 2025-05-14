@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { Eye, Trash } from "lucide-react";
+import { Eye, EyeClosed, Trash } from "lucide-react";
 
-const JobTable = ({ jobPostings, onViewCompany, onDelete }) => {
+const JobTable = ({ jobPostings, onViewCompany, onDelete, onViewEmployer }) => {
   if (!jobPostings || jobPostings.length === 0) {
     return (
       <p className="text-center text-gray-400 py-8">
@@ -26,8 +26,8 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete }) => {
           <tr>
             <th className="px-6 py-3">Tiêu đề</th>
             <th className="px-6 py-3">Mô tả</th>
-            <th className="px-6 py-3">Yêu cầu</th>
-            <th className="px-6 py-3">Lương</th>
+            <th className="px-6 py-3">Công ty</th>
+            <th className="px-6 py-3">Email Nhà tuyển dụng</th>
             <th className="px-6 py-3">Ngày đăng</th>
             <th className="px-6 py-3 text-center">Hành động</th>
           </tr>
@@ -42,8 +42,8 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete }) => {
                 {job.title}
               </td>
               <td className="px-6 py-4">{job.description}</td>
-              <td className="px-6 py-4">{job.requirements}</td>
-              <td className="px-6 py-4">{job.salary.toLocaleString()} VND</td>
+              <td className="px-6 py-4">{job.company.name}</td>
+              <td className="px-6 py-4">{job.employer.email}</td>
               <td className="px-6 py-4">{formatDate(job.postedDate)}</td>
               <td className="px-6 py-4 text-center space-x-2">
                 <button
@@ -52,6 +52,13 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete }) => {
                   title="Xem công ty"
                 >
                   <Eye size={18} />
+                </button>
+                <button
+                  onClick={() => onViewEmployer && onViewEmployer(job)}
+                  className="p-1.5 rounded-full text-blue-400 hover:bg-blue-700 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Xem thông tin nhà tuyển dụng"
+                >
+                  <EyeClosed size={18} />
                 </button>
                 <button
                   onClick={() => onDelete && onDelete(job._id)}

@@ -90,6 +90,7 @@ const authController = {
           .status(403)
           .json({ message: "Tài khoản chưa được admin duyệt." });
       }
+      console.log("Stored password hash:", user.password);
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res
@@ -382,6 +383,179 @@ const authController = {
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
       res.status(500).json({ message: "Lỗi server khi đăng xuất." });
+    }
+  },
+  /// Quên mật khẩu ứng viên
+  forgotPassword: async (req, res) => {
+    const { email } = req.body;
+    try {
+      const candidate = await Candidate.findOne({ email });
+      if (!candidate) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy tài khoản ứng viên." });
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+
+      candidate.otp = otp;
+      candidate.otpExpires = otpExpires;
+      await candidate.save();
+
+      await sendEmail({
+        email: candidate.email,
+        subject: "OTP khôi phục mật khẩu",
+        message: `Mã OTP của bạn là: ${otp}. Mã sẽ hết hạn sau 10 phút.`,
+      });
+
+      res.status(200).json({ message: "Mã OTP đã được gửi qua email." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Đã xảy ra lỗi." });
+    }
+  },
+  /// Quên mật khẩu rồi thì cập nhật lại mật khẩu
+  resetPassword: async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    try {
+      const candidate = await Candidate.findOne({ email });
+
+      if (
+        !candidate ||
+        candidate.otp !== otp ||
+        candidate.otpExpires < Date.now()
+      ) {
+        return res
+          .status(400)
+          .json({ message: "OTP không hợp lệ hoặc đã hết hạn." });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      candidate.password = hashedPassword;
+      candidate.otp = undefined;
+      candidate.otpExpires = undefined;
+      await candidate.save();
+
+      res.status(200).json({ message: "Đặt lại mật khẩu thành công." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Đã xảy ra lỗi." });
+    }
+  },
+  /// Đổi mật khẩu khi mình đã đăng nhập
+  changePassword: async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const candidateId = req.user.id; // req.user được gán từ middleware xác thực token
+
+    try {
+      const candidate = await Candidate.findById(candidateId);
+      if (!candidate) {
+        return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, candidate.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Mật khẩu cũ không đúng." });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      candidate.password = hashed;
+      await candidate.save();
+
+      res.status(200).json({ message: "Đổi mật khẩu thành công." });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Lỗi máy chủ." });
+    }
+  },
+  forgotPasswordE: async (req, res) => {
+    const { email } = req.body;
+    try {
+      const employer = await User.findOne({ email });
+      if (!employer) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy tài khoản nhà tuyển dụng." });
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+
+      employer.otp = otp;
+      employer.otpExpires = otpExpires;
+      await employer.save();
+
+      await sendEmail({
+        email: employer.email,
+        subject: "OTP khôi phục mật khẩu",
+        message: `Mã OTP của bạn là: ${otp}. Mã sẽ hết hạn sau 10 phút.`,
+      });
+
+      res.status(200).json({ message: "Mã OTP đã được gửi qua email." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Đã xảy ra lỗi." });
+    }
+  },
+  /// Quên mật khẩu rồi thì cập nhật lại mật khẩu
+  resetPasswordE: async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    try {
+      const employer = await User.findOne({ email }).select("+password");
+
+      if (
+        !employer ||
+        employer.otp !== otp ||
+        employer.otpExpires < Date.now()
+      ) {
+        return res
+          .status(400)
+          .json({ message: "OTP không hợp lệ hoặc đã hết hạn." });
+      }
+
+      // KHÔNG cần hash ở đây nữa, chỉ cần gán password mới
+      employer.password = newPassword;
+
+      // Reset OTP fields
+      employer.otp = undefined;
+      employer.otpExpires = undefined;
+
+      await employer.save(); // ← Nó sẽ tự động hash ở pre("save")
+
+      res.status(200).json({ message: "Đặt lại mật khẩu thành công." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Đã xảy ra lỗi." });
+    }
+  },
+
+  /// Đổi mật khẩu khi mình đã đăng nhập
+  changePasswordE: async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const employerId = req.user.id;
+
+    try {
+      const employer = await User.findById(employerId);
+      if (!employer) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy nhà tuyển dụng." });
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, employer.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Mật khẩu cũ không đúng." });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      employer.password = hashed;
+      await employer.save();
+
+      res.status(200).json({ message: "Đổi mật khẩu thành công." });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Lỗi máy chủ." });
     }
   },
 };

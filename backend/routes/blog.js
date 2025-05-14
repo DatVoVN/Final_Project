@@ -7,6 +7,8 @@ const upload = require("../middleware/uploadBlog");
 ////////////////////////// BLOG ////////////////////////////////
 /// lấy tất cả blog
 router.get("/", blogController.getAllBlogs);
+/// lấy top 3 blog
+router.get("/top3", blogController.getTopBlogs);
 // Thêm blog
 router.post(
   "/",

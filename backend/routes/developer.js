@@ -23,6 +23,9 @@ const {
   getJobPostingByIdByDeveloper,
   searchCompany,
   handleApplicantDecision,
+  getAllApplicantsWithJobs,
+  getTop3CompaniesWithJobDetails,
+  getSuggestions,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
@@ -40,6 +43,8 @@ router.get("/reviews/:companyId", getCompanyReviews);
 ////////////////////////////// XEM BÀI ĐĂNG //////////////////////////////////
 /// Lấy thông tin bài đăng của mình
 router.get("/employer/jobs", protectEmployer, getEmployerJobPostings);
+/// Láy tona bo ung vien theo bài dang
+router.get("/applicants-with-jobs", protectEmployer, getAllApplicantsWithJobs);
 /// Route đăng bài tuyển dụng
 router.post("/job-postings", protectEmployer, createJobPosting);
 // Xem ai đã ứng tuyển trong cái bài đăng đó
@@ -51,6 +56,8 @@ router.get("/jobs/jobdetail/:id", getJobPostingById);
 router.get("/jobs/:id", getJobPostingByIdFix);
 /// Tìm kiếm job
 router.get("/searchJob", searchJob);
+// suggest
+router.get("/suggestions", getSuggestions);
 //////////////////////////////// THÔNG TIN ////////////////////////////////////
 /// xem thong tin cua developer
 router.get("/me", protectEmployer, getMyInfo);
@@ -64,7 +71,8 @@ router.put(
 ///////////////////////////////// COMPANY ////////////////////////////////////////
 // Filter tên công ty theo tên
 router.get("/", getCompaniesByName);
-
+// Lấy 3 công ty job nhiêu nhất
+router.get("/top3", getTop3CompaniesWithJobDetails);
 //////////////////////////////////////////////// CRUD bai đăng//////////////////////////////////////////////////
 /// Xoa bài đăng
 router.delete("/jobs/:id", protectEmployer, deleteJobPosting);

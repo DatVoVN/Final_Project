@@ -579,8 +579,341 @@ const uploadAvatar = async (req, res) => {
     });
   }
 };
+//////////////////// FAVORITES JOB////////////////////////////////
+const markJobAsInterested = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
 
+    const userId = req.userId;
+    const jobId = req.params.jobId;
+
+    const candidate = await Candidate.findById(userId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Không tìm thấy công việc." });
+    }
+
+    // Kiểm tra xem ứng viên đã yêu thích công việc này chưa
+    const alreadyInterested = job.likedByCandidates.some(
+      (entry) => entry.candidate.toString() === userId.toString()
+    );
+    if (alreadyInterested) {
+      return res
+        .status(400)
+        .json({ message: "Ứng viên đã quan tâm công việc này rồi." });
+    }
+
+    // Thêm công việc vào danh sách yêu thích của ứng viên
+    candidate.interestedJobs.push(jobId);
+    await candidate.save();
+
+    // Cập nhật trạng thái likedByCandidates của công việc
+    job.likedByCandidates.push({ candidate: candidate._id });
+    await job.save();
+
+    console.log(
+      `Ứng viên ${candidate.email} đã quan tâm công việc ${job.title}`
+    );
+
+    res.status(200).json({
+      message: "Đã thêm vào danh sách công việc quan tâm.",
+      likedJobs: candidate.interestedJobs,
+    });
+  } catch (err) {
+    console.error("Lỗi khi xử lý yêu cầu quan tâm công việc:", err);
+    res.status(500).json({
+      message:
+        "Đã xảy ra lỗi server khi thêm công việc vào danh sách quan tâm.",
+      error: err.message,
+    });
+  }
+};
+
+const unmarkJobAsInterested = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const jobId = req.params.jobId;
+
+    const candidate = await Candidate.findById(userId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const index = candidate.interestedJobs.indexOf(jobId);
+    if (index === -1) {
+      return res
+        .status(400)
+        .json({ message: "Ứng viên chưa quan tâm công việc này." });
+    }
+
+    // Gỡ jobId khỏi danh sách công việc yêu thích của ứng viên
+    candidate.interestedJobs.splice(index, 1);
+    await candidate.save();
+
+    // Cập nhật trường likedByCandidates của công việc
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Không tìm thấy công việc." });
+    }
+
+    // Loại bỏ ứng viên khỏi danh sách likedByCandidates
+    job.likedByCandidates = job.likedByCandidates.filter(
+      (entry) => entry.candidate.toString() !== userId.toString()
+    );
+    await job.save();
+
+    console.log(
+      `Ứng viên ${candidate.email} đã bỏ quan tâm công việc có ID: ${jobId}`
+    );
+    res
+      .status(200)
+      .json({ message: "Đã gỡ công việc khỏi danh sách quan tâm." });
+  } catch (err) {
+    console.error("Lỗi khi xử lý yêu cầu bỏ quan tâm công việc:", err);
+    res.status(500).json({
+      message: "Đã xảy ra lỗi server khi gỡ công việc khỏi danh sách quan tâm.",
+      error: err.message,
+    });
+  }
+};
+
+const getInterestedJobs = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+
+    const candidate = await Candidate.findById(userId).select("interestedJobs");
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const interestedJobIds = candidate.interestedJobs || [];
+
+    if (interestedJobIds.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Không có công việc yêu thích.", jobs: [] });
+    }
+    const jobs = await JobPosting.find({ _id: { $in: interestedJobIds } })
+      .populate({
+        path: "company",
+        select: "name avatarUrl city",
+      })
+      .lean();
+
+    const jobsWithStatus = jobs.map((job) => ({
+      ...job,
+      isInterested: true,
+    }));
+
+    res.status(200).json({
+      message: "Lấy danh sách công việc yêu thích thành công.",
+      jobs: jobsWithStatus,
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy công việc yêu thích:", err);
+    res.status(500).json({
+      message: "Lỗi server khi lấy công việc yêu thích.",
+      error: err.message,
+    });
+  }
+};
+const checkIfJobIsInterested = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const jobId = req.params.jobId;
+
+    const candidate = await Candidate.findById(userId).select("interestedJobs");
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const isInterested = candidate.interestedJobs.some(
+      (id) => id.toString() === jobId
+    );
+
+    res.status(200).json({
+      jobId,
+      isInterested,
+    });
+  } catch (err) {
+    console.error("Lỗi khi kiểm tra trạng thái yêu thích:", err);
+    res.status(500).json({
+      message: "Lỗi server khi kiểm tra trạng thái yêu thích.",
+      error: err.message,
+    });
+  }
+};
+////////////////// FAVORITES COMPANY ////////////////////////
+const addCompanyToFavorites = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const companyId = req.params.companyId;
+
+    const candidate = await Candidate.findById(userId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+
+    const alreadyLiked = candidate.likedCompanies.includes(companyId);
+    if (alreadyLiked) {
+      return res
+        .status(400)
+        .json({ message: "Ứng viên đã yêu thích công ty này rồi." });
+    }
+
+    candidate.likedCompanies.push(companyId);
+    await candidate.save();
+
+    res
+      .status(200)
+      .json({ message: "Đã thêm công ty vào danh sách yêu thích." });
+  } catch (err) {
+    console.error("Lỗi khi thêm công ty vào yêu thích:", err);
+    res.status(500).json({
+      message: "Lỗi server khi thêm công ty vào yêu thích.",
+      error: err.message,
+    });
+  }
+};
+const removeCompanyFromFavorites = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const companyId = req.params.companyId;
+
+    const candidate = await Candidate.findById(userId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const index = candidate.likedCompanies.indexOf(companyId);
+    if (index === -1) {
+      return res
+        .status(400)
+        .json({ message: "Ứng viên chưa yêu thích công ty này." });
+    }
+
+    candidate.likedCompanies.splice(index, 1);
+    await candidate.save();
+
+    res
+      .status(200)
+      .json({ message: "Đã bỏ công ty khỏi danh sách yêu thích." });
+  } catch (err) {
+    console.error("Lỗi khi bỏ công ty khỏi yêu thích:", err);
+    res.status(500).json({
+      message: "Lỗi server khi bỏ công ty khỏi yêu thích.",
+      error: err.message,
+    });
+  }
+};
+const getLikedCompanies = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const { page = 1, limit = 10 } = req.query; // Lấy tham số phân trang từ query (mặc định là trang 1 và giới hạn 10 công ty mỗi trang)
+
+    const candidate = await Candidate.findById(userId).populate(
+      "likedCompanies"
+    );
+
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    // Tính toán số lượng công ty cần lấy dựa trên trang và giới hạn
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    // Lấy danh sách công ty yêu thích và áp dụng phân trang
+    const paginatedCompanies = candidate.likedCompanies.slice(
+      startIndex,
+      endIndex
+    );
+
+    // Tổng số công ty yêu thích của ứng viên
+    const totalCompanies = candidate.likedCompanies.length;
+
+    res.status(200).json({
+      message: "Lấy danh sách công ty yêu thích thành công.",
+      companies: paginatedCompanies,
+      totalCompanies,
+      totalPages: Math.ceil(totalCompanies / limit), // Tổng số trang
+      currentPage: Number(page), // Trang hiện tại
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách công ty yêu thích:", err);
+    res.status(500).json({
+      message: "Lỗi server khi lấy danh sách công ty yêu thích.",
+      error: err.message,
+    });
+  }
+};
+const checkIfCompanyIsLiked = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Xác thực không hợp lệ." });
+    }
+
+    const userId = req.userId;
+    const companyId = req.params.companyId;
+
+    const candidate = await Candidate.findById(userId).select("likedCompanies");
+    if (!candidate) {
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+    }
+
+    const isLiked = candidate.likedCompanies.some(
+      (id) => id.toString() === companyId
+    );
+
+    res.status(200).json({
+      companyId,
+      isLiked,
+    });
+  } catch (err) {
+    console.error("Lỗi khi kiểm tra trạng thái yêu thích công ty:", err);
+    res.status(500).json({
+      message: "Lỗi server khi kiểm tra trạng thái yêu thích công ty.",
+      error: err.message,
+    });
+  }
+};
 module.exports = {
+  checkIfCompanyIsLiked,
   uploadCV,
   getCandidateInfoByID,
   getMyInfo,
@@ -595,4 +928,11 @@ module.exports = {
   updateReview,
   checkAppliedStatus,
   uploadAvatar,
+  markJobAsInterested,
+  unmarkJobAsInterested,
+  getInterestedJobs,
+  addCompanyToFavorites,
+  removeCompanyFromFavorites,
+  getLikedCompanies,
+  checkIfJobIsInterested,
 };

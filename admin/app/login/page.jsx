@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-
+import { useAuth } from "@/context/authContext";
 const LoginPage = () => {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");

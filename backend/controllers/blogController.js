@@ -160,3 +160,13 @@ exports.getBlogById = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+// Lấy top 3 blog
+exports.getTopBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 }).limit(3);
+
+    res.status(200).json({ blogs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

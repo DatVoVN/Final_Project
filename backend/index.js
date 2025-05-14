@@ -11,6 +11,8 @@ const adminRouter = require("./routes/admin");
 const developerRouter = require("./routes/developer");
 const blogRouter = require("./routes/blog");
 const questionRouter = require("./routes/question");
+const postRouter = require("./routes/post");
+
 const corsOptions = {
   origin: "*",
   methods: "GET,POST,PUT,DELETE,PATCH",
@@ -28,6 +30,7 @@ async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URL);
     console.log("MongoDB connected");
+    console.log(mongoose.models);
   } catch (error) {
     console.error("MongoDB connection error:", error);
     process.exit(1);
@@ -42,6 +45,8 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/developer", developerRouter);
 app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/question", questionRouter);
+app.use("/api/v1/post", postRouter);
+
 // START SERVER
 app.listen(8000, () => {
   console.log("Server running on port 8000");

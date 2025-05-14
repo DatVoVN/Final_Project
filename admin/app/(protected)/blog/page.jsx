@@ -64,7 +64,7 @@ const BlogPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        fetchBlogs(currentPage); // refresh lại trang hiện tại
+        fetchBlogs(currentPage);
       } catch (error) {
         console.error("Lỗi khi xóa blog:", error);
       }
@@ -82,7 +82,6 @@ const BlogPage = () => {
           + Thêm Blog
         </button>
       </div>
-      {/* Blog Table */}
       <BlogTable
         blogs={blogs}
         onView={handleView}

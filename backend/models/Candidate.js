@@ -25,6 +25,8 @@ const CandidateSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   role: { type: String, default: "candidate" },
+  interestedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "JobPosting" }],
+  likedCompanies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Company" }],
 });
 CandidateSchema.pre("save", function (next) {
   this.updatedAt = Date.now();

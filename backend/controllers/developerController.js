@@ -7,8 +7,6 @@ const sendEmail = require("../utils/email");
 exports.getApplicantsForJob = async (req, res) => {
   try {
     const { jobId } = req.params;
-
-    // Tìm bài đăng tuyển dụng
     const job = await JobPosting.findById(jobId).populate({
       path: "applicants.candidate",
       select: "fullName email phone cvUrl avatarUrl gender dateOfBirth address",
@@ -22,7 +20,6 @@ exports.getApplicantsForJob = async (req, res) => {
     const pendingApplicants = job.applicants.filter(
       (applicant) => applicant.status === "pending"
     );
-    // Trả về danh sách ứng viên
     res.status(200).json({ applicants: pendingApplicants });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách ứng viên:", error);
@@ -38,7 +35,6 @@ exports.getEmployerJobPostings = async (req, res) => {
       const jobPostings = await JobPosting.find({ employer: userId })
         .populate("employer", "fullName email")
         .populate("applicants.candidate", "fullName email cvUrl avatarUrl");
-      // Nếu không tìm thấy bài đăng
       if (jobPostings.length === 0) {
         return res
           .status(404)
@@ -56,6 +52,54 @@ exports.getEmployerJobPostings = async (req, res) => {
       .json({ message: "Lỗi server khi lấy bài đăng tuyển dụng." });
   }
 };
+exports.getAllApplicantsWithJobs = async (req, res) => {
+  try {
+    const employerId = req.user._id;
+    const jobs = await JobPosting.find({ employer: employerId })
+      .populate({
+        path: "applicants.candidate",
+        select:
+          "fullName email phone cvUrl avatarUrl gender dateOfBirth address",
+      })
+      .populate({
+        path: "company",
+        select: "name logoUrl",
+      });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài đăng tuyển dụng của bạn." });
+    }
+
+    const applicantsWithJobs = [];
+    const processedJobIds = new Set();
+    for (const job of jobs) {
+      if (processedJobIds.has(job._id.toString())) continue;
+      applicantsWithJobs.push({
+        job: {
+          _id: job._id,
+          title: job.title,
+          company: job.company,
+        },
+        applicants: job.applicants.map((applicant) => ({
+          candidate: applicant.candidate,
+          status: applicant.status,
+          appliedAt: applicant.appliedAt,
+          note: applicant.note || "",
+        })),
+      });
+      processedJobIds.add(job._id.toString());
+    }
+
+    // Trả về danh sách ứng viên và thông tin bài đăng
+    res.status(200).json({ applicants: applicantsWithJobs });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách ứng viên:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy dữ liệu." });
+  }
+};
+
 ///////// CHẤP NHẬN VÀ TỪ CHỐI CV //////////////////
 // exports.handleApplicantDecision = async (req, res) => {
 //   try {
@@ -129,30 +173,22 @@ exports.handleApplicantDecision = async (req, res) => {
     if (!["approve", "reject"].includes(action)) {
       return res.status(400).json({ message: "Hành động không hợp lệ" });
     }
-
-    // Tìm job và populate candidate trong applicants
     const job = await JobPosting.findById(jobId).populate(
       "applicants.candidate"
     );
     if (!job) {
       return res.status(404).json({ message: "Không tìm thấy công việc" });
     }
-
-    // Tìm applicant theo applicantId
     const applicant = job.applicants.id(applicantId);
     if (!applicant) {
       return res
         .status(404)
         .json({ message: "Không tìm thấy ứng viên với ID này trong bài đăng" });
     }
-
-    // Cập nhật trạng thái và ghi chú
     applicant.status = action === "approve" ? "approved" : "rejected";
     applicant.note = note || "";
 
     await job.save();
-
-    // Gửi email thông báo
     const candidate = applicant.candidate;
     const subject =
       action === "approve"
@@ -195,7 +231,7 @@ exports.getMyInfo = async (req, res) => {
 
     const user = await User.findById(userId).select("-password").populate({
       path: "company",
-      select: "-__v -createdAt -updatedAt", // loại các field không cần nếu muốn
+      select: "-__v -createdAt -updatedAt",
     });
 
     if (!user) {
@@ -370,6 +406,12 @@ exports.getCompanyReviews = async (req, res) => {
 /// Lấy tất cả công ty
 exports.getAllCompany = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; // Trang hiện tại
+    const limit = parseInt(req.query.limit) || 10; // Số công ty/trang
+    const skip = (page - 1) * limit;
+
+    const totalCompanies = await Company.countDocuments();
+
     const companies = await Company.aggregate([
       {
         $lookup: {
@@ -390,18 +432,32 @@ exports.getAllCompany = async (req, res) => {
           },
         },
       },
+      { $sort: { createdAt: -1 } }, // Sắp xếp mới nhất
+      { $skip: skip },
+      { $limit: limit },
     ]);
 
     if (companies.length === 0) {
       return res.status(404).json({ message: "Chưa có công ty nào" });
     }
 
-    res.status(200).json({ companies });
+    const totalPages = Math.ceil(totalCompanies / limit);
+
+    res.status(200).json({
+      companies,
+      pagination: {
+        totalItems: totalCompanies,
+        totalPages,
+        currentPage: page,
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách company:", error);
     res.status(500).json({ message: "Lỗi server khi lấy danh sách company." });
   }
 };
+
 /// Lấy số job của công ty
 exports.getJobsByCompany = async (req, res) => {
   try {
@@ -440,13 +496,15 @@ exports.getJobPostingByIdFix = async (req, res) => {
 /// Xem tất cả bài ứng tuyển
 exports.getAllJobPostings = async (req, res) => {
   try {
-    // Lấy tất cả các bài tuyển dụng
-    const data = await JobPosting.find().populate({
-      path: "company",
-      select: "",
-    });
-
-    // Kiểm tra xem có job nào không
+    const data = await JobPosting.find()
+      .populate({
+        path: "company",
+        select: "",
+      })
+      .populate({
+        path: "employer",
+        select: "",
+      });
     if (data.length === 0) {
       return res.status(404).json({ message: "Chưa có bài tuyển dụng nào." });
     }
@@ -463,36 +521,55 @@ exports.searchJob = async (req, res) => {
     const { title, city, languages, experienceLevel, companyName, minSalary } =
       req.query;
 
-    const jobQuery = {};
+    const escapeRegex = (text) =>
+      text.replace(/[-[\]/{}()*+?.\\^$|#]/g, "\\$&");
 
-    // Tìm theo tên job
-    if (title) {
-      jobQuery.title = { $regex: title, $options: "i" };
+    const jobQuery = {};
+    const keyword = title ? escapeRegex(title.trim()) : null;
+    let companyIdsFromTitle = [];
+    if (keyword) {
+      const matchedCompaniesByName = await Company.find({
+        name: { $regex: keyword, $options: "i" },
+      })
+        .select("_id")
+        .lean();
+
+      companyIdsFromTitle = matchedCompaniesByName.map((c) => c._id);
+
+      jobQuery.$or = [
+        { title: { $regex: keyword, $options: "i" } },
+        { languages: { $regex: keyword, $options: "i" } },
+        ...(companyIdsFromTitle.length > 0
+          ? [{ company: { $in: companyIdsFromTitle } }]
+          : []),
+      ];
     }
 
-    // Cấp bậc
     if (experienceLevel) {
       jobQuery.experienceLevel = experienceLevel;
     }
 
-    // Lọc theo ngôn ngữ (có thể chứa ký tự đặc biệt như C++, C#)
     if (languages) {
       const langArray = Array.isArray(languages)
         ? languages
         : languages
             .split(",")
-            .map((l) => l.trim().toLowerCase()) // Chuyển thành chữ thường để đồng bộ hóa
+            .map((l) => l.trim().toLowerCase())
             .filter(Boolean);
 
-      jobQuery.languages = { $in: langArray };
+      if (langArray.length) {
+        if (jobQuery.$or) {
+          jobQuery.$and = [{ languages: { $in: langArray } }];
+        } else {
+          jobQuery.languages = { $in: langArray };
+        }
+      }
     }
 
-    // Lọc theo mức lương tối thiểu
     if (minSalary) {
       jobQuery.salary = { $gte: Number(minSalary) };
     }
 
-    // Lọc theo thành phố hoặc tên công ty
     if (city || companyName) {
       const companyFilter = {};
       if (city) {
@@ -506,23 +583,25 @@ exports.searchJob = async (req, res) => {
         .select("_id")
         .lean();
 
-      // Nếu không có công ty nào khớp, trả về công việc mà không lọc theo công ty
       if (matchedCompanies.length === 0) {
         return res.status(200).json({
           message:
             "Không tìm thấy công ty nào khớp với tiêu chí tìm kiếm. Hiển thị công việc mới nhất.",
-          data: [], // Hoặc bạn có thể thực hiện tìm kiếm công việc mà không cần filter công ty
+          data: [],
         });
       }
 
       const companyIds = matchedCompanies.map((c) => c._id);
-      jobQuery.company = { $in: companyIds };
+      if (jobQuery.company) {
+        // Nếu đã có từ $or company, gộp với companyIds này
+        jobQuery.company.$in = [
+          ...new Set([...jobQuery.company.$in, ...companyIds]),
+        ];
+      } else {
+        jobQuery.company = { $in: companyIds };
+      }
     }
 
-    // Debug query
-    console.log("Executing Job Query:", jobQuery);
-
-    // Truy vấn dữ liệu job
     const jobs = await JobPosting.find(jobQuery)
       .populate({
         path: "company",
@@ -546,23 +625,72 @@ exports.searchJob = async (req, res) => {
     });
   }
 };
+// suggest job
+exports.getSuggestions = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ message: "Không có từ khóa tìm kiếm" });
+    }
+
+    const regex = new RegExp(query.trim(), "i");
+    console.log("Regex tìm kiếm: ", regex);
+    const suggestions = await JobPosting.find({
+      $or: [
+        { title: { $regex: regex } },
+        { languages: { $regex: regex } },
+        { "company.name": { $regex: regex } },
+      ],
+    })
+      .select("title languages company")
+      .populate("company", "name")
+      .limit(5)
+      .lean();
+    console.log(suggestions);
+    if (!suggestions || suggestions.length === 0) {
+      return res.status(200).json({ suggestions: [] });
+    }
+
+    const result = suggestions.map((job) => ({
+      title: job.title,
+      languages: job.languages.join(", "),
+      company: job.company?.name || "Unknown",
+    }));
+
+    return res.status(200).json({ suggestions: result });
+  } catch (error) {
+    console.error("Lỗi khi lấy gợi ý:", error);
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
 
 // search company
 exports.searchCompany = async (req, res) => {
   try {
-    const { name } = req.query;
+    const { name, city } = req.query;
 
-    if (!name) {
+    if (!name && !city) {
       return res
         .status(400)
-        .json({ message: "Thiếu tên công ty để tìm kiếm." });
+        .json({ message: "Thiếu tên công ty hoặc thành phố để tìm kiếm." });
+    }
+
+    const matchConditions = {};
+
+    if (name) {
+      matchConditions.name = { $regex: name, $options: "i" };
+    }
+
+    if (city) {
+      matchConditions.city = { $regex: city, $options: "i" }; // Tìm gần đúng tên thành phố
     }
 
     const companies = await Company.aggregate([
       {
-        $match: {
-          name: { $regex: name, $options: "i" },
-        },
+        $match: matchConditions,
       },
       {
         $lookup: {
@@ -597,6 +725,7 @@ exports.searchCompany = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi tìm kiếm công ty." });
   }
 };
+
 /// Lấy job theo id
 exports.getJobPostingById = async (req, res) => {
   try {
@@ -834,5 +963,60 @@ exports.createJobPosting = async (req, res) => {
   } catch (error) {
     console.error("Lỗi đăng bài tuyển dụng:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi tạo bài tuyển dụng." });
+  }
+};
+// Lấy top 3 công ty
+exports.getTop3CompaniesWithJobDetails = async (req, res) => {
+  try {
+    const result = await JobPosting.aggregate([
+      {
+        $match: {
+          company: { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: "$company",
+          jobCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "companies",
+          localField: "_id",
+          foreignField: "_id",
+          as: "companyInfo",
+        },
+      },
+      {
+        $unwind: "$companyInfo",
+      },
+      {
+        $project: {
+          _id: 0,
+          companyId: "$companyInfo._id",
+          name: "$companyInfo.name",
+          avatarUrl: "$companyInfo.avatarUrl",
+          industry: "$companyInfo.industry",
+          city: "$companyInfo.city",
+          languages: "$companyInfo.languages",
+          jobCount: 1,
+        },
+      },
+      {
+        $sort: { jobCount: -1 },
+      },
+      {
+        $limit: 3,
+      },
+    ]);
+
+    res.status(200).json({
+      message: "Top 3 công ty có nhiều job nhất.",
+      data: result,
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy top công ty:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };

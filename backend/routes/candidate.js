@@ -87,5 +87,46 @@ router.put(
   restrictTo("candidate"),
   candidateController.updateReview
 );
-
+// yeu thich công việc
+router.post(
+  "/interested/:jobId",
+  protectCandidate,
+  candidateController.markJobAsInterested
+);
+router.delete(
+  "/interested/:jobId",
+  protectCandidate,
+  candidateController.unmarkJobAsInterested
+);
+router.get(
+  "/interested/favorites",
+  protectCandidate,
+  candidateController.getInterestedJobs
+);
+router.get(
+  "/jobs/:jobId/interested-status",
+  protectCandidate,
+  candidateController.checkIfJobIsInterested
+);
+//// yeu thich cong ty
+router.post(
+  "/favorite-company/:companyId",
+  protectCandidate,
+  candidateController.addCompanyToFavorites
+);
+router.delete(
+  "/favorite-company/:companyId",
+  protectCandidate,
+  candidateController.removeCompanyFromFavorites
+);
+router.get(
+  "/favorite-company/favorites",
+  protectCandidate,
+  candidateController.getLikedCompanies
+);
+router.get(
+  "/companies/:companyId/liked-status",
+  protectCandidate,
+  candidateController.checkIfCompanyIsLiked
+);
 module.exports = router;

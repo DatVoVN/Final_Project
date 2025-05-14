@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["employer"], default: "employer" },
     isActive: { type: Boolean, default: true },
     isRejected: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpires: { type: Date },
   },
   { timestamps: true }
 );

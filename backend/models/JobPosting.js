@@ -45,7 +45,6 @@ const jobPostingSchema = new mongoose.Schema(
       ],
       default: "Full-time",
     },
-
     experienceLevel: {
       type: String,
       enum: ["Intern", "Fresher", "Junior", "Mid", "Senior", "Lead"],
@@ -62,7 +61,6 @@ const jobPostingSchema = new mongoose.Schema(
       enum: ["Onsite", "Hybrid", "Remote"],
       default: "Onsite",
     },
-
     remote: {
       type: Boolean,
       default: false,
@@ -96,6 +94,18 @@ const jobPostingSchema = new mongoose.Schema(
         },
       },
     ],
+    likedByCandidates: [
+      {
+        candidate: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Candidate",
+        },
+        likedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 
     isActive: {
       type: Boolean,
@@ -110,5 +120,6 @@ const jobPostingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const JobPosting = mongoose.model("JobPosting", jobPostingSchema);
+const JobPosting =
+  mongoose.models.JobPosting || mongoose.model("JobPosting", jobPostingSchema);
 module.exports = JobPosting;
