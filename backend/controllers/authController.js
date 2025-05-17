@@ -19,39 +19,28 @@ const authController = {
         taxCode,
         city,
       } = req.body;
-
-      console.log("Dữ liệu nhận được từ client:", req.body);
-
-      // Kiểm tra email đã tồn tại chưa
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ message: "Email đã tồn tại." });
       }
-
-      // Kiểm tra taxCode đã tồn tại chưa
       const existingCompany = await Company.findOne({ taxCode });
       if (existingCompany) {
         return res.status(400).json({
           message: "Mã số thuế đã tồn tại. Không thể đăng ký công ty.",
         });
       }
-
-      // Tạo công ty mới nếu chưa tồn tại
       const company = new Company({
         name: companyName,
         taxCode,
         city,
       });
       await company.save();
-      console.log("Công ty mới tạo:", company);
-
-      // Tạo user mới
       const newUser = new User({
         email,
         password,
         fullName,
         phoneNumber,
-        company: company._id, // Liên kết người dùng với công ty vừa tạo
+        company: company._id,
         role: "employer",
         isActive: false,
         isRejected: false,
@@ -319,19 +308,18 @@ const authController = {
       const normalizedEmail = email.toLowerCase().trim();
       const candidate = await Candidate.findOne({
         email: normalizedEmail,
-      }).select("+password"); // Lấy cả password
+      }).select("+password");
 
       if (!candidate) {
         return res
           .status(401)
-          .json({ message: "Email hoặc mật khẩu không đúng." }); // Thông báo chung chung
+          .json({ message: "Email hoặc mật khẩu không đúng." });
       }
 
       // *** KIỂM TRA XÁC THỰC ***
       if (!candidate.isVerified) {
         console.log(`Login attempt for unverified email: ${normalizedEmail}`);
         return res.status(403).json({
-          // 403 Forbidden
           message:
             "Tài khoản chưa được xác thực. Vui lòng kiểm tra email hoặc yêu cầu gửi lại OTP.",
           verificationRequired: true,
@@ -345,22 +333,17 @@ const authController = {
           .status(401)
           .json({ message: "Email hoặc mật khẩu không đúng." });
       }
-
-      // Tạo token nếu mọi thứ OK
       const token = jwt.sign(
         { id: candidate._id, email: candidate.email, role: "candidate" },
         process.env.SECRET_KEY,
         { expiresIn: "7d" }
       );
-
-      // Không gửi password về client
       candidate.password = undefined;
 
       res.status(200).json({
         message: "Đăng nhập thành công!",
         token,
         candidate: {
-          // Chỉ trả về thông tin cần thiết
           id: candidate._id,
           fullName: candidate.fullName,
           email: candidate.email,

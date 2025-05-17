@@ -6,7 +6,9 @@ const verifyToken = require("../middleware/verifyToken");
 const uploadAvatar = require("../middleware/uploadAvatar");
 const protectCandidate = require("../middleware/protectCandidate");
 const { restrictTo } = require("../middleware/authMiddleware");
-
+/////////// TẠO CV //////////
+router.put("/cv", protectCandidate, candidateController.updateStructuredCV);
+router.get("/cv", protectCandidate, candidateController.getStructuredCV);
 /////////////////////////// THÔNG TIN ////////////////////////////////////
 /// Xem thông tin cá nhân
 router.get("/me", verifyToken, candidateController.getMyInfo);
@@ -129,4 +131,5 @@ router.get(
   protectCandidate,
   candidateController.checkIfCompanyIsLiked
 );
+
 module.exports = router;

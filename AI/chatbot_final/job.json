@@ -1,0 +1,206 @@
+{
+  "data": [
+    {
+      "_id": "681eab6894ab668a41cf514b",
+      "title": "Lập trình viên tự chọn",
+      "description": "Rứa thui",
+      "requirements": "KJA",
+      "salary": 12312,
+      "deadline": "2025-05-24T00:00:00.000Z",
+      "employer": {
+        "_id": "680530eb4ef893afb674cda7",
+        "email": "vilihoj848@bauscn.com",
+        "fullName": "Nguyễn Văn A2121",
+        "phoneNumber": "0912345678",
+        "company": "680530ea4ef893afb674cda5",
+        "role": "employer",
+        "isActive": true,
+        "isRejected": false,
+        "createdAt": "2025-04-20T17:37:47.031Z",
+        "updatedAt": "2025-04-20T17:38:19.830Z",
+        "__v": 0
+      },
+      "company": {
+        "_id": "680530ea4ef893afb674cda5",
+        "name": "Công ty ABCDR",
+        "city": "Hà Nội",
+        "taxCode": "12345678940",
+        "avatarUrl": "uploads/avatars/avatar-1747079893443-177140722.jpg",
+        "createdAt": "2025-04-20T17:37:46.934Z",
+        "updatedAt": "2025-05-12T20:26:58.625Z",
+        "__v": 0,
+        "address": "123 Main Street",
+        "description": "This is description 1",
+        "email": "abc@company.com",
+        "overview": "This í overview",
+        "companySize": 152,
+        "overtimePolicy": "Làm thêm tính theo giờ",
+        "workingDays": {
+          "from": "Monday",
+          "to": "Friday",
+          "_id": "682259924b2ec51d80ceab11"
+        },
+        "languages": ["[\"[\\\"React\\\"]\",\"Next\"]"]
+      },
+      "jobType": "Part-time",
+      "experienceLevel": "Intern",
+      "vacancies": 2,
+      "locationType": "Hybrid",
+      "remote": false,
+      "languages": ["Node.Js"],
+      "benefits": ["Linh hoạt"],
+      "isActive": true,
+      "applicants": [],
+      "likedByCandidates": [
+        {
+          "candidate": "681dd329a20da19cb9d657e8",
+          "_id": "68201cc47cbf198af848a90d",
+          "likedAt": "2025-05-11T03:43:00.815Z"
+        }
+      ],
+      "postedDate": "2025-05-10T01:27:04.193Z",
+      "createdAt": "2025-05-10T01:27:04.195Z",
+      "updatedAt": "2025-05-13T03:57:49.459Z",
+      "__v": 14
+    },
+    {
+      "_id": "681ef440d6f68beac8a9bc92",
+      "title": "tuyển dụng AI",
+      "description": "12121",
+      "requirements": "2eawsa",
+      "salary": 12,
+      "deadline": "2025-05-14T00:00:00.000Z",
+      "employer": {
+        "_id": "680530eb4ef893afb674cda7",
+        "email": "vilihoj848@bauscn.com",
+        "fullName": "Nguyễn Văn A2121",
+        "phoneNumber": "0912345678",
+        "company": "680530ea4ef893afb674cda5",
+        "role": "employer",
+        "isActive": true,
+        "isRejected": false,
+        "createdAt": "2025-04-20T17:37:47.031Z",
+        "updatedAt": "2025-04-20T17:38:19.830Z",
+        "__v": 0
+      },
+      "company": {
+        "_id": "680530ea4ef893afb674cda5",
+        "name": "Công ty ABCDR",
+        "city": "Hà Nội",
+        "taxCode": "12345678940",
+        "avatarUrl": "uploads/avatars/avatar-1747079893443-177140722.jpg",
+        "createdAt": "2025-04-20T17:37:46.934Z",
+        "updatedAt": "2025-05-12T20:26:58.625Z",
+        "__v": 0,
+        "address": "123 Main Street",
+        "description": "This is description 1",
+        "email": "abc@company.com",
+        "overview": "This í overview",
+        "companySize": 152,
+        "overtimePolicy": "Làm thêm tính theo giờ",
+        "workingDays": {
+          "from": "Monday",
+          "to": "Friday",
+          "_id": "682259924b2ec51d80ceab11"
+        },
+        "languages": ["[\"[\\\"React\\\"]\",\"Next\"]"]
+      },
+      "jobType": "Full-time",
+      "experienceLevel": "Fresher",
+      "vacancies": 2,
+      "locationType": "Hybrid",
+      "remote": false,
+      "languages": ["NodeJs"],
+      "benefits": ["âsasas"],
+      "isActive": true,
+      "applicants": [
+        {
+          "candidate": "68215f254bc83bfa1af29370",
+          "status": "rejected",
+          "note": "cảm ơn bạn",
+          "_id": "68225e4e24fb15aa6207f5a1",
+          "appliedAt": "2025-05-12T20:47:10.402Z"
+        }
+      ],
+      "likedByCandidates": [
+        {
+          "candidate": "67ff3f73f0edced1180e1c76",
+          "_id": "681f240a9111120ede7b4cb3",
+          "likedAt": "2025-05-10T10:01:46.147Z"
+        },
+        {
+          "candidate": "681dd329a20da19cb9d657e8",
+          "_id": "681f2621fd1563d865a5c0ae",
+          "likedAt": "2025-05-10T10:10:41.981Z"
+        }
+      ],
+      "postedDate": "2025-05-10T06:37:52.394Z",
+      "createdAt": "2025-05-10T06:37:52.402Z",
+      "updatedAt": "2025-05-12T20:47:58.933Z",
+      "__v": 9
+    },
+    {
+      "_id": "68200b65cd20334ff8e7b64c",
+      "title": "Tuyển dụng lập trình viên NodeJs",
+      "description": "Yêu cầu học sinh năm cuối ",
+      "requirements": "Tham gia đầy đủ 8 tiếng trên 1 ngày",
+      "salary": 12,
+      "deadline": "2025-05-22T00:00:00.000Z",
+      "employer": {
+        "_id": "680530eb4ef893afb674cda7",
+        "email": "vilihoj848@bauscn.com",
+        "fullName": "Nguyễn Văn A2121",
+        "phoneNumber": "0912345678",
+        "company": "680530ea4ef893afb674cda5",
+        "role": "employer",
+        "isActive": true,
+        "isRejected": false,
+        "createdAt": "2025-04-20T17:37:47.031Z",
+        "updatedAt": "2025-04-20T17:38:19.830Z",
+        "__v": 0
+      },
+      "company": {
+        "_id": "680530ea4ef893afb674cda5",
+        "name": "Công ty ABCDR",
+        "city": "Hà Nội",
+        "taxCode": "12345678940",
+        "avatarUrl": "uploads/avatars/avatar-1747079893443-177140722.jpg",
+        "createdAt": "2025-04-20T17:37:46.934Z",
+        "updatedAt": "2025-05-12T20:26:58.625Z",
+        "__v": 0,
+        "address": "123 Main Street",
+        "description": "This is description 1",
+        "email": "abc@company.com",
+        "overview": "This í overview",
+        "companySize": 152,
+        "overtimePolicy": "Làm thêm tính theo giờ",
+        "workingDays": {
+          "from": "Monday",
+          "to": "Friday",
+          "_id": "682259924b2ec51d80ceab11"
+        },
+        "languages": ["[\"[\\\"React\\\"]\",\"Next\"]"]
+      },
+      "jobType": "Part-time",
+      "experienceLevel": "Fresher",
+      "vacancies": 2,
+      "locationType": "Hybrid",
+      "remote": false,
+      "languages": ["Node.js", "MongoDB"],
+      "benefits": ["Bảo hiểm đầy đủ", "Tham gia tất cả hoạt động của công ty"],
+      "isActive": true,
+      "applicants": [],
+      "likedByCandidates": [
+        {
+          "candidate": "68215f254bc83bfa1af29370",
+          "_id": "68225faa24fb15aa6207f8e0",
+          "likedAt": "2025-05-12T20:52:58.993Z"
+        }
+      ],
+      "postedDate": "2025-05-11T02:28:53.645Z",
+      "createdAt": "2025-05-11T02:28:53.646Z",
+      "updatedAt": "2025-05-13T02:49:27.304Z",
+      "__v": 7
+    }
+  ]
+}

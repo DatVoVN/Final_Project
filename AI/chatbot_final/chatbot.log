@@ -1,0 +1,5 @@
+2025-05-16 07:39:22,211 - INFO - Use pytorch device_name: cpu
+2025-05-16 07:39:22,212 - INFO - Load pretrained SentenceTransformer: paraphrase-multilingual-MiniLM-L12-v2
+2025-05-16 07:39:27,778 - INFO - Đã index 3 công việc
+2025-05-16 07:40:03,294 - INFO - HTTP Request: GET https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz "HTTP/1.1 200 OK"
+2025-05-16 07:41:51,640 - ERROR - Lỗi tìm kiếm: Expected where to have exactly one operator, got {'city': 'hà nội', 'experience': 'fresher'} in query.

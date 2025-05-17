@@ -25,7 +25,6 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete, onViewEmployer }) => {
         <thead className="text-xs text-gray-100 uppercase">
           <tr>
             <th className="px-6 py-3">Tiêu đề</th>
-            <th className="px-6 py-3">Mô tả</th>
             <th className="px-6 py-3">Công ty</th>
             <th className="px-6 py-3">Email Nhà tuyển dụng</th>
             <th className="px-6 py-3">Ngày đăng</th>
@@ -41,7 +40,6 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete, onViewEmployer }) => {
               <td className="px-6 py-4 font-medium text-gray-50 whitespace-nowrap">
                 {job.title}
               </td>
-              <td className="px-6 py-4">{job.description}</td>
               <td className="px-6 py-4">{job.company.name}</td>
               <td className="px-6 py-4">{job.employer.email}</td>
               <td className="px-6 py-4">{formatDate(job.postedDate)}</td>

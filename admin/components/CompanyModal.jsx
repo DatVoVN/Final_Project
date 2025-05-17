@@ -29,7 +29,6 @@ const CompanyModal = ({ isOpen, onClose, company }) => {
   if (!isOpen) return null;
 
   return (
-    // Lớp phủ nền (Giữ nguyên từ modal trước cho nhất quán)
     <div className="fixed inset-0 z-50 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg border border-slate-700/80 transform transition-all duration-300 ease-out">
         <div className="flex items-center justify-between p-5 border-b border-slate-700">
@@ -57,15 +56,9 @@ const CompanyModal = ({ isOpen, onClose, company }) => {
             </svg>
           </button>
         </div>
-
-        {/* Nội dung Modal */}
         <div className="p-6 sm:p-8 max-h-[70vh] overflow-y-auto styled-scrollbar">
-          {" "}
-          {/* Thêm max-height và scroll */}
           {company ? (
             <div className="space-y-3">
-              {" "}
-              {/* Giảm space-y một chút */}
               <InfoRow
                 icon={Building}
                 label="Tên công ty"

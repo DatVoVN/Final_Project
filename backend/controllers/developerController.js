@@ -432,7 +432,7 @@ exports.getAllCompany = async (req, res) => {
           },
         },
       },
-      { $sort: { createdAt: -1 } }, // Sắp xếp mới nhất
+      { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limit },
     ]);
@@ -815,8 +815,6 @@ exports.updateJobPosting = async (req, res) => {
     if (!job) {
       return res.status(404).json({ message: "Bài tuyển dụng không tồn tại." });
     }
-
-    // Optional: chỉ cho phép người đăng sửa
     if (job.employer.toString() !== userId.toString()) {
       return res
         .status(403)
@@ -836,7 +834,7 @@ exports.updateJobPosting = async (req, res) => {
       "languages",
       "benefits",
       "isActive",
-      "vacancies", // 👈 Thêm trường số lượng tuyển
+      "vacancies",
     ];
 
     fieldsToUpdate.forEach((field) => {
@@ -845,7 +843,6 @@ exports.updateJobPosting = async (req, res) => {
       }
     });
 
-    // Optional: kiểm tra số lượng tuyển phải hợp lệ
     if (
       job.vacancies !== undefined &&
       (isNaN(job.vacancies) || job.vacancies <= 0)
@@ -906,12 +903,10 @@ exports.createJobPosting = async (req, res) => {
       remote,
       languages,
       benefits,
-      vacancies, // 👈 thêm trường số lượng tuyển
+      vacancies,
     } = req.body;
 
     const userId = req.user?._id;
-
-    // Lấy user và populate công ty
     const user = await User.findById(userId).populate("company");
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại." });
@@ -948,7 +943,7 @@ exports.createJobPosting = async (req, res) => {
       remote: remote || false,
       languages: languages || [],
       benefits: benefits || [],
-      vacancies: Number(vacancies), // 👈 lưu vào DB
+      vacancies: Number(vacancies),
       employer: user._id,
       company: user.company?._id || null,
     });
@@ -1013,6 +1008,60 @@ exports.getTop3CompaniesWithJobDetails = async (req, res) => {
 
     res.status(200).json({
       message: "Top 3 công ty có nhiều job nhất.",
+      data: result,
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy top công ty:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+};
+exports.getTop5CompaniesWithJobDetails = async (req, res) => {
+  try {
+    const result = await JobPosting.aggregate([
+      {
+        $match: {
+          company: { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: "$company",
+          jobCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "companies",
+          localField: "_id",
+          foreignField: "_id",
+          as: "companyInfo",
+        },
+      },
+      {
+        $unwind: "$companyInfo",
+      },
+      {
+        $project: {
+          _id: 0,
+          companyId: "$companyInfo._id",
+          name: "$companyInfo.name",
+          avatarUrl: "$companyInfo.avatarUrl",
+          industry: "$companyInfo.industry",
+          city: "$companyInfo.city",
+          languages: "$companyInfo.languages",
+          jobCount: 1,
+        },
+      },
+      {
+        $sort: { jobCount: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    res.status(200).json({
+      message: "Top 5 công ty có nhiều job nhất.",
       data: result,
     });
   } catch (err) {

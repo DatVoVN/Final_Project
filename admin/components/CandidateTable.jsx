@@ -24,6 +24,7 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
       <table className="w-full text-sm text-left text-gray-300 border-white border">
         <thead className="text-xs text-gray-100 uppercase">
           <tr>
+            <th className="px-6 py-3">Avatar</th>
             <th className="px-6 py-3">Email</th>
             <th className="px-6 py-3">Họ và Tên</th>
             <th className="px-6 py-3">Số điện thoại</th>
@@ -38,6 +39,16 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
               key={candidate._id}
               className="border-b border-white hover:bg-gray-700/50 transition-colors duration-150"
             >
+              <td className="px-6 py-4">
+                <img
+                  src={
+                    candidate.avatarUrl
+                      ? `http://localhost:8000${candidate.avatarUrl}`
+                      : candidate.avatarUrl
+                  }
+                  className="w-14 h-14 object-cover rounded"
+                />
+              </td>
               <td className="px-6 py-4 font-medium text-gray-50 whitespace-nowrap">
                 {candidate.email}
               </td>

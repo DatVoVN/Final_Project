@@ -27,6 +27,49 @@ const CandidateSchema = new mongoose.Schema({
   role: { type: String, default: "candidate" },
   interestedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "JobPosting" }],
   likedCompanies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Company" }],
+  /// Tạo CV
+  structuredCV: {
+    summary: { type: String },
+    education: [
+      {
+        school: String,
+        degree: String,
+        fieldOfStudy: String,
+        startDate: Date,
+        endDate: Date,
+        description: String,
+      },
+    ],
+    experience: [
+      {
+        company: String,
+        title: String,
+        location: String,
+        startDate: Date,
+        endDate: Date,
+        description: String,
+      },
+    ],
+    skills: [String],
+    languages: [String],
+    certifications: [
+      {
+        name: String,
+        issuingOrganization: String,
+        issueDate: Date,
+        expirationDate: Date,
+        credentialId: String,
+        credentialUrl: String,
+      },
+    ],
+    projects: [
+      {
+        name: String,
+        description: String,
+        link: String,
+      },
+    ],
+  },
 });
 CandidateSchema.pre("save", function (next) {
   this.updatedAt = Date.now();

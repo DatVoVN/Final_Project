@@ -10,21 +10,17 @@ exports.createBlog = async (req, res) => {
   try {
     const { title, content, excerpt } = req.body;
     const slug = slugify(title, { lower: true, strict: true });
-
-    // Kiểm tra blog đã tồn tại với slug
     const existing = await Blog.findOne({ slug });
     if (existing) {
       return res
         .status(400)
         .json({ message: "Blog với tiêu đề này đã tồn tại." });
     }
-
-    // Xử lý ảnh (chỉ upload từ máy tính)
     let savedImagePath = "";
     if (req.file) {
-      savedImagePath = `/uploads/blogs/${req.file.filename}`; // Lưu đường dẫn ảnh upload từ máy tính
+      savedImagePath = `/uploads/blogs/${req.file.filename}`;
     } else {
-      return res.status(400).json({ message: "Ảnh là bắt buộc." }); // Nếu không có ảnh
+      return res.status(400).json({ message: "Ảnh là bắt buộc." });
     }
 
     // Tạo mới blog
@@ -126,9 +122,14 @@ exports.getAllBlogs = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
 
-    const total = await Blog.countDocuments();
-    const blogs = await Blog.find()
+    const query = {};
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+    const total = await Blog.countDocuments(query);
+    const blogs = await Blog.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -143,11 +144,10 @@ exports.getAllBlogs = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getBlogById = async (req, res) => {
   try {
-    const blogId = req.params.id; // Lấy ID từ params
-
-    // Tìm blog theo ID
+    const blogId = req.params.id;
     const blog = await Blog.findById(blogId);
 
     if (!blog) {

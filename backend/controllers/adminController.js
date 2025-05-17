@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const sendEmail = require("../utils/email");
 const Candidate = require("../models/Candidate");
 const JobPosting = require("../models/JobPosting");
+const Blog = require("../models/Blog");
 //////////////////////////////////////ADMIN//////////////////////////////////
 ///////// AUTH
 exports.loginAdmin = async (req, res) => {
@@ -14,8 +15,6 @@ exports.loginAdmin = async (req, res) => {
     console.log("Đang xử lý đăng nhập...");
 
     const admin = await Admin.findOne({ username }).select("+password");
-    console.log(admin);
-
     if (!admin) {
       console.log("Không tìm thấy admin với username:", username);
       return res.status(401).json({ message: "Tên đăng nhập không tồn tại" });
@@ -26,15 +25,11 @@ exports.loginAdmin = async (req, res) => {
       console.log("Mật khẩu không khớp");
       return res.status(401).json({ message: "Mật khẩu không đúng" });
     }
-
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
       process.env.SECRET_KEY,
       { expiresIn: "1d" }
     );
-
-    console.log("Đăng nhập thành công! Token:", token);
-
     res.status(200).json({
       message: "Đăng nhập thành công!",
       token,
@@ -44,7 +39,6 @@ exports.loginAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Đăng nhập thất bại:", error);
     res.status(500).json({ message: "Lỗi server khi đăng nhập" });
   }
 };
@@ -67,7 +61,7 @@ exports.getPendingEmployers = async (req, res) => {
         isActive: false,
         isRejected: false,
       })
-        .populate("company") // Lấy thông tin công ty liên quan
+        .populate("company")
         .skip(skip)
         .limit(limit),
     ]);
@@ -97,21 +91,15 @@ exports.getPendingEmployers = async (req, res) => {
 exports.approveEmployer = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Tìm user theo ID
     const user = await User.findById(id);
     if (!user || user.role !== "employer") {
       return res.status(404).json({
         message: "Không tìm thấy người dùng hoặc không phải nhà tuyển dụng.",
       });
     }
-
-    // Cập nhật trạng thái duyệt
     user.isActive = true;
     user.isRejected = false;
     await user.save();
-
-    // Gửi email thông báo duyệt
     await sendEmail({
       email: user.email,
       subject: "Tài khoản của bạn đã được duyệt",
@@ -162,13 +150,34 @@ exports.rejectEmployer = async (req, res) => {
 };
 //////// THỐNG KÊ
 /// Thống kê
+
 exports.getSummaryStats = async (req, res) => {
   try {
-    const [companyCount, employerCount, candidateCount] = await Promise.all([
-      Company.countDocuments(),
-      User.countDocuments({ role: "employer" }),
-      Candidate.countDocuments({ role: "candidate" }),
-    ]);
+    const [companyCount, employerCount, candidateCount, jobCount, jobsPerDay] =
+      await Promise.all([
+        Company.countDocuments(),
+        User.countDocuments({ role: "employer" }),
+        Candidate.countDocuments({ role: "candidate" }),
+        JobPosting.countDocuments(),
+        JobPosting.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+              },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]),
+      ]);
 
     res.status(200).json({
       message: "Thống kê thành công.",
@@ -176,12 +185,15 @@ exports.getSummaryStats = async (req, res) => {
         companies: companyCount,
         employers: employerCount,
         candidates: candidateCount,
+        jobs: jobCount,
+        jobsPerDay: jobsPerDay,
       },
     });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
 /////////////////////////// CRUD //////////////////////////////////
 /// Xóa developer
 exports.deleteEmployerByAdmin = async (req, res) => {
@@ -220,47 +232,70 @@ exports.deleteEmployerByAdmin = async (req, res) => {
 /// Xem tất cả developer hiện có
 exports.getAllEmployers = async (req, res) => {
   try {
-    const employers = await User.find({ role: "employer" })
-      .select("-password")
-      .populate("company");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || "";
 
-    if (!employers.length) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy người tuyển dụng." });
-    }
+    const query = {
+      role: "employer",
+      $or: [{ email: { $regex: search, $options: "i" } }],
+    };
+
+    const total = await User.countDocuments(query);
+    const employers = await User.find(query)
+      .select("-password")
+      .populate("company")
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       message: "Lấy danh sách người tuyển dụng thành công.",
-      employers: employers,
+      employers,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
     });
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách người tuyển dụng:", error);
+    console.error("Lỗi khi lấy danh sách employers:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
   }
 };
+
 /// Xem tất cả candidate hiện có
 exports.getAllCandidates = async (req, res) => {
   try {
-    const candidates = await Candidate.find({ role: "candidate" }).select(
-      "-password"
-    );
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || "";
 
-    if (!candidates.length) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy người ứng viên nào." });
-    }
+    const query = {
+      role: "candidate",
+      $or: [{ email: { $regex: search, $options: "i" } }],
+    };
+
+    const total = await Candidate.countDocuments(query);
+    const candidates = await Candidate.find(query)
+      .select("-password")
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       message: "Lấy danh sách ứng viên thành công.",
-      candidates: candidates,
+      candidates,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+      },
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách ứng viên:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
   }
 };
+
 /// Xóa candidate
 exports.deleteCandidateByAdmin = async (req, res) => {
   try {
@@ -288,37 +323,51 @@ exports.deleteCandidateByAdmin = async (req, res) => {
   }
 };
 /// Xem tất cả job hiện có
-
 exports.getAllJob = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
 
-    const jobPostings = await JobPosting.find({})
+    const query = {
+      title: { $regex: search, $options: "i" },
+    };
+
+    const totalJobs = await JobPosting.countDocuments(query);
+    const jobPostings = await JobPosting.find(query)
       .skip(skip)
       .limit(limit)
-      .select("-password")
       .populate("company")
       .populate("employer");
 
-    if (!jobPostings.length) {
-      return res.status(404).json({ message: "Không tìm thấy công việc nào." });
-    }
-    const totalJobs = await JobPosting.countDocuments({});
-    const totalPages = Math.ceil(totalJobs / limit);
-
     res.status(200).json({
       message: "Lấy danh sách công việc thành công.",
-      jobPostings: jobPostings,
+      jobPostings,
       pagination: {
         currentPage: page,
-        totalPages: totalPages,
-        totalJobs: totalJobs,
+        totalPages: Math.ceil(totalJobs / limit),
+        totalJobs,
       },
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách công việc:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi lấy dữ liệu." });
+  }
+};
+exports.deleteJobByAdmin = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Công việc không tồn tại." });
+    }
+
+    await JobPosting.findByIdAndDelete(jobId);
+    res.status(200).json({ message: "Công việc đã được xóa thành công." });
+  } catch (error) {
+    console.error("Lỗi khi xóa công việc:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi xóa công việc." });
   }
 };

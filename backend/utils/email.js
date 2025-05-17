@@ -1,29 +1,39 @@
-const sgMail = require("@sendgrid/mail");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
-if (!process.env.SENDGRID_API_KEY) {
-  console.error("❌ SENDGRID_API_KEY chưa được cấu hình trong .env");
-}
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async ({ email, subject, message }) => {
   try {
-    if (!process.env.EMAIL_FROM) {
-      throw new Error("EMAIL_FROM chưa được cấu hình trong .env");
+    if (
+      !process.env.MAIL_USER ||
+      !process.env.MAIL_PASS ||
+      !process.env.EMAIL_FROM
+    ) {
+      throw new Error(
+        "⚠️ MAIL_USER, MAIL_PASS hoặc EMAIL_FROM chưa được cấu hình trong .env"
+      );
     }
 
-    const msg = {
-      to: email,
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
       from: process.env.EMAIL_FROM,
+      to: email,
       subject,
       text: message,
     };
-    console.log(msg);
 
-    await sgMail.send(msg);
-    console.log(`✅ Email đã gửi đến ${email}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Email đã gửi đến ${email}. Message ID: ${info.messageId}`);
   } catch (error) {
-    console.error("❌ Lỗi gửi email:", error?.response?.body || error.message);
+    console.error("❌ Lỗi gửi email:", error.message);
   }
 };
 

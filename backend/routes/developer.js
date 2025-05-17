@@ -26,6 +26,7 @@ const {
   getAllApplicantsWithJobs,
   getTop3CompaniesWithJobDetails,
   getSuggestions,
+  getTop5CompaniesWithJobDetails,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
@@ -73,6 +74,7 @@ router.put(
 router.get("/", getCompaniesByName);
 // Lấy 3 công ty job nhiêu nhất
 router.get("/top3", getTop3CompaniesWithJobDetails);
+router.get("/top5", getTop5CompaniesWithJobDetails);
 //////////////////////////////////////////////// CRUD bai đăng//////////////////////////////////////////////////
 /// Xoa bài đăng
 router.delete("/jobs/:id", protectEmployer, deleteJobPosting);

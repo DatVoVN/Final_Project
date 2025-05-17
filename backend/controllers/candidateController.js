@@ -912,6 +912,67 @@ const checkIfCompanyIsLiked = async (req, res) => {
     });
   }
 };
+//////////////// TẠO CV //////////////////////////////
+const updateStructuredCV = async (req, res) => {
+  try {
+    const candidateId = req.userId; // giả sử từ middleware `authenticate`
+    const {
+      summary,
+      education,
+      experience,
+      skills,
+      languages,
+      certifications,
+      projects,
+    } = req.body;
+
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Candidate not found" });
+    }
+
+    candidate.structuredCV = {
+      summary,
+      education,
+      experience,
+      skills,
+      languages,
+      certifications,
+      projects,
+    };
+
+    await candidate.save();
+
+    res.status(200).json({
+      message: "CV updated successfully",
+      structuredCV: candidate.structuredCV,
+    });
+  } catch (error) {
+    console.error("Error updating CV:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+const getStructuredCV = async (req, res) => {
+  try {
+    const candidateId = req.userId;
+
+    const candidate = await Candidate.findById(candidateId).select(
+      "structuredCV"
+    );
+
+    if (!candidate || !candidate.structuredCV) {
+      return res.status(404).json({ message: "CV not found" });
+    }
+
+    res.status(200).json({
+      message: "Fetched CV successfully",
+      structuredCV: candidate.structuredCV,
+    });
+  } catch (error) {
+    console.error("Error fetching CV:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 module.exports = {
   checkIfCompanyIsLiked,
   uploadCV,
@@ -935,4 +996,6 @@ module.exports = {
   removeCompanyFromFavorites,
   getLikedCompanies,
   checkIfJobIsInterested,
+  updateStructuredCV,
+  getStructuredCV,
 };

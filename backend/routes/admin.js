@@ -32,14 +32,15 @@ router.delete(
   adminController.deleteEmployerByAdmin
 );
 /// Xem tất cả developer hiện có
-router.get("/employers", protectAdmin, adminController.getAllEmployers);
+router.get("/employers", adminController.getAllEmployers);
 /// Xem tất cả candidate hiện có
-router.get("/candidates", protectAdmin, adminController.getAllCandidates);
+router.get("/candidates", adminController.getAllCandidates);
 /// Xóa candidate
 router.delete(
   "/candidates/:id",
   protectAdmin,
   adminController.deleteCandidateByAdmin
 );
-router.get("/jobs", protectAdmin, adminController.getAllJob);
+router.get("/jobs", adminController.getAllJob);
+router.delete("/jobs/:id", protectAdmin, adminController.deleteJobByAdmin);
 module.exports = router;
