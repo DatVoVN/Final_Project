@@ -101,70 +101,6 @@ exports.getAllApplicantsWithJobs = async (req, res) => {
 };
 
 ///////// CHẤP NHẬN VÀ TỪ CHỐI CV //////////////////
-// exports.handleApplicantDecision = async (req, res) => {
-//   try {
-//     const { jobId, candidateId } = req.params;
-//     const { action, note } = req.body;
-
-//     if (!["approve", "reject"].includes(action)) {
-//       return res.status(400).json({ message: "Hành động không hợp lệ" });
-//     }
-
-//     const job = await JobPosting.findById(jobId).populate(
-//       "applicants.candidate"
-//     );
-//     if (!job)
-//       return res.status(404).json({ message: "Không tìm thấy công việc" });
-
-//     const applicant = job.applicants.find(
-//       (a) => a.candidate._id.toString() === candidateId
-//     );
-
-//     if (!applicant) {
-//       return res
-//         .status(404)
-//         .json({ message: "Ứng viên không tồn tại trong bài đăng này" });
-//     }
-
-//     applicant.status = action === "approve" ? "approved" : "rejected";
-//     applicant.note = note || "";
-
-//     await job.save();
-
-//     // Gửi email
-//     const candidate = applicant.candidate;
-//     const subject =
-//       action === "approve"
-//         ? `Thư mời phỏng vấn cho vị trí ${job.title}`
-//         : `Kết quả ứng tuyển vị trí ${job.title}`;
-
-//     const message =
-//       action === "approve"
-//         ? `Chúc mừng bạn đã vượt qua vòng sơ tuyển cho vị trí "${
-//             job.title
-//           }".\n\nThông tin thêm: ${note || "Vui lòng chờ email tiếp theo."}`
-//         : `Cảm ơn bạn đã quan tâm đến vị trí "${
-//             job.title
-//           }". Rất tiếc bạn chưa phù hợp.\n\nLý do: ${
-//             note || "Không phù hợp với yêu cầu hiện tại."
-//           }`;
-
-//     await sendEmail({
-//       email: candidate.email,
-//       subject,
-//       message,
-//     });
-
-//     res.status(200).json({
-//       message: `Ứng viên đã được ${
-//         action === "approve" ? "duyệt" : "loại"
-//       } và đã gửi email.`,
-//     });
-//   } catch (error) {
-//     console.error("Lỗi khi xử lý ứng viên:", error);
-//     res.status(500).json({ message: "Lỗi server" });
-//   }
-// };
 exports.handleApplicantDecision = async (req, res) => {
   try {
     const { jobId, applicantId } = req.params;
@@ -281,11 +217,8 @@ exports.updateMyCompany = async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
-
-    // Nếu có workingDays trong req.body (có thể gửi dạng object hoặc JSON string)
     if (req.body.workingDays) {
       try {
-        // Nếu là chuỗi JSON thì parse ra object
         const workingDays =
           typeof req.body.workingDays === "string"
             ? JSON.parse(req.body.workingDays)
@@ -303,8 +236,6 @@ exports.updateMyCompany = async (req, res) => {
           .json({ message: "Dữ liệu workingDays không hợp lệ." });
       }
     }
-
-    // Nếu có file ảnh
     if (req.file) {
       updateData.avatarUrl = `uploads/avatars/${req.file.filename}`;
     }
@@ -593,7 +524,6 @@ exports.searchJob = async (req, res) => {
 
       const companyIds = matchedCompanies.map((c) => c._id);
       if (jobQuery.company) {
-        // Nếu đã có từ $or company, gộp với companyIds này
         jobQuery.company.$in = [
           ...new Set([...jobQuery.company.$in, ...companyIds]),
         ];
@@ -908,8 +838,23 @@ exports.createJobPosting = async (req, res) => {
 
     const userId = req.user?._id;
     const user = await User.findById(userId).populate("company");
+
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại." });
+    }
+
+    // ✅ Kiểm tra lượt đăng bài
+    if (user.postsRemaining <= 0) {
+      return res.status(403).json({
+        message: "Bạn đã hết lượt đăng bài. Vui lòng mua thêm gói để tiếp tục.",
+      });
+    }
+
+    // ✅ Kiểm tra hạn sử dụng gói
+    if (!user.packageExpires || new Date() > user.packageExpires) {
+      return res.status(403).json({
+        message: "Gói của bạn đã hết hạn. Vui lòng mua thêm gói để tiếp tục.",
+      });
     }
 
     if (
@@ -949,6 +894,8 @@ exports.createJobPosting = async (req, res) => {
     });
 
     await newJobPosting.save();
+    user.postsRemaining -= 1;
+    await user.save();
 
     res.status(201).json({
       message: "Bài tuyển dụng đã được đăng thành công.",
@@ -960,6 +907,7 @@ exports.createJobPosting = async (req, res) => {
     res.status(500).json({ message: "Đã xảy ra lỗi khi tạo bài tuyển dụng." });
   }
 };
+
 // Lấy top 3 công ty
 exports.getTop3CompaniesWithJobDetails = async (req, res) => {
   try {

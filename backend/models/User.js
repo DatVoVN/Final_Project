@@ -29,6 +29,23 @@ const userSchema = new mongoose.Schema(
     isRejected: { type: Boolean, default: false },
     otp: { type: String },
     otpExpires: { type: Date },
+    ////// THANH TOÁN STRIPE
+    package: {
+      type: String,
+      default: null,
+    },
+    postsRemaining: {
+      type: Number,
+      default: 0,
+    },
+    packageExpires: {
+      type: Date,
+      default: null,
+    },
+    stripeCustomerId: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -42,6 +59,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
+//////////// CẬP NHẬP GÓI SAU KHI THANH TOÁN THÀNH CÔNG
 
 userSchema.index({ company: 1 });
 const User = mongoose.model("User", userSchema);

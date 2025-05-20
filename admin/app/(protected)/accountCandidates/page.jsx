@@ -11,12 +11,10 @@ const Page = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [candidateToDelete, setCandidateToDelete] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [candidateToView, setCandidateToView] = useState(null);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

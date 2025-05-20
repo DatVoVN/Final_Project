@@ -13,16 +13,12 @@ const JobPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
-
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
-
   const [isEmployerOpen, setIsEmployerOpen] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState(null);
 

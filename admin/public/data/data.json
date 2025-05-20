@@ -18,6 +18,12 @@
       "icon": "ShoppingCart",
       "href": "/blog"
     },
+
+    {
+      "name": "Package",
+      "icon": "ShoppingCart",
+      "href": "/package"
+    },
     { "name": "Logout", "icon": "Settings", "href": "/logout" }
   ]
 }

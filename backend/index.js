@@ -12,12 +12,15 @@ const developerRouter = require("./routes/developer");
 const blogRouter = require("./routes/blog");
 const questionRouter = require("./routes/question");
 const postRouter = require("./routes/post");
-
+const cvRoutes = require("./routes/cvRoutes");
+const jobAnalysisRoutes = require("./routes/jobAnalysis");
+const matchRoutes = require("./routes/match");
 const corsOptions = {
   origin: "*",
   methods: "GET,POST,PUT,DELETE,PATCH",
   credentials: true,
 };
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 // MIDDLEWARE
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -46,7 +49,13 @@ app.use("/api/v1/developer", developerRouter);
 app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/post", postRouter);
-
+app.use("/api/v1/cv", cvRoutes);
+app.use("/api/v1/job-analysis", jobAnalysisRoutes);
+app.use("/api/v1/match", matchRoutes);
+/// THANH TOÁN STRIPE
+app.use("/api/stripe", require("./routes/stripeWebhook"));
+app.use("/api/checkout", require("./routes/checkout"));
+app.post("/health", (_, res) => res.send("OK"));
 // START SERVER
 app.listen(8000, () => {
   console.log("Server running on port 8000");

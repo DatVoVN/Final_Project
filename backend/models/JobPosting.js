@@ -116,7 +116,16 @@ const jobPostingSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    structuredInfo: {
+      type: Object,
+      default: {},
+    },
+    jobEmbedding: {
+      type: [Number],
+      default: [],
+    },
   },
+
   { timestamps: true }
 );
 

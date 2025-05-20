@@ -7,6 +7,8 @@ const sendEmail = require("../utils/email");
 const Candidate = require("../models/Candidate");
 const JobPosting = require("../models/JobPosting");
 const Blog = require("../models/Blog");
+const Package = require("../models/Package");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 //////////////////////////////////////ADMIN//////////////////////////////////
 ///////// AUTH
 exports.loginAdmin = async (req, res) => {
@@ -369,5 +371,125 @@ exports.deleteJobByAdmin = async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi xóa công việc:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi xóa công việc." });
+  }
+};
+////////////////////////// QUẢN LÝ GÓI ///////////////////////
+exports.createPackage = async (req, res) => {
+  try {
+    const { name, label, description, posts, priceVND, duration } = req.body;
+    if (!name || !label || !posts || !priceVND || !duration) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc." });
+    }
+
+    const existing = await Package.findOne({ name });
+    if (existing) {
+      return res.status(409).json({ message: "Tên gói đã tồn tại." });
+    }
+    const product = await stripe.products.create({ name: label, description });
+    const price = await stripe.prices.create({
+      unit_amount: priceVND,
+      currency: "vnd",
+      product: product.id,
+    });
+    const newPackage = new Package({
+      name,
+      label,
+      description,
+      posts,
+      priceVND,
+      duration,
+      priceId: price.id,
+    });
+
+    await newPackage.save();
+    res
+      .status(201)
+      .json({ message: "Gói đã được tạo thành công.", data: newPackage });
+  } catch (error) {
+    console.error("Lỗi tạo gói:", error);
+    res.status(500).json({ message: "Lỗi khi tạo gói." });
+  }
+};
+exports.getPackage = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search?.trim() || "";
+
+    const skip = (page - 1) * limit;
+
+    const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { label: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const [packages, total] = await Promise.all([
+      Package.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Package.countDocuments(query),
+    ]);
+
+    res.json({
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+      data: packages,
+    });
+  } catch (error) {
+    console.error("Lỗi tìm kiếm/phân trang gói:", error);
+    res.status(500).json({ message: "Không thể lấy danh sách gói." });
+  }
+};
+
+exports.getPackageByName = async (req, res) => {
+  try {
+    const found = await Package.findOne({ name: req.params.name });
+    if (!found) return res.status(404).json({ message: "Không tìm thấy gói." });
+    res.json(found);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi tìm gói." });
+  }
+};
+exports.updatePackage = async (req, res) => {
+  try {
+    const { label, description, posts, priceVND, duration } = req.body;
+    if (!label || !posts || !priceVND || !duration) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc." });
+    }
+
+    const updated = await Package.findByIdAndUpdate(
+      req.params.id,
+      { label, description, posts, priceVND, duration },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy gói để cập nhật." });
+    }
+
+    res.json({ message: "Đã cập nhật gói thành công.", data: updated });
+  } catch (error) {
+    console.error("🔥 Chi tiết lỗi khi cập nhật gói:");
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
+    res.status(500).json({
+      message: "Lỗi khi cập nhật gói.",
+      error: error.message,
+    });
+  }
+};
+exports.deletePackage = async (req, res) => {
+  try {
+    const deleted = await Package.findByIdAndDelete(req.params.id);
+    if (!deleted)
+      return res.status(404).json({ message: "Không tìm thấy gói để xoá." });
+    res.json({ message: "Đã xoá gói thành công." });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi xoá gói." });
   }
 };

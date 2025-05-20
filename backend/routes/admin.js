@@ -43,4 +43,10 @@ router.delete(
 );
 router.get("/jobs", adminController.getAllJob);
 router.delete("/jobs/:id", protectAdmin, adminController.deleteJobByAdmin);
+//////////// quản lý package/////////////
+router.get("/package", adminController.getPackage);
+router.get("/package/:name", adminController.getPackageByName);
+router.post("/package", protectAdmin, adminController.createPackage);
+router.put("/package/:id", protectAdmin, adminController.updatePackage);
+router.delete("/package/:id", protectAdmin, adminController.deletePackage);
 module.exports = router;
