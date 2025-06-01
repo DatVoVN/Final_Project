@@ -5,8 +5,8 @@ const fs = require("fs");
 
 const avatarStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, "..", "uploads", "avatars"); // Đường dẫn tới thư mục avatars
-    fs.mkdirSync(uploadPath, { recursive: true }); // Tạo thư mục nếu chưa có
+    const uploadPath = path.join(__dirname, "..", "uploads", "avatars");
+    fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
@@ -16,7 +16,6 @@ const avatarStorage = multer.diskStorage({
 });
 
 const avatarFileFilter = (req, file, cb) => {
-  // Chỉ chấp nhận file ảnh
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {

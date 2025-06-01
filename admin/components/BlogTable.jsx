@@ -2,6 +2,9 @@
 import React from "react";
 import { Eye, Pencil, Trash } from "lucide-react";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
 const BlogTable = ({ blogs, onView, onEdit, onDelete }) => {
   if (!blogs || blogs.length === 0) {
     return (
@@ -38,9 +41,9 @@ const BlogTable = ({ blogs, onView, onEdit, onDelete }) => {
               <td className="px-4 py-3 whitespace-nowrap">
                 <img
                   src={
-                    blog.imageUrl.startsWith("http")
+                    blog.imageUrl?.startsWith("http")
                       ? blog.imageUrl
-                      : `http://localhost:8000${blog.imageUrl}`
+                      : `${BASE_URL}${blog.imageUrl}`
                   }
                   alt={blog.title}
                   className="w-14 h-14 object-cover rounded"
@@ -51,21 +54,21 @@ const BlogTable = ({ blogs, onView, onEdit, onDelete }) => {
               <td className="px-4 py-3">{formatDate(blog.createdAt)}</td>
               <td className="px-4 py-3 text-center space-x-2">
                 <button
-                  onClick={() => onView && onView(blog)}
+                  onClick={() => onView?.(blog)}
                   title="Xem chi tiết"
                   className="p-1.5 rounded-full text-blue-400 hover:bg-blue-700 hover:text-white transition"
                 >
                   <Eye size={18} />
                 </button>
                 <button
-                  onClick={() => onEdit && onEdit(blog)}
+                  onClick={() => onEdit?.(blog)}
                   title="Sửa blog"
                   className="p-1.5 rounded-full text-yellow-400 hover:bg-yellow-600 hover:text-white transition"
                 >
                   <Pencil size={18} />
                 </button>
                 <button
-                  onClick={() => onDelete && onDelete(blog._id)}
+                  onClick={() => onDelete?.(blog._id)}
                   title="Xóa blog"
                   className="p-1.5 rounded-full text-red-400 hover:bg-red-700 hover:text-white transition"
                 >

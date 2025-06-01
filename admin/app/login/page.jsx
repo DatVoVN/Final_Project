@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
+
 const LoginPage = () => {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
@@ -14,13 +15,16 @@ const LoginPage = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const router = useRouter();
 
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/admin/login", {
+      const res = await fetch(`${BASE_URL}/api/v1/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,6 +40,7 @@ const LoginPage = () => {
       if (!res.ok) {
         throw new Error(data.message || "Tài khoản hoặc mật khẩu không đúng.");
       }
+
       if (data.token) {
         Cookies.set("adminToken", data.token, { expires: 7, path: "/" });
         router.push("/overview");
@@ -56,7 +61,6 @@ const LoginPage = () => {
   };
 
   return (
-    // Nền chính với gradient tinh tế và căn giữa nội dung
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-gray-900 flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white antialiased">
       <motion.div
         initial={{ opacity: 0, y: -30, scale: 0.95 }}
@@ -64,11 +68,8 @@ const LoginPage = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-md"
       >
-        {/* Card đăng nhập với bo góc lớn hơn và bóng đổ có màu nhẹ */}
         <div className="bg-gray-800/70 backdrop-blur-md p-8 sm:p-10 rounded-2xl shadow-2xl shadow-blue-500/10 border border-gray-700/50">
           <div className="text-center mb-8">
-            {/* Có thể thêm logo ở đây */}
-            {/* <img src="/logo.svg" alt="Your Logo" className="w-20 h-20 mx-auto mb-4 text-blue-500" /> */}
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
               Admin Login
             </h1>
@@ -77,7 +78,6 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Thông báo lỗi được cải thiện */}
           {errorMsg && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -90,7 +90,6 @@ const LoginPage = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Trường Tài khoản */}
             <div>
               <label
                 htmlFor="account"
@@ -116,7 +115,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Trường Mật khẩu */}
             <div>
               <label
                 htmlFor="password"
@@ -153,6 +151,7 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
+
             <div>
               <button
                 type="submit"

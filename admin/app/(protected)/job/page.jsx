@@ -7,6 +7,8 @@ import EmployerModal from "@/components/EmployerModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import Pagination from "@/components/Paginations";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
+import JobDetailModal from "@/components/JobDetailModal";
 
 const JobPage = () => {
   const [jobs, setJobs] = useState([]);
@@ -15,18 +17,21 @@ const JobPage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [isEmployerOpen, setIsEmployerOpen] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const fetchJobs = async (page = 1) => {
     try {
       const token = Cookies.get("adminToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/admin/jobs?page=${page}&limit=5&search=${searchQuery}`,
+        `${BASE_URL}/api/v1/admin/jobs?page=${page}&limit=5&search=${searchQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -61,44 +66,80 @@ const JobPage = () => {
     fetchJobs(currentPage);
   }, [currentPage]);
 
-  const handleDelete = (id) => {
-    setJobToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!jobToDelete) return;
-
+  const handleViewJob = async (jobId) => {
     try {
-      const token = Cookies.get("adminToken");
-
-      const res = await fetch(
-        `http://localhost:8000/api/v1/admin/jobs/${jobToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const res = await fetch(`${BASE_URL}/api/v1/developer/jobs/${jobId}`);
       const data = await res.json();
-      console.log("Delete response:", data);
 
       if (res.ok) {
-        fetchJobs(currentPage); // reload lại
-        setIsDeleteModalOpen(false);
+        setSelectedJob(data.data);
+        setIsJobModalOpen(true);
       } else {
-        console.error("Xóa thất bại", data.message);
+        toast.error("❌ Không thể tải thông tin công việc");
       }
     } catch (error) {
-      console.error("Lỗi khi xóa:", error);
+      console.error("Lỗi khi xem chi tiết job:", error);
+      toast.error("❌ Có lỗi xảy ra khi lấy dữ liệu");
     }
   };
 
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setJobToDelete(null);
+  const handleDelete = (id) => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa công việc này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("adminToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/admin/jobs/${id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  const data = await res.json();
+
+                  if (res.ok) {
+                    toast.success("✅ Đã xóa công việc thành công");
+                    fetchJobs(currentPage);
+                  } else {
+                    toast.error(
+                      `❌ Xóa thất bại: ${data.message || "Không xác định"}`
+                    );
+                  }
+                } catch (error) {
+                  toast.error("❌ Có lỗi xảy ra khi xóa");
+                  console.error("Lỗi khi xóa:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
+      }
+    );
   };
 
   const handleViewCompany = (job) => {
@@ -181,6 +222,7 @@ const JobPage = () => {
               onViewCompany={handleViewCompany}
               onDelete={handleDelete}
               onViewEmployer={handleViewEmployer}
+              onViewJob={handleViewJob}
             />
           )}
 
@@ -193,14 +235,6 @@ const JobPage = () => {
           )}
         </motion.div>
       </main>
-
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        message="Bạn chắc chắn muốn xóa công việc này?"
-      />
-
       <CompanyModal
         isOpen={isCompanyModalOpen}
         onClose={closeCompanyModal}
@@ -211,6 +245,11 @@ const JobPage = () => {
         isOpen={isEmployerOpen}
         onClose={closeEmployerModal}
         employer={selectedEmployer}
+      />
+      <JobDetailModal
+        isOpen={isJobModalOpen}
+        onClose={() => setIsJobModalOpen(false)}
+        job={selectedJob}
       />
     </div>
   );

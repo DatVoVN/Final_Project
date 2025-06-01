@@ -8,25 +8,29 @@ import ConfirmModal from "@/components/ConfirmModal";
 import PackageModalAdd from "@/components/PackageModalAdd";
 import PackageModalEdit from "@/components/PackageModalEdit";
 import PackageModalView from "@/components/PackageModalView";
+import toast from "react-hot-toast";
+
 const PackagePage = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [packageToDelete, setPackageToDelete] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
   const fetchPackages = async (page = 1) => {
     try {
       setLoading(true);
       const token = Cookies.get("adminToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/admin/package?page=${page}&limit=5&search=${searchQuery}`,
+        `${BASE_URL}/api/v1/admin/package?page=${page}&limit=5&search=${searchQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,61 +54,88 @@ const PackagePage = () => {
       setIsSearching(false);
     }
   };
+
   useEffect(() => {
     const debounce = setTimeout(() => {
       fetchPackages(1);
     }, 500);
     return () => clearTimeout(debounce);
   }, [searchQuery]);
+
   useEffect(() => {
     fetchPackages(currentPage);
   }, [currentPage]);
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleDelete = (id) => {
-    setPackageToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-  const confirmDelete = async () => {
-    if (!packageToDelete) return;
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa gói này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("adminToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/admin/package/${id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
 
-    try {
-      const token = Cookies.get("adminToken");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/admin/package/${packageToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.ok) {
-        setPackages((prev) =>
-          prev.filter((packages) => packages._id !== packageToDelete)
-        );
-        setIsDeleteModalOpen(false);
-      } else {
-        console.error("Xóa thất bại");
+                  if (res.ok) {
+                    setPackages((prev) => prev.filter((pkg) => pkg._id !== id));
+                    toast.success("✅ Đã xóa gói thành công");
+                  } else {
+                    toast.error("❌ Xóa gói thất bại");
+                  }
+                } catch (error) {
+                  toast.error("❌ Có lỗi khi xóa");
+                  console.error("Lỗi khi xóa:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
       }
-    } catch (error) {
-      console.error("Lỗi khi xóa:", error);
-    }
+    );
   };
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setPackageToDelete(null);
-  };
+
   const handleEdit = (packages) => {
     setSelectedPackage(packages);
     setEditModalOpen(true);
   };
+
   const handleView = (packages) => {
     setSelectedPackage(packages);
     setViewModalOpen(true);
   };
+
   return (
     <div className="flex-1 overflow-y-auto relative z-10 min-h-screen p-6">
       <main className="max-w-7xl mx-auto">
@@ -114,7 +145,7 @@ const PackagePage = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-            <h2 className="text-xl font-bold text-white">Danh sách Gói</h2>
+            <h1 className="text-2xl font-bold text-white">Danh sách Gói</h1>
             <div className="flex items-center gap-4 flex-grow max-w-md">
               <input
                 type="text"
@@ -181,12 +212,6 @@ const PackagePage = () => {
         isOpen={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
         packages={selectedPackage}
-      />
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        message="Bạn chắc chắn muốn xóa ứng viên này?"
       />
       <PackageModalAdd
         isOpen={createModalOpen}

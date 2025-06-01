@@ -455,7 +455,7 @@ const updateMyInfo = async (req, res) => {
 /////////////////////////// AVATAR //////////////////////////////
 const updateMyAvatar = async (req, res) => {
   try {
-    const userId = req.user.id || req.userId; // lấy từ verifyToken
+    const userId = req.user.id || req.userId;
     console.log("➡️ userId từ token:", userId);
 
     // Tìm ứng viên bằng _id
@@ -527,12 +527,12 @@ const updateMyAvatar = async (req, res) => {
 
 const uploadAvatar = async (req, res) => {
   try {
-    const userId = req.params.id; // Lấy userId từ route params
-    const candidate = await Candidate.findById(userId); // Tìm ứng viên theo userId
+    const userId = req.params.id;
+    const candidate = await Candidate.findById(userId);
 
     if (!candidate) {
       if (req.file?.path && fs.existsSync(req.file.path)) {
-        deleteFileIfExists(req.file.path); // Xóa file nếu không tìm thấy ứng viên
+        deleteFileIfExists(req.file.path);
       }
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
@@ -655,18 +655,12 @@ const unmarkJobAsInterested = async (req, res) => {
         .status(400)
         .json({ message: "Ứng viên chưa quan tâm công việc này." });
     }
-
-    // Gỡ jobId khỏi danh sách công việc yêu thích của ứng viên
     candidate.interestedJobs.splice(index, 1);
     await candidate.save();
-
-    // Cập nhật trường likedByCandidates của công việc
     const job = await JobPosting.findById(jobId);
     if (!job) {
       return res.status(404).json({ message: "Không tìm thấy công việc." });
     }
-
-    // Loại bỏ ứng viên khỏi danh sách likedByCandidates
     job.likedByCandidates = job.likedByCandidates.filter(
       (entry) => entry.candidate.toString() !== userId.toString()
     );
@@ -701,13 +695,28 @@ const getInterestedJobs = async (req, res) => {
     }
 
     const interestedJobIds = candidate.interestedJobs || [];
-
     if (interestedJobIds.length === 0) {
-      return res
-        .status(200)
-        .json({ message: "Không có công việc yêu thích.", jobs: [] });
+      return res.status(200).json({
+        message: "Không có công việc yêu thích.",
+        jobs: [],
+        totalJobs: 0,
+        totalPages: 0,
+        currentPage: 1,
+      });
     }
-    const jobs = await JobPosting.find({ _id: { $in: interestedJobIds } })
+
+    // Phân trang
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalJobs = interestedJobIds.length;
+    const totalPages = Math.ceil(totalJobs / limit);
+
+    // Cắt danh sách ID theo trang
+    const paginatedJobIds = interestedJobIds.slice(skip, skip + limit);
+
+    const jobs = await JobPosting.find({ _id: { $in: paginatedJobIds } })
       .populate({
         path: "company",
         select: "name avatarUrl city",
@@ -722,6 +731,9 @@ const getInterestedJobs = async (req, res) => {
     res.status(200).json({
       message: "Lấy danh sách công việc yêu thích thành công.",
       jobs: jobsWithStatus,
+      totalJobs,
+      totalPages,
+      currentPage: page,
     });
   } catch (err) {
     console.error("Lỗi khi lấy công việc yêu thích:", err);
@@ -731,6 +743,7 @@ const getInterestedJobs = async (req, res) => {
     });
   }
 };
+
 const checkIfJobIsInterested = async (req, res) => {
   try {
     if (!req.userId) {
@@ -844,7 +857,7 @@ const getLikedCompanies = async (req, res) => {
     }
 
     const userId = req.userId;
-    const { page = 1, limit = 10 } = req.query; // Lấy tham số phân trang từ query (mặc định là trang 1 và giới hạn 10 công ty mỗi trang)
+    const { page = 1, limit = 10 } = req.query;
 
     const candidate = await Candidate.findById(userId).populate(
       "likedCompanies"
@@ -854,25 +867,20 @@ const getLikedCompanies = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
 
-    // Tính toán số lượng công ty cần lấy dựa trên trang và giới hạn
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-
-    // Lấy danh sách công ty yêu thích và áp dụng phân trang
     const paginatedCompanies = candidate.likedCompanies.slice(
       startIndex,
       endIndex
     );
-
-    // Tổng số công ty yêu thích của ứng viên
     const totalCompanies = candidate.likedCompanies.length;
 
     res.status(200).json({
       message: "Lấy danh sách công ty yêu thích thành công.",
       companies: paginatedCompanies,
       totalCompanies,
-      totalPages: Math.ceil(totalCompanies / limit), // Tổng số trang
-      currentPage: Number(page), // Trang hiện tại
+      totalPages: Math.ceil(totalCompanies / limit),
+      currentPage: Number(page),
     });
   } catch (err) {
     console.error("Lỗi khi lấy danh sách công ty yêu thích:", err);
@@ -915,7 +923,7 @@ const checkIfCompanyIsLiked = async (req, res) => {
 //////////////// TẠO CV //////////////////////////////
 const updateStructuredCV = async (req, res) => {
   try {
-    const candidateId = req.userId; // giả sử từ middleware `authenticate`
+    const candidateId = req.userId;
     const {
       summary,
       education,

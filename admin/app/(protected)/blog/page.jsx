@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import BlogTable from "@/components/BlogTable";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Paginations";
 import Cookies from "js-cookie";
 import BlogModalView from "@/components/BlogModalView";
 import BlogModalEdit from "@/components/BlogModalEdit";
 import BlogModalAdd from "@/components/BlogModalAdd";
+import toast from "react-hot-toast";
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
@@ -19,20 +19,31 @@ const BlogPage = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
   const fetchBlogs = async (page = 1) => {
     try {
-      const res = await axios.get(
-        `http://localhost:8000/api/v1/blog?page=${page}&limit=5&search=${searchQuery}`
+      const res = await fetch(
+        `${BASE_URL}/api/v1/blog?page=${page}&limit=5&search=${searchQuery}`
       );
-      setBlogs(res.data.blogs || []);
-      setCurrentPage(res.data.currentPage || 1);
-      setTotalPages(res.data.totalPages || 1);
+      const data = await res.json();
+
+      if (res.ok) {
+        setBlogs(data.blogs || []);
+        setCurrentPage(data.currentPage || 1);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        console.error("Lỗi khi tải blog:", data.message);
+      }
     } catch (error) {
-      console.error("Lỗi khi tải blog:", error);
+      console.error("Lỗi khi gọi API:", error);
     } finally {
       setIsSearching(false);
     }
   };
+
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchBlogs(1);
@@ -40,6 +51,7 @@ const BlogPage = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
+
   useEffect(() => {
     fetchBlogs(currentPage);
   }, [currentPage]);
@@ -47,6 +59,7 @@ const BlogPage = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleView = (blog) => {
     setSelectedBlog(blog);
     setViewModalOpen(true);
@@ -56,18 +69,56 @@ const BlogPage = () => {
     setSelectedBlog(blog);
     setEditModalOpen(true);
   };
-  const handleDelete = async (id) => {
-    if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
-      try {
-        const token = Cookies.get("adminToken");
-        await axios.delete(`http://localhost:8000/api/v1/blog/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        fetchBlogs(currentPage);
-      } catch (error) {}
-    }
+
+  const handleDelete = (id) => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa bài viết này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("adminToken");
+                  const res = await fetch(`${BASE_URL}/api/v1/blog/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  });
+
+                  if (!res.ok) throw new Error("Delete failed");
+
+                  toast.success("✅ Xóa bài viết thành công");
+                  fetchBlogs(currentPage);
+                } catch (error) {
+                  toast.error("❌ Có lỗi xảy ra khi xóa bài viết");
+                  console.error("Lỗi xóa blog:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
+      }
+    );
   };
 
   return (
@@ -95,6 +146,7 @@ const BlogPage = () => {
           </button>
         </div>
       </div>
+
       {isSearching && (
         <div className="text-gray-400 mb-2 flex items-center">
           <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
@@ -116,12 +168,14 @@ const BlogPage = () => {
           Đang tìm kiếm...
         </div>
       )}
+
       <BlogTable
         blogs={blogs}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+
       {blogs.length > 0 && totalPages > 0 && (
         <Pagination
           currentPage={currentPage}

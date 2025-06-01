@@ -27,6 +27,8 @@ const {
   getTop3CompaniesWithJobDetails,
   getSuggestions,
   getTop5CompaniesWithJobDetails,
+  updateMyInfo,
+  deleteApplicant,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
@@ -62,6 +64,8 @@ router.get("/suggestions", getSuggestions);
 //////////////////////////////// THÔNG TIN ////////////////////////////////////
 /// xem thong tin cua developer
 router.get("/me", protectEmployer, getMyInfo);
+/// Cập nhật thông tin developer
+router.put("/me", protectEmployer, updateMyInfo);
 /// cập nhât công ty
 router.put(
   "/my-company",
@@ -90,5 +94,10 @@ router.patch(
   "/jobs/:jobId/applicants/:applicantId",
   protectEmployer,
   handleApplicantDecision
+);
+router.delete(
+  "/jobs/:jobId/applicants/:applicantId",
+  protectEmployer,
+  deleteApplicant
 );
 module.exports = router;

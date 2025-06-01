@@ -2,6 +2,9 @@
 import React from "react";
 import { Eye, Trash } from "lucide-react";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
 const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
   if (!candidates || candidates.length === 0) {
     return (
@@ -17,6 +20,11 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  const getAvatarUrl = (url) => {
+    if (!url) return "/default-avatar.png";
+    return url.startsWith("http") ? url : `${BASE_URL}${url}`;
   };
 
   return (
@@ -41,11 +49,8 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
             >
               <td className="px-6 py-4">
                 <img
-                  src={
-                    candidate.avatarUrl
-                      ? `http://localhost:8000${candidate.avatarUrl}`
-                      : candidate.avatarUrl
-                  }
+                  src={getAvatarUrl(candidate.avatarUrl)}
+                  alt={candidate.fullName}
                   className="w-14 h-14 object-cover rounded"
                 />
               </td>
@@ -53,7 +58,9 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
                 {candidate.email}
               </td>
               <td className="px-6 py-4">{candidate.fullName}</td>
-              <td className="px-6 py-4">{candidate.phone}</td>
+              <td className="px-6 py-4">
+                {candidate.phone || "Chưa có thông tin"}
+              </td>
               <td className="px-6 py-4">{formatDate(candidate.createdAt)}</td>
               <td className="px-6 py-4">
                 {candidate.isVerified ? (
@@ -64,14 +71,14 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
               </td>
               <td className="px-6 py-4 text-center space-x-2">
                 <button
-                  onClick={() => onViewProfile && onViewProfile(candidate)}
+                  onClick={() => onViewProfile?.(candidate)}
                   className="p-1.5 rounded-full text-blue-400 hover:bg-blue-700 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                   title="Xem hồ sơ"
                 >
                   <Eye size={18} />
                 </button>
                 <button
-                  onClick={() => onDelete && onDelete(candidate._id)}
+                  onClick={() => onDelete?.(candidate._id)}
                   className="p-1.5 rounded-full text-red-400 hover:bg-red-700 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                   title="Xóa ứng viên"
                 >

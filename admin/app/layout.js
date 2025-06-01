@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +59,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#121212] text-white`}
       >
         <AuthProvider>
+          <Toaster position="top-right" reverseOrder={false} />{" "}
           <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
       </body>

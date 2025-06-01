@@ -1,0 +1,97 @@
+{
+  "Backend Developer": {
+    "description": "Thiết kế, xây dựng và duy trì API, dịch vụ máy chủ & cơ sở dữ liệu.",
+    "requiredSkills": ["Java", "Spring", "SQL", "REST"],
+    "preferredSkills": ["Docker", "Microservices", "AWS", "Kubernetes"]
+  },
+  "Frontend Developer": {
+    "description": "Phát triển giao diện web tương tác và tối ưu hiệu năng.",
+    "requiredSkills": ["JavaScript", "React", "HTML", "CSS"],
+    "preferredSkills": ["TypeScript", "Next.js", "Redux", "Unit Testing"]
+  },
+  "Full‑Stack Developer": {
+    "description": "Thành thạo cả frontend lẫn backend, đảm bảo luồng dữ liệu end‑to‑end.",
+    "requiredSkills": ["JavaScript", "Node.js", "React", "SQL"],
+    "preferredSkills": ["GraphQL", "Docker", "CI/CD", "AWS"]
+  },
+  "Mobile Developer": {
+    "description": "Xây dựng ứng dụng di động native hoặc cross‑platform.",
+    "requiredSkills": ["Kotlin", "Swift", "Android", "iOS"],
+    "preferredSkills": ["Flutter", "React Native", "REST", "Firebase"]
+  },
+  "DevOps Engineer": {
+    "description": "Tự động hoá, giám sát và triển khai hạ tầng CI/CD.",
+    "requiredSkills": ["Linux", "Docker", "CI/CD", "AWS"],
+    "preferredSkills": ["Kubernetes", "Terraform", "Prometheus", "Bash"]
+  },
+  "Data Engineer": {
+    "description": "Thiết kế pipeline dữ liệu, kho dữ liệu và ETL.",
+    "requiredSkills": ["Python", "SQL", "ETL", "Airflow"],
+    "preferredSkills": ["Spark", "Kafka", "AWS Glue", "Delta Lake"]
+  },
+  "Data Scientist": {
+    "description": "Phân tích và xây mô hình dự đoán từ tập dữ liệu lớn.",
+    "requiredSkills": ["Python", "Pandas", "Machine Learning", "Statistics"],
+    "preferredSkills": ["TensorFlow", "PyTorch", "Spark", "Docker"]
+  },
+  "Machine Learning Engineer": {
+    "description": "Triển khai và tối ưu hoá mô hình ML trong sản phẩm.",
+    "requiredSkills": ["Python", "TensorFlow", "PyTorch", "Docker"],
+    "preferredSkills": ["Kubeflow", "AWS Sagemaker", "MLOps", "CI/CD"]
+  },
+  "QA Engineer": {
+    "description": "Thiết kế & thực thi test case để đảm bảo chất lượng phần mềm.",
+    "requiredSkills": ["Test Automation", "Selenium", "API Testing", "JIRA"],
+    "preferredSkills": ["Cypress", "Playwright", "Performance Testing", "CI/CD"]
+  },
+  "Security Engineer": {
+    "description": "Bảo mật hệ thống, phát hiện & khắc phục lỗ hổng.",
+    "requiredSkills": [
+      "Network Security",
+      "Penetration Testing",
+      "OWASP",
+      "Linux"
+    ],
+    "preferredSkills": ["SIEM", "Cloud Security", "Cryptography", "Docker"]
+  },
+  "Cloud Architect": {
+    "description": "Thiết kế kiến trúc hệ thống trên nền tảng đám mây.",
+    "requiredSkills": ["AWS", "Networking", "Infrastructure as Code", "CI/CD"],
+    "preferredSkills": ["Azure", "GCP", "Kubernetes", "Cost Optimization"]
+  },
+  "Product Manager": {
+    "description": "Xác định vision, roadmap và ưu tiên tính năng sản phẩm.",
+    "requiredSkills": [
+      "Product Strategy",
+      "User Research",
+      "Agile",
+      "Roadmapping"
+    ],
+    "preferredSkills": ["Data Analytics", "A/B Testing", "UX", "SQL"]
+  },
+  "Project Manager": {
+    "description": "Lập kế hoạch, theo dõi tiến độ và quản lý nguồn lực dự án.",
+    "requiredSkills": [
+      "Project Planning",
+      "Scrum",
+      "Risk Management",
+      "Communication"
+    ],
+    "preferredSkills": [
+      "JIRA",
+      "MS Project",
+      "Budgeting",
+      "Stakeholder Management"
+    ]
+  },
+  "UI/UX Designer": {
+    "description": "Thiết kế trải nghiệm người dùng và giao diện trực quan.",
+    "requiredSkills": ["Figma", "Wireframing", "Prototyping", "User Research"],
+    "preferredSkills": [
+      "Design Systems",
+      "Accessibility",
+      "Motion Design",
+      "A/B Testing"
+    ]
+  }
+}

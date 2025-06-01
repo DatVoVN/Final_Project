@@ -3,8 +3,6 @@ import React from "react";
 import { Eye, Pencil, Trash } from "lucide-react";
 
 const PackageTable = ({ packages, onDelete, onEdit, onView }) => {
-  console.log(packages);
-
   if (!packages || packages.length === 0) {
     return (
       <p className="text-center text-gray-400 py-8">Không có dữ liệu gói.</p>
@@ -24,11 +22,10 @@ const PackageTable = ({ packages, onDelete, onEdit, onView }) => {
       <table className="w-full text-sm text-left text-gray-300 border-white border">
         <thead className="text-xs text-gray-100 uppercase">
           <tr>
-            <th className="px-6 py-3">Label</th>
-            <th className="px-6 py-3">Description</th>
-            <th className="px-6 py-3">Số tin đăng</th>
-            <th className="px-6 py-3">Giá</th>
-            <th className="px-6 py-3">Ngày được tăng thêm</th>
+            <th className="px-6 py-3">Tên gói</th>
+            <th className="px-6 py-3">Số lượt đăng</th>
+            <th className="px-6 py-3">Số tiền (VND)</th>
+            <th className="px-6 py-3">Thời hạn(Ngày)</th>
             <th className="px-6 py-3">Ngày tạo</th>
             <th className="px-6 py-3 text-center">Hành động</th>
           </tr>
@@ -42,7 +39,6 @@ const PackageTable = ({ packages, onDelete, onEdit, onView }) => {
               <td className="px-6 py-4 font-medium text-gray-50 whitespace-nowrap">
                 {item.label}
               </td>
-              <td className="px-6 py-4">{item.description}</td>
               <td className="px-6 py-4">{item.posts}</td>
               <td className="px-6 py-4">{item.priceVND}</td>
               <td className="px-6 py-4">{item.duration}</td>

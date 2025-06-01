@@ -55,11 +55,15 @@ exports.getEmployerJobPostings = async (req, res) => {
 exports.getAllApplicantsWithJobs = async (req, res) => {
   try {
     const employerId = req.user._id;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
     const jobs = await JobPosting.find({ employer: employerId })
       .populate({
         path: "applicants.candidate",
-        select:
-          "fullName email phone cvUrl avatarUrl gender dateOfBirth address",
       })
       .populate({
         path: "company",
@@ -74,8 +78,10 @@ exports.getAllApplicantsWithJobs = async (req, res) => {
 
     const applicantsWithJobs = [];
     const processedJobIds = new Set();
+
     for (const job of jobs) {
       if (processedJobIds.has(job._id.toString())) continue;
+
       applicantsWithJobs.push({
         job: {
           _id: job._id,
@@ -89,11 +95,18 @@ exports.getAllApplicantsWithJobs = async (req, res) => {
           note: applicant.note || "",
         })),
       });
+
       processedJobIds.add(job._id.toString());
     }
 
-    // Trả về danh sách ứng viên và thông tin bài đăng
-    res.status(200).json({ applicants: applicantsWithJobs });
+    const paginatedData = applicantsWithJobs.slice(startIndex, endIndex);
+
+    res.status(200).json({
+      total: applicantsWithJobs.length,
+      page,
+      totalPages: Math.ceil(applicantsWithJobs.length / limit),
+      applicants: paginatedData,
+    });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách ứng viên:", error);
     res.status(500).json({ message: "Lỗi server khi lấy dữ liệu." });
@@ -158,6 +171,35 @@ exports.handleApplicantDecision = async (req, res) => {
     res.status(500).json({ message: "Lỗi server" });
   }
 };
+exports.deleteApplicant = async (req, res) => {
+  try {
+    const { jobId, applicantId } = req.params;
+
+    const job = await JobPosting.findById(jobId);
+    if (!job) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bài đăng tuyển dụng." });
+    }
+    const originalLength = job.applicants.length;
+    job.applicants = job.applicants.filter(
+      (applicant) => applicant._id.toString() !== applicantId
+    );
+
+    if (job.applicants.length === originalLength) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy ứng viên trong danh sách." });
+    }
+
+    await job.save();
+
+    res.status(200).json({ message: "Đã xóa ứng viên khỏi bài đăng." });
+  } catch (error) {
+    console.error("Lỗi khi xóa ứng viên:", error);
+    res.status(500).json({ message: "Lỗi server khi xóa ứng viên." });
+  }
+};
 
 ///////////////////// THÔNG TIN /////////////////////////////
 /// Xem thông tin của developer
@@ -188,6 +230,50 @@ exports.getMyInfo = async (req, res) => {
     });
   }
 };
+/// Cập nhật thông tin cá nhân của developer
+exports.updateMyInfo = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { fullName, phoneNumber } = req.body;
+    if (!fullName) {
+      return res.status(400).json({ message: "Họ tên là bắt buộc." });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        fullName,
+        phoneNumber,
+      },
+      {
+        new: true,
+        runValidators: true,
+        select: "-password",
+      }
+    ).populate({
+      path: "company",
+      select: "-__v -createdAt -updatedAt",
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "Không tìm thấy người dùng để cập nhật.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật thông tin thành công.",
+      data: updatedUser,
+    });
+  } catch (err) {
+    console.error("Lỗi khi cập nhật thông tin:", err);
+    res.status(500).json({
+      message: "Lỗi server khi cập nhật thông tin.",
+      error: err.message,
+    });
+  }
+};
+
 // update công ty
 exports.updateMyCompany = async (req, res) => {
   try {
@@ -337,8 +423,8 @@ exports.getCompanyReviews = async (req, res) => {
 /// Lấy tất cả công ty
 exports.getAllCompany = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Trang hiện tại
-    const limit = parseInt(req.query.limit) || 10; // Số công ty/trang
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const totalCompanies = await Company.countDocuments();
@@ -393,19 +479,31 @@ exports.getAllCompany = async (req, res) => {
 exports.getJobsByCompany = async (req, res) => {
   try {
     const companyId = req.params.companyId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const totalJobs = await JobPosting.countDocuments({ company: companyId });
     const jobs = await JobPosting.find({ company: companyId })
       .populate("employer", "fullName email")
       .populate("company", "avatarUrl")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       message: "Lấy danh sách bài đăng của công ty thành công.",
       data: jobs,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalJobs / limit),
+        totalJobs: totalJobs,
+      },
     });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
 /// Lấy id job của bài đăng
 exports.getJobPostingByIdFix = async (req, res) => {
   try {
@@ -427,20 +525,37 @@ exports.getJobPostingByIdFix = async (req, res) => {
 /// Xem tất cả bài ứng tuyển
 exports.getAllJobPostings = async (req, res) => {
   try {
-    const data = await JobPosting.find()
-      .populate({
-        path: "company",
-        select: "",
-      })
-      .populate({
-        path: "employer",
-        select: "",
-      });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const status = req.query.status;
+
+    const filter = {};
+    if (status === "active") filter.isActive = true;
+    else if (status === "inactive") filter.isActive = false;
+
+    const totalJobs = await JobPosting.countDocuments(filter);
+
+    const data = await JobPosting.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate({ path: "company", select: "" })
+      .populate({ path: "employer", select: "" });
+
     if (data.length === 0) {
       return res.status(404).json({ message: "Chưa có bài tuyển dụng nào." });
     }
 
-    res.status(200).json({ data });
+    res.status(200).json({
+      data,
+      pagination: {
+        totalItems: totalJobs,
+        totalPages: Math.ceil(totalJobs / limit),
+        currentPage: page,
+        pageSize: limit,
+      },
+    });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách job:", error);
     res.status(500).json({ message: "Lỗi server khi lấy danh sách job." });
@@ -449,8 +564,16 @@ exports.getAllJobPostings = async (req, res) => {
 /// search Job
 exports.searchJob = async (req, res) => {
   try {
-    const { title, city, languages, experienceLevel, companyName, minSalary } =
-      req.query;
+    const {
+      title,
+      city,
+      languages,
+      experienceLevel,
+      companyName,
+      minSalary,
+      page = 1,
+      limit = 10,
+    } = req.query;
 
     const escapeRegex = (text) =>
       text.replace(/[-[\]/{}()*+?.\\^$|#]/g, "\\$&");
@@ -458,6 +581,7 @@ exports.searchJob = async (req, res) => {
     const jobQuery = {};
     const keyword = title ? escapeRegex(title.trim()) : null;
     let companyIdsFromTitle = [];
+
     if (keyword) {
       const matchedCompaniesByName = await Company.find({
         name: { $regex: keyword, $options: "i" },
@@ -503,12 +627,9 @@ exports.searchJob = async (req, res) => {
 
     if (city || companyName) {
       const companyFilter = {};
-      if (city) {
-        companyFilter.city = { $regex: city, $options: "i" };
-      }
-      if (companyName) {
+      if (city) companyFilter.city = { $regex: city, $options: "i" };
+      if (companyName)
         companyFilter.name = { $regex: companyName, $options: "i" };
-      }
 
       const matchedCompanies = await Company.find(companyFilter)
         .select("_id")
@@ -516,9 +637,14 @@ exports.searchJob = async (req, res) => {
 
       if (matchedCompanies.length === 0) {
         return res.status(200).json({
-          message:
-            "Không tìm thấy công ty nào khớp với tiêu chí tìm kiếm. Hiển thị công việc mới nhất.",
+          message: "Không tìm thấy công ty nào khớp với tiêu chí tìm kiếm.",
           data: [],
+          pagination: {
+            totalItems: 0,
+            totalPages: 0,
+            currentPage: Number(page),
+            pageSize: Number(limit),
+          },
         });
       }
 
@@ -532,20 +658,25 @@ exports.searchJob = async (req, res) => {
       }
     }
 
+    const skip = (Number(page) - 1) * Number(limit);
+    const totalJobs = await JobPosting.countDocuments(jobQuery);
+
     const jobs = await JobPosting.find(jobQuery)
-      .populate({
-        path: "company",
-        select: "name city address avatarUrl",
-      })
-      .populate({
-        path: "employer",
-        select: "fullName email",
-      })
-      .sort({ createdAt: -1 });
+      .populate({ path: "company", select: "name city address avatarUrl" })
+      .populate({ path: "employer", select: "fullName email" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
 
     return res.status(200).json({
       message: "Tìm kiếm thành công",
       data: jobs,
+      pagination: {
+        totalItems: totalJobs,
+        totalPages: Math.ceil(totalJobs / limit),
+        currentPage: Number(page),
+        pageSize: Number(limit),
+      },
     });
   } catch (error) {
     console.error("Lỗi khi tìm kiếm job:", error);
@@ -555,6 +686,7 @@ exports.searchJob = async (req, res) => {
     });
   }
 };
+
 // suggest job
 exports.getSuggestions = async (req, res) => {
   try {

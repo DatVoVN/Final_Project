@@ -27,7 +27,6 @@ exports.protectAdmin = async (req, res, next) => {
     res.status(401).json({ message: "Invalid or expired token." });
   }
 };
-// middlewares/authMiddleware.js
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

@@ -31,7 +31,7 @@ const CompanySchema = new mongoose.Schema(
         from: { type: String },
         to: { type: String },
       },
-      default: { from: "Monday", to: "Friday" },
+      default: { from: "Thứ 2", to: "Thứ 7" },
     },
     languages: {
       type: [String],

@@ -6,25 +6,25 @@ import Cookies from "js-cookie";
 import ConfirmModal from "@/components/ConfirmModal";
 import CompanyModal from "@/components/CompanyModal";
 import Pagination from "@/components/Paginations";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [developers, setDevelopers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [developerToDelete, setDeveloperToDelete] = useState(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const fetchDevelopers = async (page = 1) => {
     try {
       const token = Cookies.get("adminToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/admin/employers?page=${page}&limit=5&search=${searchQuery}`,
+        `${BASE_URL}/api/v1/admin/employers?page=${page}&limit=5&search=${searchQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,39 +65,56 @@ const Page = () => {
   };
 
   const handleDelete = (id) => {
-    setDeveloperToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa developer này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("adminToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/admin/employers/${id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  if (!res.ok) throw new Error("Delete failed");
 
-  const confirmDelete = async () => {
-    if (!developerToDelete) return;
-    try {
-      const token = Cookies.get("adminToken");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/admin/employers/${developerToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (res.ok) {
-        setDevelopers((prev) =>
-          prev.filter((dev) => dev._id !== developerToDelete)
-        );
-        setIsDeleteModalOpen(false);
-      } else {
-        console.error("Xóa thất bại");
+                  toast.success("✅ Đã xóa developer thành công");
+                  setDevelopers((prev) => prev.filter((dev) => dev._id !== id));
+                } catch (error) {
+                  toast.error("❌ Có lỗi khi xóa developer");
+                  console.error("Lỗi khi xóa developer:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
       }
-    } catch (error) {
-      console.error("Lỗi khi xóa:", error);
-    }
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setDeveloperToDelete(null);
+    );
   };
 
   const closeCompanyModal = () => {
@@ -176,14 +193,6 @@ const Page = () => {
           )}
         </motion.div>
       </main>
-
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        message="Bạn chắc chắn muốn xóa developer này?"
-      />
-
       <CompanyModal
         isOpen={isCompanyModalOpen}
         onClose={closeCompanyModal}

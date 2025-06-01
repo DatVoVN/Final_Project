@@ -380,7 +380,7 @@ const authController = {
       }
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+      const otpExpires = Date.now() + 10 * 60 * 1000;
 
       candidate.otp = otp;
       candidate.otpExpires = otpExpires;
@@ -429,7 +429,7 @@ const authController = {
   /// Đổi mật khẩu khi mình đã đăng nhập
   changePassword: async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    const candidateId = req.user.id; // req.user được gán từ middleware xác thực token
+    const candidateId = req.userId;
 
     try {
       const candidate = await Candidate.findById(candidateId);
@@ -512,14 +512,14 @@ const authController = {
       res.status(500).json({ message: "Đã xảy ra lỗi." });
     }
   },
-
   /// Đổi mật khẩu khi mình đã đăng nhập
   changePasswordE: async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const employerId = req.user.id;
 
     try {
-      const employer = await User.findById(employerId);
+      const employer = await User.findById(employerId).select("+password");
+
       if (!employer) {
         return res
           .status(404)
@@ -531,8 +531,7 @@ const authController = {
         return res.status(400).json({ message: "Mật khẩu cũ không đúng." });
       }
 
-      const hashed = await bcrypt.hash(newPassword, 10);
-      employer.password = hashed;
+      employer.password = newPassword;
       await employer.save();
 
       res.status(200).json({ message: "Đổi mật khẩu thành công." });

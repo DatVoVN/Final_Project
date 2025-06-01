@@ -3,18 +3,18 @@
 * {
   scroll-behavior: smooth;
 }
-/* styles/globals.css hoặc file CSS tương tự */
+
 .styled-scrollbar::-webkit-scrollbar {
-  width: 8px; /* Chiều rộng của scrollbar */
+  width: 8px;
 }
 
 .styled-scrollbar::-webkit-scrollbar-track {
-  background: theme("colors.slate.700"); /* Màu nền của track */
+  background: theme("colors.slate.700");
   border-radius: 10px;
 }
 
 .styled-scrollbar::-webkit-scrollbar-thumb {
-  background: theme("colors.slate.500"); /* Màu của thumb */
+  background: theme("colors.slate.500");
   border-radius: 10px;
 }
 

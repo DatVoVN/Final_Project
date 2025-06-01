@@ -1,8 +1,14 @@
 "use client";
 import React from "react";
-import { Eye, EyeClosed, Trash } from "lucide-react";
+import { Bookmark, Eye, EyeClosed, Trash } from "lucide-react";
 
-const JobTable = ({ jobPostings, onViewCompany, onDelete, onViewEmployer }) => {
+const JobTable = ({
+  jobPostings,
+  onViewCompany,
+  onDelete,
+  onViewEmployer,
+  onViewJob,
+}) => {
   if (!jobPostings || jobPostings.length === 0) {
     return (
       <p className="text-center text-gray-400 py-8">
@@ -57,6 +63,13 @@ const JobTable = ({ jobPostings, onViewCompany, onDelete, onViewEmployer }) => {
                   title="Xem thông tin nhà tuyển dụng"
                 >
                   <EyeClosed size={18} />
+                </button>
+                <button
+                  onClick={() => onViewJob && onViewJob(job._id)}
+                  className="p-1.5 rounded-full text-blue-400 hover:bg-blue-700 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Xem thông tin tin"
+                >
+                  <Bookmark size={18} />
                 </button>
                 <button
                   onClick={() => onDelete && onDelete(job._id)}

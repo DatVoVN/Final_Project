@@ -9,12 +9,8 @@ exports.createPost = async (req, res) => {
     if (!content) {
       return res.status(400).json({ message: "Thiếu nội dung bài đăng." });
     }
-
-    // Lấy thông tin từ middleware
     const authorId = req.userId;
     const authorType = req.userRole;
-
-    // Upload ảnh nếu có
     let imageUrl = "";
     if (req.file) {
       imageUrl = `/uploads/posts/${req.file.filename}`;
@@ -46,8 +42,8 @@ exports.getAllPosts = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("author")
-      .populate("comments.user");
+      .populate("author", "fullName avatarUrl")
+      .populate("comments.user", "fullName avatarUrl");
 
     const totalPosts = await Post.countDocuments();
     const totalPages = Math.ceil(totalPosts / limit);

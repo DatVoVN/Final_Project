@@ -1,5 +1,5 @@
 const Blog = require("../models/Blog");
-const slugify = require("slugify"); // Cần cài thư viện này: npm install slugify
+const slugify = require("slugify");
 
 // Thêm blog
 const fs = require("fs");

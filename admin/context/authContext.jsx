@@ -10,8 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  // Kiểm tra token khi app load
   useEffect(() => {
     const token = Cookies.get("adminToken");
     setIsAuthenticated(!!token);

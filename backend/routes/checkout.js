@@ -3,18 +3,12 @@ const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Package = require("../models/Package");
 const protectEmployer = require("../middleware/protectDeveloper");
-
+// STRIPE
 router.post("/create-checkout-session", protectEmployer, async (req, res) => {
   const { packageName } = req.body;
   const user = req.user;
-
-  console.log("📦 Tạo checkout session cho gói:", packageName);
-  console.log("👤 User:", user?.email, "ID:", user?._id);
-
   try {
     const selectedPackage = await Package.findOne({ name: packageName });
-    console.log("💰 selectedPackage:", selectedPackage);
-
     if (!selectedPackage) {
       return res.status(400).json({ message: "Gói không hợp lệ" });
     }
@@ -38,8 +32,6 @@ router.post("/create-checkout-session", protectEmployer, async (req, res) => {
 
     res.json({ url: session.url });
   } catch (err) {
-    console.error("🟥 Stripe checkout error:");
-    console.error("Message:", err.message);
     res.status(500).json({
       message: "Lỗi tạo phiên thanh toán.",
       error: err.message,

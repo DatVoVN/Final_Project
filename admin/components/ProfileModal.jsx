@@ -5,60 +5,87 @@ import {
   MapPin,
   Mail,
   Phone,
-  Calendar,
+  CalendarDays,
   FileText,
   File,
+  User as UserIcon,
 } from "lucide-react";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
 const InfoRow = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start py-2 border-b border-slate-700/60 last:border-b-0">
-    <div className="flex-shrink-0 w-6 mr-3 pt-0.5">
-      <Icon className="h-5 w-5 text-slate-400" />
+  <div className="flex items-start py-3 px-4 rounded-lg bg-slate-750 hover:bg-slate-700/60 transition-colors">
+    <div className="mr-3 p-2 bg-slate-700 rounded-lg">
+      <Icon className="h-5 w-5 text-cyan-400" />
     </div>
-    <div className="flex-1">
-      <span className="font-medium text-slate-300">{label}:</span>
-      <span className="ml-2 text-slate-200 break-words">{value || "N/A"}</span>
+    <div className="flex-1 min-w-0">
+      <div className="font-medium text-slate-400 text-sm">{label}</div>
+      <div className="mt-1 text-white font-medium text-lg break-words">
+        {value || <span className="text-slate-400">N/A</span>}
+      </div>
     </div>
   </div>
 );
 
 const ProfileModal = ({ isOpen, onClose, candidate }) => {
-  if (!isOpen || !candidate) return null;
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg border border-slate-700/80 transform transition-all duration-300 ease-out">
-        <div className="flex items-center justify-between p-5 border-b border-slate-700">
-          <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-            Thông tin chi tiết Ứng viên
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-200 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600 transition-all"
-            aria-label="Đóng"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-lg flex items-center justify-center p-4">
+      <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-3xl border border-slate-700">
+        <div className="relative p-5 border-b border-slate-700">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-t-xl"></div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+              CHI TIẾT ỨNG VIÊN
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div className="p-6 sm:p-8 max-h-[70vh] overflow-y-auto styled-scrollbar">
+        <div className="p-5 max-h-[70vh] overflow-y-auto styled-scrollbar space-y-5">
           {candidate ? (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {candidate.avatarUrl && (
+                <div className="flex justify-center mb-4">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative">
+                    <img
+                      src={`${BASE_URL}${candidate.avatarUrl}`}
+                      alt="Candidate avatar"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.parentNode.classList.add(
+                          "bg-gradient-to-r",
+                          "from-blue-50",
+                          "to-purple-100"
+                        );
+                        e.target.classList.add("opacity-0");
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <InfoRow
-                icon={User}
+                icon={UserIcon}
                 label="Họ và tên"
                 value={candidate.fullName}
               />
@@ -74,11 +101,15 @@ const ProfileModal = ({ isOpen, onClose, candidate }) => {
                 value={candidate.address}
               />
               <InfoRow
-                icon={Calendar}
+                icon={CalendarDays}
                 label="Ngày sinh"
-                value={new Date(candidate.dateOfBirth).toLocaleDateString(
-                  "vi-VN"
-                )}
+                value={
+                  candidate.dateOfBirth
+                    ? new Date(candidate.dateOfBirth).toLocaleDateString(
+                        "vi-VN"
+                      )
+                    : null
+                }
               />
               <InfoRow
                 icon={FileText}
@@ -88,15 +119,15 @@ const ProfileModal = ({ isOpen, onClose, candidate }) => {
               {candidate.cvUrl && (
                 <InfoRow
                   icon={File}
-                  label="Tải CV"
+                  label="CV"
                   value={
                     <a
-                      href={candidate.cvUrl}
-                      className="text-blue-500 hover:text-blue-400"
+                      href={`${BASE_URL}${candidate.cvUrl}`}
+                      className="text-cyan-400 hover:text-cyan-300 underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Tải CV
+                      Xem/Tải CV
                     </a>
                   }
                 />
@@ -128,17 +159,14 @@ const ProfileModal = ({ isOpen, onClose, candidate }) => {
           )}
         </div>
 
-        {candidate && (
-          <div className="px-5 py-4 border-t border-slate-700 text-right">
-            <button
-              onClick={onClose}
-              type="button"
-              className="px-6 py-2.5 rounded-lg bg-slate-600 text-slate-100 hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-colors duration-150 ease-in-out font-medium"
-            >
-              Đóng
-            </button>
-          </div>
-        )}
+        <div className="px-5 py-4 border-t border-slate-700 text-center">
+          <button
+            onClick={onClose}
+            className="px-8 py-3 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 rounded-xl text-white font-medium border border-slate-600 shadow-lg transition-all duration-300 hover:shadow-cyan-500/10"
+          >
+            Đóng chi tiết
+          </button>
+        </div>
       </div>
     </div>
   );

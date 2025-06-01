@@ -14,13 +14,13 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
-
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     userId: null,
     action: "",
   });
-
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   useEffect(() => {
     const fetchPendingEmployers = async () => {
       try {
@@ -28,7 +28,7 @@ const Page = () => {
         if (!token) throw new Error("No admin token found");
 
         const res = await fetch(
-          `http://localhost:8000/api/v1/admin/pending-employers?page=${currentPage}&limit=${limit}`,
+          `${BASE_URL}/api/v1/admin/pending-employers?page=${currentPage}&limit=${limit}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const Page = () => {
       const token = Cookies.get("adminToken");
       if (!token) throw new Error("No token found");
 
-      const url = `http://localhost:8000/api/v1/admin/${action}-employer/${userId}`;
+      const url = `${BASE_URL}/api/v1/admin/${action}-employer/${userId}`;
       const method = action === "approve" ? "PATCH" : "PATCH";
 
       const res = await fetch(url, {

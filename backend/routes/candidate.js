@@ -60,17 +60,17 @@ router.post(
 /////////////////////////////////////////// AVATAR ///////////////////////////////
 /// Cập nhật Avatar
 router.post(
-  "/me/avatar/:id", // Thay vì POST, sử dụng PUT hoặc PATCH để cập nhật tài nguyên
-  verifyToken, // Kiểm tra token
-  uploadAvatar.single("avatar"), // Xử lý file ảnh upload
-  candidateController.uploadAvatar // Controller xử lý cập nhật avatar
+  "/me/avatar/:id",
+  verifyToken,
+  uploadAvatar.single("avatar"),
+  candidateController.uploadAvatar
 );
 /// cập nhật avatar
 router.put(
-  "/me/avatar", // Thay vì POST, sử dụng PUT hoặc PATCH để cập nhật tài nguyên
-  verifyToken, // Kiểm tra token
-  uploadAvatar.single("avatar"), // Xử lý file ảnh upload
-  candidateController.updateMyAvatar // Controller xử lý cập nhật avatar
+  "/me/avatar",
+  verifyToken,
+  uploadAvatar.single("avatar"),
+  candidateController.updateMyAvatar
 );
 //////////////////////////////// Review /////////////////////////////////////////////
 /// Đăng review công ty

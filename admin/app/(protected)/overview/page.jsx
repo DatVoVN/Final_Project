@@ -24,12 +24,14 @@ const OverViewPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [topCompanies, setTopCompanies] = useState([]);
+
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
   useEffect(() => {
     const fetchTopCompanies = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8000/api/v1/developer/top5"
-        );
+        const response = await fetch(`${BASE_URL}/api/v1/developer/top5`);
         const data = await response.json();
         setTopCompanies(data.data || []);
       } catch (error) {
@@ -40,11 +42,12 @@ const OverViewPage = () => {
     };
 
     fetchTopCompanies();
-  }, []);
+  }, [BASE_URL]);
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/admin/stat");
+        const res = await fetch(`${BASE_URL}/api/v1/admin/stat`);
         const json = await res.json();
         setStats(json.data);
       } catch (err) {
@@ -55,7 +58,7 @@ const OverViewPage = () => {
     };
 
     fetchStats();
-  }, []);
+  }, [BASE_URL]);
 
   if (loading) {
     return (
@@ -70,12 +73,14 @@ const OverViewPage = () => {
       </div>
     );
   }
+
   const chartData = stats.jobsPerDay
     ?.map((item) => ({
       ...item,
       _id: dayjs(item._id).format("YYYY-MM-DD"),
     }))
     .sort((a, b) => new Date(a._id) - new Date(b._id));
+
   return (
     <div className="flex-1 overflow-x-auto relative z-10">
       <main className="max-w-7xl mx-auto py-4 px-4 lg:px-8">
@@ -90,6 +95,7 @@ const OverViewPage = () => {
           <StatCard name="Ứng viên" icon={UserPlus} value={stats.candidates} />
           <StatCard name="Job" icon={SquareActivity} value={stats.jobs} />
         </motion.div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -97,7 +103,7 @@ const OverViewPage = () => {
             transition={{ duration: 0.5 }}
             className="bg-[#1e1e1e] backdrop-blur-md shadow-lg rounded-xl border border-[#1f1f1f] p-6"
           >
-            <h3 className="text-lg font-semibold text-gray-300 mb-4 ">
+            <h3 className="text-lg font-semibold text-gray-300 mb-4">
               Top công ty nhiều việc làm
             </h3>
 
@@ -109,7 +115,6 @@ const OverViewPage = () => {
                     <th className="pb-3 px-4 text-right font-medium">Số job</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {topCompanies.map((company) => (
                     <tr
@@ -119,7 +124,7 @@ const OverViewPage = () => {
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-3">
                           <img
-                            src={`http://localhost:8000/${company.avatarUrl}`}
+                            src={`${BASE_URL}/${company.avatarUrl}`}
                             alt={company.name}
                             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                           />
@@ -128,7 +133,6 @@ const OverViewPage = () => {
                           </span>
                         </div>
                       </td>
-
                       <td className="py-4 px-4 text-right">
                         <span className="text-white font-medium bg-blue-600/20 px-3 py-1 rounded-full text-sm">
                           {company.jobCount}
@@ -152,6 +156,7 @@ const OverViewPage = () => {
               )}
             </div>
           </motion.div>
+
           <div className="md:w-full">
             <motion.div
               initial={{ opacity: 0, x: 20 }}

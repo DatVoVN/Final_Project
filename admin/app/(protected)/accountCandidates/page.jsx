@@ -3,28 +3,27 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CandidateTable from "@/components/CandidateTable";
 import Cookies from "js-cookie";
-import ConfirmModal from "@/components/ConfirmModal";
 import ProfileModal from "@/components/ProfileModal";
 import Pagination from "@/components/Paginations";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [candidateToDelete, setCandidateToDelete] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [candidateToView, setCandidateToView] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   const fetchCandidates = async (page = 1) => {
     try {
       setLoading(true);
       const token = Cookies.get("adminToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/admin/candidates?page=${page}&limit=5&search=${searchQuery}`,
+        `${BASE_URL}/api/v1/admin/candidates?page=${page}&limit=5&search=${searchQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -61,8 +60,61 @@ const Page = () => {
   }, [currentPage]);
 
   const handleDelete = (id) => {
-    setCandidateToDelete(id);
-    setIsDeleteModalOpen(true);
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa ứng viên này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("adminToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/admin/candidates/${id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+
+                  if (res.ok) {
+                    setCandidates((prev) =>
+                      prev.filter((candidate) => candidate._id !== id)
+                    );
+                    toast.success("Đã xóa ứng viên");
+                  } else {
+                    toast.error("Xóa thất bại");
+                  }
+                } catch (error) {
+                  toast.error("Có lỗi xảy ra khi xóa");
+                  console.error("Lỗi khi xóa:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
+      }
+    );
   };
 
   const handleViewProfile = (candidate) => {
@@ -73,39 +125,6 @@ const Page = () => {
   const closeProfileModal = () => {
     setIsProfileModalOpen(false);
     setCandidateToView(null);
-  };
-
-  const confirmDelete = async () => {
-    if (!candidateToDelete) return;
-
-    try {
-      const token = Cookies.get("adminToken");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/admin/candidates/${candidateToDelete}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.ok) {
-        setCandidates((prev) =>
-          prev.filter((candidate) => candidate._id !== candidateToDelete)
-        );
-        setIsDeleteModalOpen(false);
-      } else {
-        console.error("Xóa thất bại");
-      }
-    } catch (error) {
-      console.error("Lỗi khi xóa:", error);
-    }
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setCandidateToDelete(null);
   };
 
   const handlePageChange = (page) => {
@@ -178,12 +197,6 @@ const Page = () => {
         </motion.div>
       </main>
 
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        message="Bạn chắc chắn muốn xóa ứng viên này?"
-      />
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={closeProfileModal}

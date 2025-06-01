@@ -1,29 +1,29 @@
 {
   "sidebarItems": [
     { "name": "Dashboard", "icon": "House", "href": "/" },
-    { "name": "Account", "icon": "ShoppingBag", "href": "/account" },
-    { "name": "Job", "icon": "Users", "href": "/job" },
+    { "name": "Account", "icon": "UserCheck", "href": "/account" },
+    { "name": "Job", "icon": "File", "href": "/job" },
     {
       "name": "Candidates",
-      "icon": "DollarSign",
+      "icon": "Users",
       "href": "/accountCandidates"
     },
     {
       "name": "Developers",
-      "icon": "ShoppingCart",
+      "icon": "ShieldUser",
       "href": "/accountDevelopers"
     },
     {
       "name": "Blog",
-      "icon": "ShoppingCart",
+      "icon": "FileStack",
       "href": "/blog"
     },
 
     {
       "name": "Package",
-      "icon": "ShoppingCart",
+      "icon": "Box",
       "href": "/package"
     },
-    { "name": "Logout", "icon": "Settings", "href": "/logout" }
+    { "name": "Logout", "icon": "LogOut", "href": "/logout" }
   ]
 }

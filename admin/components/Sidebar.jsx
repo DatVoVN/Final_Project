@@ -11,6 +11,12 @@ import {
   ShoppingCart,
   User,
   Users,
+  Box,
+  ShieldUser,
+  File,
+  UserCheck,
+  FileStack,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,10 +27,16 @@ const ICONS = {
   Settings,
   ShoppingBag,
   ShoppingCart,
+  LogOut,
   Mail,
   Users,
   Bell,
   Info,
+  Box,
+  ShieldUser,
+  File,
+  UserCheck,
+  FileStack,
 };
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

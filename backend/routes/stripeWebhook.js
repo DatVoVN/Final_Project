@@ -1,9 +1,9 @@
-// routes/stripeWebhook.js
 const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/User");
 const Package = require("../models/Package");
+const Receipt = require("../models/Receipt"); // Import model Receipt
 
 router.post(
   "/webhook",
@@ -18,15 +18,23 @@ router.post(
         sig,
         process.env.STRIPE_WEBHOOK_SECRET
       );
+      console.log("📩 Stripe webhook received:", event.type);
     } catch (err) {
-      console.error("❌ Webhook xác thực thất bại:", err.message);
+      console.log("❌ Stripe webhook signature error:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      const userId = session.metadata.userId;
-      const packageName = session.metadata.packageName;
+      const userId = session.metadata?.userId;
+      const packageName = session.metadata?.packageName;
+
+      if (!userId || !packageName) {
+        console.log("⚠️ Thiếu metadata trong session.");
+        return res.status(400).send("Thiếu metadata");
+      }
+
+      console.log("✅ Thanh toán thành công cho user:", userId);
 
       try {
         const [user, selectedPackage] = await Promise.all([
@@ -35,16 +43,17 @@ router.post(
         ]);
 
         if (!user || !selectedPackage) {
-          console.warn("⚠️ Không tìm thấy user hoặc gói:", {
-            userId,
-            packageName,
-          });
+          if (!user) console.log("❌ Không tìm thấy user:", userId);
+          if (!selectedPackage)
+            console.log("❌ Không tìm thấy gói:", packageName);
           return res.status(404).send("Không tìm thấy user hoặc gói.");
         }
 
+        // ➕ Cập nhật thông tin người dùng
         user.postsRemaining =
           (user.postsRemaining || 0) + selectedPackage.posts;
         user.package = selectedPackage.name;
+
         const now = Date.now();
         const baseTime =
           user.packageExpires && user.packageExpires > now
@@ -56,12 +65,23 @@ router.post(
         );
 
         await user.save();
-        console.log(
-          `✅ Gói '${packageName}' đã được áp dụng cho user ${user.email}`
+
+        // ✅ Cập nhật trạng thái hóa đơn trong bảng Receipt
+        const receiptUpdate = await Receipt.findOneAndUpdate(
+          { sessionId: session.id },
+          { status: "paid" }
         );
+
+        if (!receiptUpdate) {
+          console.warn("⚠️ Không tìm thấy hóa đơn để cập nhật:", session.id);
+        } else {
+          console.log("📦 Đã cập nhật receipt:", receiptUpdate._id);
+        }
+
+        console.log("🎉 Đã cập nhật user và hóa đơn sau thanh toán Stripe.");
       } catch (err) {
-        console.error("❌ Lỗi khi cập nhật user sau thanh toán:", err.message);
-        return res.status(500).send("Lỗi server khi cập nhật user.");
+        console.error("❌ Lỗi khi xử lý webhook Stripe:", err.message);
+        return res.status(500).send("Lỗi xử lý webhook.");
       }
     }
 

@@ -85,7 +85,7 @@ const jobPostingSchema = new mongoose.Schema(
         },
         status: {
           type: String,
-          enum: ["pending", "approved", "rejected"],
+          enum: ["pending", "approved", "rejected", "hired"],
           default: "pending",
         },
         note: {
@@ -123,6 +123,10 @@ const jobPostingSchema = new mongoose.Schema(
     jobEmbedding: {
       type: [Number],
       default: [],
+    },
+    chatbotContext: {
+      type: String,
+      default: "",
     },
   },
 
