@@ -1,15 +1,7 @@
 // app/page.jsx
-"use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import RedirectHome from "@/components/RedirectHome";
 
-export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/overview");
-  }, [router]);
-
-  return null;
+export default function HomePage() {
+  return <RedirectHome />;
 }
