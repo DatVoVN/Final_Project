@@ -1,5 +1,5 @@
-import Developer from "./developer/page";
+import DeveloperPageStyled from "./developer/page";
 
 export default function Home() {
-  return <Developer />;
+  return <DeveloperPageStyled />;
 }
