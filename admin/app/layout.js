@@ -4,9 +4,9 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { usePathname, useRouter } from "next/navigation";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import { useAuth } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
