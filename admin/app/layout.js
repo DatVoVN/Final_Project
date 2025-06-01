@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/authContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
