@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/authContext"; // ✅ Thêm dòng này
 
 const LoginPage = () => {
   const [account, setAccount] = useState("");
@@ -12,7 +11,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const router = useRouter();
+  const { login } = useAuth(); // ✅ Dùng login từ context
 
   const BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -41,8 +40,7 @@ const LoginPage = () => {
       }
 
       if (data.token) {
-        Cookies.set("adminToken", data.token, { expires: 7, path: "/" });
-        router.push("/overview");
+        login(data.token); // ✅ Gọi hàm login từ context
       } else {
         setErrorMsg(
           data.message || "Đăng nhập thất bại. Không nhận được token."

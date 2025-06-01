@@ -30,8 +30,13 @@ function LayoutContent({ children }) {
       router.replace("/login");
     }
   }, [loading, isAuthenticated, isLoginPage, router]);
-
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <p className="text-lg font-semibold">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,7 +64,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#121212] text-white`}
       >
         <AuthProvider>
-          <Toaster position="top-right" reverseOrder={false} />{" "}
+          <Toaster position="top-right" reverseOrder={false} />
           <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
       </body>
