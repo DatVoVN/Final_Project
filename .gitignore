@@ -1,2 +1,4 @@
 backend/.env
+.history/
 .env
+node_modules/

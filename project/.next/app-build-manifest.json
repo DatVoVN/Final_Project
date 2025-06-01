@@ -11,40 +11,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/employer/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/employer/page.js"
-    ],
-    "/auth/loginEmployers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/loginEmployers/page.js"
-    ],
-    "/employer/news/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/employer/news/page.js"
-    ],
-    "/employer/payment-status/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/employer/payment-status/page.js"
-    ],
     "/alljob/[[...alljob]]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/alljob/[[...alljob]]/page.js"
-    ],
-    "/jobdetail/[jobId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/jobdetail/[jobId]/page.js"
-    ],
-    "/developer/me/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/developer/me/page.js"
     ]
   }
 }
