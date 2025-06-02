@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { useAuth } from "@/context/authContext"; // ✅ Thêm dòng này
+import { useAuth } from "@/context/authContext";
 
 const LoginPage = () => {
   const [account, setAccount] = useState("");
@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { login } = useAuth(); // ✅ Dùng login từ context
+  const { login } = useAuth();
 
   const BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -40,7 +40,7 @@ const LoginPage = () => {
       }
 
       if (data.token) {
-        login(data.token); // ✅ Gọi hàm login từ context
+        login(data.token);
       } else {
         setErrorMsg(
           data.message || "Đăng nhập thất bại. Không nhận được token."

@@ -70,7 +70,6 @@ exports.getPostById = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 exports.updatePost = async (req, res) => {
   try {
     const { content } = req.body;
@@ -80,8 +79,6 @@ exports.updatePost = async (req, res) => {
     const post = await Post.findById(postId);
     if (!post)
       return res.status(404).json({ message: "Bài đăng không tồn tại" });
-
-    // Chỉ cho phép tác giả chỉnh sửa
     if (!post.author.equals(req.userId)) {
       return res
         .status(403)
@@ -90,7 +87,6 @@ exports.updatePost = async (req, res) => {
 
     let updatedImage = post.imageUrl;
     if (file) {
-      // Xóa hình ảnh cũ nếu có
       if (post.imageUrl) {
         const oldPath = path.join(__dirname, "../", post.imageUrl);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
@@ -109,15 +105,12 @@ exports.updatePost = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 exports.deletePost = async (req, res) => {
   try {
     const postId = req.params.id;
     const post = await Post.findById(postId);
     if (!post)
       return res.status(404).json({ message: "Bài đăng không tồn tại" });
-
-    // Chỉ cho phép tác giả xóa
     if (!post.author.equals(req.userId)) {
       return res
         .status(403)
@@ -136,7 +129,6 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 exports.likeOrUnlikePost = async (req, res) => {
   try {
     const userId = req.userId;
@@ -204,7 +196,6 @@ exports.unlikePost = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 exports.checkIfLiked = async (req, res) => {
   try {
     const userId = req.userId;
@@ -233,11 +224,8 @@ exports.addComment = async (req, res) => {
 
     post.comments.push({ user: userId, userType, content });
     await post.save();
-
-    // Populate comment author info
     const updatedPost = await Post.findById(post._id).populate({
       path: "comments.user",
-      // refPath sẽ tự động lấy theo userType
     });
 
     res.status(201).json({
@@ -335,16 +323,12 @@ exports.checkCanEditComment = async (req, res) => {
   try {
     const { postId, commentId } = req.params;
     const userId = req.user.id;
-
-    // Tìm bài đăng theo ID
     const post = await Post.findById(postId);
     if (!post) {
       return res
         .status(404)
         .json({ canEdit: false, message: "Bài đăng không tồn tại" });
     }
-
-    // Tìm bình luận theo ID
     const comment = post.comments.id(commentId);
     if (!comment) {
       return res

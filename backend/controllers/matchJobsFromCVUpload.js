@@ -7,26 +7,18 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const roleProfiles = JSON.parse(
   fs.readFileSync("./data/roleProfiles.json", "utf-8")
 );
-
-// Cosine similarity
 const cosine = (a, b) => {
   const dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
   const magA = Math.sqrt(a.reduce((sum, v) => sum + v * v, 0));
   const magB = Math.sqrt(b.reduce((sum, v) => sum + v * v, 0));
   return dot / (magA * magB || 1e-6);
 };
-
-// Chuẩn hóa kỹ năng
 const canon = (s = "") => s.trim().toLowerCase();
-
-// Text format chuẩn cho embedding
 const buildEmbeddingText = (data) => {
   return `Role: ${data.role || ""}. Skills: ${(data.skills || []).join(
     ", "
   )}. Edu: ${data.education || ""}. Exp: ${data.experience || ""}`;
 };
-
-// So sánh kỹ năng CV với roleProfiles để tìm roles phù hợp
 function suggestRolesFromCV(cvSkills) {
   const cvCan = new Set((cvSkills || []).map(canon));
   const results = [];

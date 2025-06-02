@@ -40,7 +40,6 @@ exports.createBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 // Chỉnh sửa blog
 exports.updateBlog = async (req, res) => {
   try {
@@ -97,7 +96,6 @@ exports.updateBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 // Xóa blog
 exports.deleteBlog = async (req, res) => {
   try {
@@ -115,7 +113,6 @@ exports.deleteBlog = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
 // Lấy tất cả blog
 exports.getAllBlogs = async (req, res) => {
   try {
@@ -144,7 +141,6 @@ exports.getAllBlogs = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 exports.getBlogById = async (req, res) => {
   try {
     const blogId = req.params.id;

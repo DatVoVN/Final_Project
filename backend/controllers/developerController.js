@@ -112,7 +112,6 @@ exports.getAllApplicantsWithJobs = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy dữ liệu." });
   }
 };
-
 ///////// CHẤP NHẬN VÀ TỪ CHỐI CV //////////////////
 exports.handleApplicantDecision = async (req, res) => {
   try {
@@ -200,7 +199,6 @@ exports.deleteApplicant = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi xóa ứng viên." });
   }
 };
-
 ///////////////////// THÔNG TIN /////////////////////////////
 /// Xem thông tin của developer
 exports.getMyInfo = async (req, res) => {
@@ -273,7 +271,6 @@ exports.updateMyInfo = async (req, res) => {
     });
   }
 };
-
 // update công ty
 exports.updateMyCompany = async (req, res) => {
   try {

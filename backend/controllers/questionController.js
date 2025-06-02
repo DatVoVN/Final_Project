@@ -123,9 +123,6 @@ exports.isMyQuestion = async (req, res) => {
     if (!question) {
       return res.status(404).json({ error: "Question not found" });
     }
-    console.log("Candidate", candidateId);
-    console.log(question.candidate._id);
-
     const isOwner =
       question.candidate._id.toString() === candidateId.toString();
     res.json({ isOwner });
@@ -134,7 +131,6 @@ exports.isMyQuestion = async (req, res) => {
     res.status(500).json({ error: "Failed to check question ownership" });
   }
 };
-
 exports.updateQuestion = async (req, res) => {
   try {
     const { content } = req.body;
@@ -208,7 +204,6 @@ exports.isMyAnswer = async (req, res) => {
     res.status(500).json({ error: "Failed to check answer ownership" });
   }
 };
-
 exports.updateAnswer = async (req, res) => {
   try {
     const candidateId = req.userId;
@@ -244,7 +239,6 @@ exports.updateAnswer = async (req, res) => {
     res.status(500).json({ error: "Failed to update answer" });
   }
 };
-
 exports.deleteAnswer = async (req, res) => {
   try {
     const candidateId = req.userId;

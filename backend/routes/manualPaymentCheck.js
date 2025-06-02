@@ -14,7 +14,6 @@ const payOS = new PayOS(
   process.env.PAYOS_CHECKSUM_KEY
 );
 
-// ✅ 1. Stripe manual check
 router.post("/check-stripe", async (req, res) => {
   const { sessionId } = req.body;
 
@@ -30,22 +29,16 @@ router.post("/check-stripe", async (req, res) => {
       status: session.status,
       payment_status: session.payment_status,
     });
-
-    // Nếu chưa thanh toán
     if (session.payment_status !== "paid") {
       return res
         .status(200)
         .json({ status: session.payment_status, updated: false });
     }
-
-    // Tìm và cập nhật hóa đơn nếu còn pending
     let receipt = await Receipt.findOneAndUpdate(
       { sessionId, status: "pending" },
       { status: "paid" },
       { new: true }
     );
-
-    // Nếu đã được cập nhật trước đó
     if (!receipt) {
       receipt = await Receipt.findOne({ sessionId });
       if (receipt && receipt.status === "paid") {
@@ -59,8 +52,6 @@ router.post("/check-stripe", async (req, res) => {
 
       return res.status(404).json({ message: "Không tìm thấy hóa đơn Stripe" });
     }
-
-    // Tìm người dùng và gói dịch vụ
     const [user, selectedPackage] = await Promise.all([
       User.findById(receipt.userId),
       Package.findOne({ name: receipt.packageName }),
@@ -71,8 +62,6 @@ router.post("/check-stripe", async (req, res) => {
         .status(404)
         .json({ message: "Không tìm thấy user hoặc gói dịch vụ" });
     }
-
-    // Cập nhật tài khoản người dùng
     user.postsRemaining = (user.postsRemaining || 0) + selectedPackage.posts;
     user.package = selectedPackage.name;
 
@@ -87,16 +76,12 @@ router.post("/check-stripe", async (req, res) => {
     );
 
     await user.save();
-
-    console.log("✅ Đã cập nhật user và receipt sau khi xác nhận Stripe");
-
     return res.status(200).json({ status: "paid", updated: true });
   } catch (err) {
     console.error("❌ Stripe manual error:", err.message);
     res.status(500).json({ message: "Lỗi khi kiểm tra Stripe" });
   }
 });
-// ✅ 2. PayOS manual check
 router.post("/check-payos", async (req, res) => {
   const { orderCode } = req.body;
 

@@ -11,10 +11,10 @@ const deleteFileIfExists = (filePath) => {
     if (fs.existsSync(absolutePath)) {
       fs.unlinkSync(absolutePath);
     } else {
-      console.warn(`⚠️ File không tồn tại: ${absolutePath}`);
+      console.warn(`File không tồn tại: ${absolutePath}`);
     }
   } catch (err) {
-    console.error("❌ Lỗi khi xóa file:", err);
+    console.error("Lỗi khi xóa file:", err);
   }
 };
 
