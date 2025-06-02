@@ -19,7 +19,7 @@ import {
   FaStar,
 } from "react-icons/fa";
 import { useAuth } from "@/context/authContext";
-
+import BASE_URL from "@/utils/config";
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -136,7 +136,7 @@ const Header = () => {
               src={
                 user.avatarUrl.startsWith("http")
                   ? user.avatarUrl
-                  : `http://localhost:8000${user.avatarUrl}`
+                  : `${BASE_URL}${user.avatarUrl}`
               }
               alt={user.fullName || "User Avatar"}
               width={32}

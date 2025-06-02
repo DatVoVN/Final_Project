@@ -3,7 +3,7 @@ import CompanyOverview from "@/components/Company/CompanyOverview";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaSearch, FaBuilding, FaMapMarkerAlt } from "react-icons/fa";
-
+import BASE_URL from "@/utils/config";
 const CompanySearchPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [query, setQuery] = useState("");

@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import Pagination from "@/components/Pagination";
-
+import BASE_URL from "@/utils/config";
 const FavoriteJobPage = () => {
   const [favoriteJobs, setFavoriteJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,6 @@ const FavoriteJobPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const jobsPerPage = 3;
-  const API_BASE_URL = "http://localhost:8000";
 
   useEffect(() => {
     const fetchFavoriteJobs = async (page = 1) => {
@@ -35,8 +34,8 @@ const FavoriteJobPage = () => {
       }
 
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/api/v1/candidates/interested/favorites?page=${page}&limit=${jobsPerPage}`,
+        const res = await fetch(
+          `${BASE_URL}/api/v1/candidates/interested/favorites?page=${page}&limit=${jobsPerPage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -44,7 +43,10 @@ const FavoriteJobPage = () => {
           }
         );
 
-        const { jobs, totalPages, currentPage } = response.data;
+        if (!res.ok) throw new Error("Không thể tải công việc yêu thích");
+
+        const data = await res.json();
+        const { jobs, totalPages, currentPage } = data;
 
         if (Array.isArray(jobs)) {
           setFavoriteJobs(jobs);
@@ -65,6 +67,7 @@ const FavoriteJobPage = () => {
 
     fetchFavoriteJobs(currentPage);
   }, [currentPage]);
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       setCurrentPage(page);
@@ -79,14 +82,18 @@ const FavoriteJobPage = () => {
     }
 
     try {
-      await axios.delete(
-        `${API_BASE_URL}/api/v1/candidates/interested/${jobId}`,
+      const res = await fetch(
+        `${BASE_URL}/api/v1/candidates/interested/${jobId}`,
         {
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
+      if (!res.ok) throw new Error("Xóa công việc yêu thích thất bại");
+
       setFavoriteJobs((prev) => prev.filter((job) => job._id !== jobId));
     } catch (err) {
       console.error("Lỗi khi xóa công việc yêu thích:", err);

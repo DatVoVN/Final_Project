@@ -12,7 +12,7 @@ import {
   HiOutlineCube,
   HiOutlineReceiptRefund,
 } from "react-icons/hi";
-
+import BASE_URL from "@/utils/config";
 import JobListingManagement from "@/components/employer/JobListingManagement";
 import PostJobForm from "@/components/employer/PostJobForm";
 import ApplicantManagementPage from "@/components/employer/ApplicantManagementPage";

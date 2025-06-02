@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-
+import BASE_URL from "@/utils/config";
 export default function PaymentStatusClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -16,31 +16,25 @@ export default function PaymentStatusClient() {
   useEffect(() => {
     const checkPayment = async () => {
       if (status === "success" && sessionId) {
-        const res = await fetch(
-          "http://localhost:8000/api/payment/check-stripe",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId }),
-          }
-        );
+        const res = await fetch(`${BASE_URL}/api/payment/check-stripe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
         const data = await res.json();
-        if (data.updated) setMessage("🎉 Thanh toán Stripe thành công!");
-        else setMessage("❌ Thanh toán Stripe chưa xác nhận.");
+        if (data.updated) setMessage("Thanh toán Stripe thành công!");
+        else setMessage("Thanh toán Stripe chưa xác nhận.");
       } else if (status === "PAID" && orderCode) {
-        const res = await fetch(
-          "http://localhost:8000/api/payment/check-payos",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderCode }),
-          }
-        );
+        const res = await fetch(`${BASE_URL}/api/payment/check-payos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderCode }),
+        });
         const data = await res.json();
-        if (data.updated) setMessage("🎉 Thanh toán PayOS thành công!");
-        else setMessage("❌ Thanh toán PayOS chưa xác nhận.");
+        if (data.updated) setMessage("Thanh toán PayOS thành công!");
+        else setMessage("Thanh toán PayOS chưa xác nhận.");
       } else {
-        setMessage("❌ Thanh toán thất bại hoặc bị huỷ.");
+        setMessage("Thanh toán thất bại hoặc bị huỷ.");
       }
 
       setIsLoading(false);

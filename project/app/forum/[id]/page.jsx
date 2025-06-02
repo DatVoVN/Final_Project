@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 const formatDate = (dateString) => {
   if (!dateString) return "Không rõ";
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -30,7 +30,7 @@ const formatDate = (dateString) => {
 };
 
 async function fetchQuestionByIdApi(id) {
-  const response = await fetch(`http://localhost:8000/api/v1/question/${id}`);
+  const response = await fetch(`${BASE_URL}/api/v1/question/${id}`);
   if (!response.ok) {
     if (response.status === 404) throw new Error("Câu hỏi không tồn tại");
     throw new Error("Không thể tải chi tiết câu hỏi");
@@ -40,12 +40,9 @@ async function fetchQuestionByIdApi(id) {
 
 async function checkOwnership(id) {
   const token = Cookies.get("authToken");
-  const res = await fetch(
-    `http://localhost:8000/api/v1/question/${id}/is-mine`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const res = await fetch(`${BASE_URL}/api/v1/question/${id}/is-mine`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   if (!res.ok) throw new Error("Không thể xác minh quyền sở hữu");
   const data = await res.json();
   return data.isOwner;
@@ -53,7 +50,7 @@ async function checkOwnership(id) {
 
 async function updateQuestion(id, newContent) {
   const token = Cookies.get("authToken");
-  const res = await fetch(`http://localhost:8000/api/v1/question/${id}`, {
+  const res = await fetch(`${BASE_URL}/api/v1/question/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -135,7 +132,7 @@ const QuestionDetailPage = () => {
 
   const candidateName = question.candidate?.fullName || "Ẩn danh";
   const candidateAvatar = question.candidate?.avatarUrl
-    ? `http://localhost:8000${question.candidate.avatarUrl}`
+    ? `${BASE_URL}${question.candidate.avatarUrl}`
     : null;
 
   return (

@@ -15,7 +15,7 @@ import {
   FaTools,
 } from "react-icons/fa";
 import Pagination from "@/components/Pagination";
-
+import BASE_URL from "@/utils/config";
 const LoadingIndicator = () => (
   <div className="flex flex-col justify-center items-center min-h-[1000px] py-12 text-center">
     <FaSpinner className="animate-spin text-indigo-600 text-5xl mb-6" />
@@ -137,8 +137,8 @@ const Page = () => {
         currentSearchParams.set("limit", 2);
 
         const url = id
-          ? `http://localhost:8000/api/v1/developer/jobs/company/${id}?${currentSearchParams.toString()}`
-          : `http://localhost:8000/api/v1/developer/searchJob?${currentSearchParams.toString()}`;
+          ? `${BASE_URL}/api/v1/developer/jobs/company/${id}?${currentSearchParams.toString()}`
+          : `${BASE_URL}/api/v1/developer/searchJob?${currentSearchParams.toString()}`;
 
         const res = await axios.get(url);
         setJobs(res.data.data || []);

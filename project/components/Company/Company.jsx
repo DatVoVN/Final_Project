@@ -8,7 +8,7 @@ import {
   HiBriefcase,
   HiStar,
 } from "react-icons/hi";
-
+import BASE_URL from "@/utils/config";
 const CompanyCard = ({
   logoUrl = "",
   companyName = "fORNATY",
@@ -33,8 +33,6 @@ const CompanyCard = ({
   } else if (Array.isArray(skills)) {
     skillsJob = skills;
   }
-  console.log(skillsJob);
-
   return (
     <div
       className="w-full bg-white border border-gray-200 rounded-xl shadow-lg

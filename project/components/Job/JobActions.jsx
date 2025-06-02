@@ -1,10 +1,9 @@
-// components/JobActions.jsx
-"use client"; // Needs client for potential button handlers
+"use client";
 
 import React from "react";
 import { HiOutlineShare, HiOutlineFlag } from "react-icons/hi";
 import { BiLink } from "react-icons/bi";
-
+import BASE_URL from "@/utils/config";
 const JobActions = ({ jobId }) => {
   const handleShare = () => console.log("Share job:", jobId);
   const handleCopyLink = () => {

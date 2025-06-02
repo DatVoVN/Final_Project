@@ -11,7 +11,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const RequiredLabel = ({ label }) => (
   <>
     {label} <span className="text-red-500">*</span>
@@ -75,50 +75,53 @@ const Me = () => {
       toast.error("Bạn cần phải đăng nhập");
       return;
     }
+
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/developer/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${BASE_URL}/api/v1/developer/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if (res.status === 200) {
-        const devData = res.data.data;
-        const companyData = devData.company || {};
-        setDeveloper(devData);
-        setCompany(companyData);
-        const initialDev = {
-          fullName: devData.fullName || "",
-          phoneNumber: devData.phoneNumber || "",
-        };
-        const initialCompany = {
-          email: companyData.email || "",
-          address: companyData.address || "",
-          description: companyData.description || "",
-          overview: companyData.overview || "",
-          companySize: companyData.companySize || "",
-          overtimePolicy: companyData.overtimePolicy || "",
-          languages: companyData.languages?.join(", ") || "",
-          workingFrom: companyData.workingDays?.from || "",
-          workingTo: companyData.workingDays?.to || "",
-          avatar: null,
-          avatarPreview: null,
-          currentAvatarUrl: companyData.avatarUrl || null,
-        };
-        setInitialDevData(initialDev);
-        setInitialCompanyData(initialCompany);
-        setDevForm(initialDev);
-        setCompanyForm(initialCompany);
-      } else {
-        throw new Error(`API request failed with status: ${res.status}`);
-      }
+
+      if (!res.ok) throw new Error(`Request failed with status: ${res.status}`);
+      const data = await res.json();
+      const devData = data.data;
+      const companyData = devData.company || {};
+
+      setDeveloper(devData);
+      setCompany(companyData);
+
+      const initialDev = {
+        fullName: devData.fullName || "",
+        phoneNumber: devData.phoneNumber || "",
+      };
+
+      const initialCompany = {
+        email: companyData.email || "",
+        address: companyData.address || "",
+        description: companyData.description || "",
+        overview: companyData.overview || "",
+        companySize: companyData.companySize || "",
+        overtimePolicy: companyData.overtimePolicy || "",
+        languages: companyData.languages?.join(", ") || "",
+        workingFrom: companyData.workingDays?.from || "",
+        workingTo: companyData.workingDays?.to || "",
+        avatar: null,
+        avatarPreview: null,
+        currentAvatarUrl: companyData.avatarUrl || null,
+      };
+
+      setInitialDevData(initialDev);
+      setInitialCompanyData(initialCompany);
+      setDevForm(initialDev);
+      setCompanyForm(initialCompany);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Lỗi khi lấy dữ liệu từ API"
-      );
+      setError(err.message || "Lỗi khi lấy dữ liệu từ API");
     } finally {
       setLoading(false);
     }
   }, [token]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -146,34 +149,39 @@ const Me = () => {
   const handleDevUpdate = async (e) => {
     e.preventDefault();
     setError(null);
+
     try {
-      const res = await axios.put(
-        "http://localhost:8000/api/v1/developer/me",
-        devForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.status === 200) {
-        toast.success("cập nhật thành công");
-        const updatedDevData = res.data.data;
-        setDeveloper(updatedDevData);
-        setInitialDevData({
-          fullName: updatedDevData.fullName || "",
-          phoneNumber: updatedDevData.phoneNumber || "",
-        });
-        setEditingDev(false);
-      } else {
-        throw new Error(`Update failed with status: ${res.status}`);
-      }
+      const res = await fetch(`${BASE_URL}/api/v1/developer/me`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(devForm),
+      });
+
+      if (!res.ok) throw new Error(`Update failed with status: ${res.status}`);
+      const data = await res.json();
+      const updatedDevData = data.data;
+
+      toast.success("Cập nhật thành công");
+      setDeveloper(updatedDevData);
+      setInitialDevData({
+        fullName: updatedDevData.fullName || "",
+        phoneNumber: updatedDevData.phoneNumber || "",
+      });
+      setEditingDev(false);
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Cập nhật thất bại";
+      const message = err.message || "Cập nhật thất bại";
       setError(message);
       toast.error("Cập nhật thất bại");
     }
   };
+
   const handleCompanyUpdate = async (e) => {
     e.preventDefault();
     setError(null);
+
     try {
       const formData = new FormData();
       formData.append("email", companyForm.email);
@@ -182,13 +190,13 @@ const Me = () => {
       formData.append("overview", companyForm.overview);
       formData.append("companySize", companyForm.companySize);
       formData.append("overtimePolicy", companyForm.overtimePolicy);
+
       companyForm.languages
         .split(",")
         .map((lang) => lang.trim())
         .filter((lang) => lang)
-        .forEach((lang) => {
-          formData.append("languages", lang);
-        });
+        .forEach((lang) => formData.append("languages", lang));
+
       formData.append(
         "workingDays",
         JSON.stringify({
@@ -196,56 +204,56 @@ const Me = () => {
           to: companyForm.workingTo,
         })
       );
+
       if (companyForm.avatar) {
         formData.append("avatarUrl", companyForm.avatar);
       }
 
-      const res = await axios.put(
-        "http://localhost:8000/api/v1/developer/my-company",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (res.status === 200) {
-        toast.success("Cập nhật công ty thành công");
-        const updatedCompanyData = res.data.data;
-        setCompany(updatedCompanyData);
-        if (companyForm.avatarPreview) {
-          URL.revokeObjectURL(companyForm.avatarPreview);
-        }
-        const newInitial = {
-          email: updatedCompanyData.email || "",
-          address: updatedCompanyData.address || "",
-          description: updatedCompanyData.description || "",
-          overview: updatedCompanyData.overview || "",
-          companySize: updatedCompanyData.companySize || "",
-          overtimePolicy: updatedCompanyData.overtimePolicy || "",
-          languages: updatedCompanyData.languages?.join(", ") || "",
-          workingFrom: updatedCompanyData.workingDays?.from || "",
-          workingTo: updatedCompanyData.workingDays?.to || "",
-          avatar: null,
-          avatarPreview: null,
-          currentAvatarUrl: updatedCompanyData.avatarUrl || null,
-        };
-        setInitialCompanyData(newInitial);
-        setCompanyForm(newInitial);
-        setEditingCompany(false);
-      } else {
+      const res = await fetch(`${BASE_URL}/api/v1/developer/my-company`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // ⚠️ KHÔNG cần Content-Type nếu dùng FormData
+        },
+        body: formData,
+      });
+
+      if (!res.ok)
         throw new Error(`Company update failed with status: ${res.status}`);
+      const data = await res.json();
+      const updatedCompanyData = data.data;
+
+      toast.success("Cập nhật công ty thành công");
+      setCompany(updatedCompanyData);
+      if (companyForm.avatarPreview) {
+        URL.revokeObjectURL(companyForm.avatarPreview);
       }
+
+      const newInitial = {
+        email: updatedCompanyData.email || "",
+        address: updatedCompanyData.address || "",
+        description: updatedCompanyData.description || "",
+        overview: updatedCompanyData.overview || "",
+        companySize: updatedCompanyData.companySize || "",
+        overtimePolicy: updatedCompanyData.overtimePolicy || "",
+        languages: updatedCompanyData.languages?.join(", ") || "",
+        workingFrom: updatedCompanyData.workingDays?.from || "",
+        workingTo: updatedCompanyData.workingDays?.to || "",
+        avatar: null,
+        avatarPreview: null,
+        currentAvatarUrl: updatedCompanyData.avatarUrl || null,
+      };
+
+      setInitialCompanyData(newInitial);
+      setCompanyForm(newInitial);
+      setEditingCompany(false);
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Cập nhật công ty thất bại";
+      const message = err.message || "Cập nhật công ty thất bại";
       setError(message);
       toast.error("Cập nhật công ty thất bại: " + message);
     }
   };
+
   const cancelDevEdit = () => {
     setDevForm(initialDevData);
     setEditingDev(false);
@@ -312,25 +320,30 @@ const Me = () => {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/auth/change-passwordE",
-        { oldPassword, newPassword },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      toast.success(res.data.message || "Đổi mật khẩu thành công");
+      const res = await fetch(`${BASE_URL}/api/v1/auth/change-passwordE`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+
+      if (!res.ok) throw new Error("Đổi mật khẩu thất bại");
+
+      const data = await res.json();
+      toast.success(data.message || "Đổi mật khẩu thành công");
+
       setChangePasswordForm({
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Đổi mật khẩu thất bại, vui lòng thử lại"
-      );
+      toast.error(err.message || "Đổi mật khẩu thất bại, vui lòng thử lại");
     }
   };
+
   const handleChangePasswordInput = (e) => {
     const { name, value } = e.target;
     setChangePasswordForm((prev) => ({

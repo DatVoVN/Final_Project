@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import Pagination from "@/components/Pagination";
-
+import BASE_URL from "@/utils/config";
 const FavoriteCompaniesPage = () => {
   const [favoriteCompanies, setFavoriteCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,6 @@ const FavoriteCompaniesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const companiesPerPage = 1;
-  const API_BASE_URL = "http://localhost:8000";
 
   useEffect(() => {
     const fetchFavoriteCompanies = async (page = 1) => {
@@ -37,8 +36,8 @@ const FavoriteCompaniesPage = () => {
       }
 
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/api/v1/candidates/favorite-company/favorites?page=${page}&limit=${companiesPerPage}`,
+        const res = await fetch(
+          `${BASE_URL}/api/v1/candidates/favorite-company/favorites?page=${page}&limit=${companiesPerPage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -46,18 +45,21 @@ const FavoriteCompaniesPage = () => {
           }
         );
 
-        const { companies, totalPages, currentPage } = response.data;
+        if (!res.ok) throw new Error("Failed to fetch favorite companies.");
+
+        const data = await res.json();
+        const { companies, totalPages, currentPage } = data;
+
         setFavoriteCompanies(companies);
         setTotalPages(totalPages);
         setCurrentPage(currentPage);
       } catch (err) {
-        setError("Failed to fetch favorite companies.");
         console.error("Error fetching favorite companies:", err);
+        setError("Failed to fetch favorite companies.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchFavoriteCompanies(currentPage);
   }, [currentPage]);
   const handlePageChange = (page) => {
@@ -75,20 +77,24 @@ const FavoriteCompaniesPage = () => {
     }
 
     try {
-      await axios.delete(
-        `${API_BASE_URL}/api/v1/candidates/favorite-company/${companyId}`,
+      const res = await fetch(
+        `${BASE_URL}/api/v1/candidates/favorite-company/${companyId}`,
         {
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
+      if (!res.ok) throw new Error("Failed to remove favorite company.");
+
       setFavoriteCompanies((prev) =>
         prev.filter((company) => company._id !== companyId)
       );
     } catch (err) {
-      alert("Failed to remove the company from favorites.");
       console.error("Error removing favorite company:", err);
+      alert("Failed to remove the company from favorites.");
     }
   };
 

@@ -2,10 +2,9 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaMoneyBillWave, FaMapMarkerAlt } from "react-icons/fa";
-import axios from "axios";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const JobDes = ({ jobs }) => {
   const [likedJobs, setLikedJobs] = useState({});
   const token = Cookies.get("authToken");
@@ -17,18 +16,23 @@ const JobDes = ({ jobs }) => {
       if (!token) return;
 
       const statuses = {};
+
       await Promise.all(
         activeJobs.map(async (job) => {
           try {
-            const res = await axios.get(
-              `http://localhost:8000/api/v1/candidates/jobs/${job._id}/interested-status`,
+            const res = await fetch(
+              `${BASE_URL}/api/v1/candidates/jobs/${job._id}/interested-status`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               }
             );
-            statuses[job._id] = res.data?.isInterested || false;
+
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+            statuses[job._id] = data?.isInterested || false;
           } catch (error) {
             statuses[job._id] = false;
           }
@@ -48,24 +52,27 @@ const JobDes = ({ jobs }) => {
     }
 
     try {
-      if (likedJobs[jobId]) {
-        await axios.delete(
-          `http://localhost:8000/api/v1/candidates/interested/${jobId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        toast.success("Đã bỏ yêu thích công việc");
-      } else {
-        await axios.post(
-          `http://localhost:8000/api/v1/candidates/interested/${jobId}`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        toast.success("Đã thêm vào danh sách yêu thích");
+      const url = `${BASE_URL}/api/v1/candidates/interested/${jobId}`;
+      const options = {
+        method: likedJobs[jobId] ? "DELETE" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      if (!likedJobs[jobId]) {
+        options.body = JSON.stringify({});
       }
+
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error();
+
+      toast.success(
+        likedJobs[jobId]
+          ? "Đã bỏ yêu thích công việc"
+          : "Đã thêm vào danh sách yêu thích"
+      );
 
       setLikedJobs((prev) => ({
         ...prev,

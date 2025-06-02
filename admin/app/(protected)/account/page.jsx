@@ -7,7 +7,7 @@ import { DollarSign, ShoppingBag, SquareActivity, User } from "lucide-react";
 import Cookies from "js-cookie";
 import Pagination from "@/components/Paginations";
 import ConfirmModal from "@/components/ConfirmModal";
-
+import BASE_URL from "@/utils/config";
 const Page = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,8 +19,8 @@ const Page = () => {
     userId: null,
     action: "",
   });
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   useEffect(() => {
     const fetchPendingEmployers = async () => {
       try {

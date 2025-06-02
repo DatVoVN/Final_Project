@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { StarIcon } from "@heroicons/react/20/solid";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const getCookie = (name) => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -22,6 +22,7 @@ const ReviewForm = ({ companyId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = getCookie("authToken");
+
     if (!token) {
       toast.error("Bạn phải đăng nhập để đánh giá");
       return;
@@ -33,31 +34,32 @@ const ReviewForm = ({ companyId }) => {
     }
 
     setIsSubmitting(true);
+
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/v1/candidates/${companyId}/reviews`,
+      const res = await fetch(
+        `${BASE_URL}/api/v1/candidates/${companyId}/reviews`,
         {
-          rating,
-          comment,
-        },
-        {
+          method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({ rating, comment }),
         }
       );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Gửi đánh giá thất bại");
+      }
+
       toast.success("Cảm ơn bạn đã đánh giá");
       window.location.reload();
       setRating(0);
       setComment("");
     } catch (error) {
-      console.error("Lỗi gửi đánh giá:", error.response?.data || error.message);
-      alert(
-        `Có lỗi xảy ra khi gửi đánh giá: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      console.error("Lỗi gửi đánh giá:", error.message);
+      alert(`Có lỗi xảy ra khi gửi đánh giá: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import PostCard from "./PostCard";
 import Pagination from "../Pagination";
+import BASE_URL from "@/utils/config";
 import {
   FaRegImage,
   FaPaperPlane,
@@ -12,7 +13,7 @@ import {
   FaFeatherAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
@@ -30,13 +31,17 @@ const Feed = () => {
   const fetchPosts = useCallback(async (page = 1) => {
     setLoadingPosts(true);
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/post", {
-        params: { page, limit },
-      });
-      setPosts(res.data.posts || []);
-      setTotalPages(res.data.totalPages || 1);
-      setTotalPosts(res.data.totalPosts || 0);
+      const queryParams = new URLSearchParams({ page, limit }).toString();
+      const res = await fetch(`${BASE_URL}/api/v1/post?${queryParams}`);
+
+      if (!res.ok) throw new Error("Failed to fetch posts");
+
+      const data = await res.json();
+      setPosts(data.posts || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalPosts(data.totalPosts || 0);
     } catch (err) {
+      console.error("Lỗi fetch bài viết:", err);
       setPosts([]);
     } finally {
       setLoadingPosts(false);
@@ -71,18 +76,25 @@ const Feed = () => {
       formData.append("content", newPost);
       if (image) formData.append("image", image);
 
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/post",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/v1/post`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-      const newPostedItem = res.data.post;
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          toast.error("Bạn không có quyền đăng bài. Vui lòng đăng nhập.");
+          return;
+        } else {
+          throw new Error("Đăng bài thất bại");
+        }
+      }
+
+      const data = await res.json();
+      const newPostedItem = data.post;
 
       if (currentPage === 1) {
         setPosts((prev) => [newPostedItem, ...prev].slice(0, limit));
@@ -98,11 +110,8 @@ const Feed = () => {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        toast.error("Bạn không có quyền đăng bài. Vui lòng đăng nhập.");
-      } else {
-        toast.error("Đăng bài thất bại. Vui lòng thử lại.");
-      }
+      console.error("Lỗi khi đăng bài:", err);
+      toast.error("Đăng bài thất bại. Vui lòng thử lại.");
     } finally {
       setIsPosting(false);
     }

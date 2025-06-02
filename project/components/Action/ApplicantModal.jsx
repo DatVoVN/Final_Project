@@ -6,7 +6,7 @@ import {
   HiOutlineCheck,
   HiOutlineX,
 } from "react-icons/hi";
-
+import BASE_URL from "@/utils/config";
 const ApplicantModal = ({ jobId, onClose }) => {
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,9 +30,7 @@ const ApplicantModal = ({ jobId, onClose }) => {
 
       try {
         const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-          }/api/v1/developer/job/${jobId}/applicants`,
+          `${BASE_URL}/api/v1/developer/job/${jobId}/applicants`,
           {
             method: "GET",
             headers: {
@@ -88,9 +86,7 @@ const ApplicantModal = ({ jobId, onClose }) => {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-        }/api/v1/developer/jobs/${jobId}/applicants/${selectedApplicant}`,
+        `${BASE_URL}/api/v1/developer/jobs/${jobId}/applicants/${selectedApplicant}`,
         {
           method: "PATCH",
           headers: {
@@ -102,8 +98,6 @@ const ApplicantModal = ({ jobId, onClose }) => {
       );
 
       if (!res.ok) throw new Error("Lỗi khi cập nhật trạng thái ứng viên");
-
-      // Cập nhật lại danh sách
       setApplicants((prev) =>
         prev.filter((app) => app._id !== selectedApplicant)
       );
@@ -116,7 +110,6 @@ const ApplicantModal = ({ jobId, onClose }) => {
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden animate-modal-appear">
-        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
             Danh sách ứng viên
@@ -128,8 +121,6 @@ const ApplicantModal = ({ jobId, onClose }) => {
             <HiX className="h-6 w-6" />
           </button>
         </div>
-
-        {/* Body */}
         <div className="p-6 overflow-y-auto flex-grow">
           {loading ? (
             <div className="flex justify-center items-center h-40">

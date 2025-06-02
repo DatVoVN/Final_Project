@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 const formatDate = (dateString) => {
   if (!dateString) return "Không rõ";
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -32,7 +32,7 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
       try {
         const token = Cookies.get("authToken");
         const res = await fetch(
-          `http://localhost:8000/api/v1/question/${questionId}/answers/${answer._id}/is-mine`,
+          `${BASE_URL}/api/v1/question/${questionId}/answers/${answer._id}/is-mine`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const data = await res.json();
@@ -48,7 +48,7 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
     try {
       const token = Cookies.get("authToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/question/${questionId}/answers/${answer._id}`,
+        `${BASE_URL}/api/v1/question/${questionId}/answers/${answer._id}`,
         {
           method: "PUT",
           headers: {
@@ -75,7 +75,7 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
     try {
       const token = Cookies.get("authToken");
       const res = await fetch(
-        `http://localhost:8000/api/v1/question/${questionId}/answers/${answer._id}`,
+        `${BASE_URL}/api/v1/question/${questionId}/answers/${answer._id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -93,7 +93,7 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
   };
 
   const avatarUrl = answer.candidate?.avatarUrl
-    ? `http://localhost:8000${answer.candidate.avatarUrl}`
+    ? `${BASE_URL}${answer.candidate.avatarUrl}`
     : null;
 
   return (

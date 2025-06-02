@@ -8,7 +8,7 @@ import {
   HiLightBulb,
   HiOfficeBuilding,
 } from "react-icons/hi";
-
+import BASE_URL from "@/utils/config";
 const JobDetailModal = ({ jobId, onClose }) => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,16 +21,13 @@ const JobDetailModal = ({ jobId, onClose }) => {
       setError(null);
 
       try {
-        const res = await fetch(
-          `http://localhost:8000/api/v1/developer/jobs/${jobId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const res = await fetch(`${BASE_URL}/api/v1/developer/jobs/${jobId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!res.ok) throw new Error("Không thể tải thông tin công việc.");
         const data = await res.json();
         setJob(data.data);

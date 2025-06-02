@@ -12,7 +12,7 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import Link from "next/link";
-
+import BASE_URL from "@/utils/config";
 const formatDate = (dateString) => {
   if (!dateString) return "Không rõ ngày";
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -38,9 +38,7 @@ const BlogDetail = () => {
         setLoading(true);
         setError(null);
         try {
-          const response = await axios.get(
-            `http://localhost:8000/api/v1/blog/${id}`
-          );
+          const response = await axios.get(`${BASE_URL}/api/v1/blog/${id}`);
           setBlog(response.data.data);
         } catch (error) {
           console.error("Error fetching blog:", error);
@@ -100,11 +98,11 @@ const BlogDetail = () => {
 
   const authorName = blog.author?.name || "Admin";
   const authorAvatar = blog.author?.avatarUrl
-    ? `http://localhost:8000${blog.author.avatarUrl}`
+    ? `${BASE_URL}${blog.author.avatarUrl}`
     : null;
 
   const heroImageUrl = blog.imageUrl
-    ? `http://localhost:8000${blog.imageUrl}`
+    ? `${BASE_URL}${blog.imageUrl}`
     : "/images/default-blog-hero.jpg";
 
   return (

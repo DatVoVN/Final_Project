@@ -11,7 +11,7 @@ import {
 } from "react-icons/hi";
 import EditJobFormModal from "../Action/EditJobFormModal";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -37,8 +37,8 @@ const JobTableRow = ({
   const handleToggleActive = async () => {
     setIsLoading(true);
     const url = isActive
-      ? `http://localhost:8000/api/v1/developer/jobs/${job._id}/deactivate`
-      : `http://localhost:8000/api/v1/developer/jobs/${job._id}/reactivate`;
+      ? `${BASE_URL}/api/v1/developer/jobs/${job._id}/deactivate`
+      : `${BASE_URL}/api/v1/developer/jobs/${job._id}/reactivate`;
     try {
       const response = await fetch(url, {
         method: "PATCH",
@@ -79,7 +79,7 @@ const JobTableRow = ({
               setIsLoading(true);
               try {
                 const response = await fetch(
-                  `http://localhost:8000/api/v1/developer/jobs/${job._id}`,
+                  `{BASE_URL}/api/v1/developer/jobs/${job._id}`,
                   {
                     method: "DELETE",
                     headers: {

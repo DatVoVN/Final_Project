@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-
+import BASE_URL from "@/utils/config";
 const RegistrationSuccessMessage = ({ message }) => {
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out">
@@ -35,8 +35,6 @@ const RegistrationSuccessMessage = ({ message }) => {
           </a>
         </Link>
       </div>
-
-      {/* CSS cho animation - Bạn cần thêm đoạn này vào file CSS global hoặc dùng <style jsx global> */}
       <style jsx global>{`
         @keyframes modal-pop-in {
           0% {
@@ -55,8 +53,6 @@ const RegistrationSuccessMessage = ({ message }) => {
     </div>
   );
 };
-
-// --- COMPONENT FORM ĐĂNG KÝ (Đã style lại) ---
 const EmployerRegistrationForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -75,18 +71,16 @@ const EmployerRegistrationForm = () => {
 
   useEffect(() => {
     const fetchCities = async () => {
-      // ... (logic fetch giữ nguyên)
       try {
         const response = await fetch("https://provinces.open-api.vn/api/p/");
         if (!response.ok) {
           throw new Error("Failed to fetch cities");
         }
         const data = await response.json();
-        data.sort((a, b) => a.name.localeCompare(b.name)); // Sắp xếp A-Z
+        data.sort((a, b) => a.name.localeCompare(b.name));
         setCities(data);
       } catch (fetchError) {
         console.error("Error fetching cities:", fetchError);
-        // Có thể set error state ở đây nếu cần
       }
     };
     fetchCities();
@@ -101,7 +95,6 @@ const EmployerRegistrationForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    // ... (logic submit giữ nguyên)
     e.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -109,7 +102,7 @@ const EmployerRegistrationForm = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/auth/register/employer",
+        `${BASE_URL}/api/v1/auth/register/employer`,
         {
           method: "POST",
           headers: {

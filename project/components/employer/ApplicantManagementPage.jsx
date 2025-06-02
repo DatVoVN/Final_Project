@@ -10,7 +10,7 @@ import {
 } from "react-icons/hi";
 import { VscVmRunning } from "react-icons/vsc";
 import Pagination from "../Pagination";
-
+import BASE_URL from "@/utils/config";
 const ApplicantManagementPage = () => {
   const [selectedJob, setSelectedJob] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -50,7 +50,7 @@ const ApplicantManagementPage = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/developer/applicants-with-jobs?page=${currentPage}&limit=${itemsPerPage}`,
+          `${BASE_URL}/api/v1/developer/applicants-with-jobs?page=${currentPage}&limit=${itemsPerPage}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

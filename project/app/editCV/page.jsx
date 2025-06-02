@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { PlusCircle, Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { FaSpinner } from "react-icons/fa";
-
+import BASE_URL from "@/utils/config";
 export default function EditCV() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -43,12 +43,17 @@ export default function EditCV() {
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/api/v1/candidates/cv",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await fetch(`${BASE_URL}/api/v1/candidates/cv`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        const cvData = response.data.structuredCV || {};
+        if (!res.ok) throw new Error("Failed to fetch CV");
+
+        const result = await res.json();
+        const cvData = result.structuredCV || {};
+
         const formatData = {
           summary: cvData.summary || "",
           education:
@@ -82,6 +87,7 @@ export default function EditCV() {
 
     fetchCV();
   }, [reset, token]);
+
   const createNewEducation = () => ({
     school: "",
     degree: "",
@@ -102,11 +108,20 @@ export default function EditCV() {
 
   const onSubmit = async (data) => {
     try {
-      await axios.put("http://localhost:8000/api/v1/candidates/cv", data, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${BASE_URL}/api/v1/candidates/cv`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
       });
+
+      if (!res.ok) throw new Error("Failed to save CV");
+
       setMessage("CV saved successfully!");
     } catch (err) {
+      console.error("Error saving CV:", err);
       setMessage("Failed to save CV.");
     }
   };

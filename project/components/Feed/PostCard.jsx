@@ -1,9 +1,8 @@
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Image from "next/image";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 export default function PostCard({ post, onDelete }) {
   const [comments, setComments] = useState(post.comments || []);
   const [newComment, setNewComment] = useState("");
@@ -23,13 +22,16 @@ export default function PostCard({ post, onDelete }) {
   useEffect(() => {
     const checkPermission = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/post/${post._id}/can-edit`,
+        const res = await fetch(
+          `${BASE_URL}/api/v1/post/${post._id}/can-edit`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (res.data.canEdit) {
+
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.canEdit) {
           setCanEdit(true);
           setCanDelete(true);
         }
@@ -43,13 +45,15 @@ export default function PostCard({ post, onDelete }) {
       const permissions = {};
       for (let c of comments) {
         try {
-          const res = await axios.get(
-            `http://localhost:8000/api/v1/post/${post._id}/comment/${c._id}/can-edit`,
+          const res = await fetch(
+            `${BASE_URL}/api/v1/post/${post._id}/comment/${c._id}/can-edit`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          permissions[c._id] = res.data.canEdit;
+
+          const data = await res.json();
+          permissions[c._id] = data.canEdit;
         } catch (err) {
           permissions[c._id] = false;
         }
@@ -64,18 +68,17 @@ export default function PostCard({ post, onDelete }) {
   useEffect(() => {
     const checkIfLiked = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/post/${post._id}/check-like`,
+        const res = await fetch(
+          `${BASE_URL}/api/v1/post/${post._id}/check-like`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setHasLiked(res.data.liked);
+
+        const data = await res.json();
+        setHasLiked(data.liked);
       } catch (err) {
-        console.error(
-          "Error checking like status:",
-          err.response?.data || err.message
-        );
+        console.error("Error checking like status:", err.message);
       }
     };
 
@@ -87,22 +90,27 @@ export default function PostCard({ post, onDelete }) {
     setIsProcessing(true);
     try {
       const url = hasLiked
-        ? `http://localhost:8000/api/v1/post/${post._id}/unlike`
-        : `http://localhost:8000/api/v1/post/${post._id}/like`;
+        ? `${BASE_URL}/api/v1/post/${post._id}/unlike`
+        : `${BASE_URL}/api/v1/post/${post._id}/like`;
 
-      const res = await axios.post(url, null, {
+      const res = await fetch(url, {
+        method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      post.likes = res.data.likes;
-      const check = await axios.get(
-        `http://localhost:8000/api/v1/post/${post._id}/check-like`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      if (!res.ok) throw new Error();
+
+      const check = await fetch(
+        `${BASE_URL}/api/v1/post/${post._id}/check-like`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      const liked = check.data.liked;
-      setHasLiked(liked);
-      if (liked) {
+      const checkData = await check.json();
+      setHasLiked(checkData.liked);
+
+      if (checkData.liked) {
         toast.success("Đã thích bài viết!");
       } else {
         toast("Đã bỏ thích.", { icon: "💔" });
@@ -114,36 +122,44 @@ export default function PostCard({ post, onDelete }) {
     }
   };
 
-  // Lưu bình luận
   const handleSaveCommentEdit = async (commentId) => {
     if (!editCommentContent.trim()) return;
 
     try {
-      const res = await axios.put(
-        `http://localhost:8000/api/v1/post/${post._id}/comment/${commentId}`,
-        { content: editCommentContent },
+      const res = await fetch(
+        `${BASE_URL}/api/v1/post/${post._id}/comment/${commentId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content: editCommentContent }),
         }
       );
-      setComments(res.data.comments);
+
+      const data = await res.json();
+      setComments(data.comments);
       setIsEditingComment(false);
       setEditCommentId(null);
       setEditCommentContent("");
     } catch (err) {}
   };
-  // Gửi bình luận mới
+
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
     try {
-      const res = await axios.post(
-        `http://localhost:8000/api/v1/post/${post._id}/comment`,
-        { content: newComment },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setComments(res.data.comments);
+      const res = await fetch(`${BASE_URL}/api/v1/post/${post._id}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: newComment }),
+      });
+
+      const data = await res.json();
+      setComments(data.comments);
       setNewComment("");
       toast.success("Bình luận thành công!");
     } catch (err) {
@@ -158,26 +174,22 @@ export default function PostCard({ post, onDelete }) {
       formData.append("content", editedContent);
       if (editedImage) formData.append("image", editedImage);
 
-      const res = await axios.put(
-        `http://localhost:8000/api/v1/post/${post._id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/v1/post/${post._id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Không đặt Content-Type khi dùng FormData
+        },
+        body: formData,
+      });
 
-      post.content = res.data.data.content;
-      setCurrentImage(res.data.data.imageUrl);
+      const data = await res.json();
+      post.content = data.data.content;
+      setCurrentImage(data.data.imageUrl);
       setIsEditing(false);
       setEditedImage(null);
     } catch (err) {
-      console.error(
-        "Lỗi cập nhật bài đăng:",
-        err.response?.data || err.message
-      );
+      console.error("Lỗi cập nhật bài đăng:", err.message);
     }
   };
 
@@ -189,12 +201,15 @@ export default function PostCard({ post, onDelete }) {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8000/api/v1/post/${post._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await fetch(`${BASE_URL}/api/v1/post/${post._id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       window.location.reload();
     } catch (err) {
-      console.error("Lỗi khi xóa bài đăng:", err.response?.data || err.message);
+      console.error("Lỗi khi xóa bài đăng:", err.message);
     }
   };
 
@@ -205,13 +220,14 @@ export default function PostCard({ post, onDelete }) {
 
       for (let c of comments) {
         try {
-          const res = await axios.get(
-            `http://localhost:8000/api/v1/post/${post._id}/comment/${c._id}/can-delete`,
+          const res = await fetch(
+            `${BASE_URL}/api/v1/post/${post._id}/comment/${c._id}/can-delete`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          permissions[c._id] = res.data.canDelete;
+          const data = await res.json();
+          permissions[c._id] = data.canDelete;
         } catch (err) {
           permissions[c._id] = false;
         }
@@ -231,19 +247,20 @@ export default function PostCard({ post, onDelete }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(
-        `http://localhost:8000/api/v1/post/${post._id}/comment/${commentId}`,
+      const res = await fetch(
+        `${BASE_URL}/api/v1/post/${post._id}/comment/${commentId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      setComments(res.data.comments);
+      const data = await res.json();
+      setComments(data.comments);
     } catch (err) {
-      console.error(
-        "Lỗi khi xóa bình luận:",
-        err.response?.data || err.message
-      );
+      console.error("Lỗi khi xóa bình luận:", err.message);
     }
   };
 
@@ -257,7 +274,7 @@ export default function PostCard({ post, onDelete }) {
           <Image
             src={
               post.author?.avatarUrl
-                ? `http://localhost:8000${post.author.avatarUrl}`
+                ? `${BASE_URL}${post.author.avatarUrl}`
                 : "/R.jpg"
             }
             alt="avatar"
@@ -322,7 +339,7 @@ export default function PostCard({ post, onDelete }) {
         <div className="my-6 flex justify-center">
           <div className="relative w-full max-w-2xl h-96 rounded-xl overflow-hidden shadow-md">
             <Image
-              src={`http://localhost:8000${currentImage}`}
+              src={`${BASE_URL}${currentImage}`}
               alt="post"
               layout="fill"
               objectFit="cover"
@@ -380,7 +397,7 @@ export default function PostCard({ post, onDelete }) {
               <Image
                 src={
                   c.user?.avatarUrl
-                    ? `http://localhost:8000${c.user.avatarUrl}`
+                    ? `${BASE_URL}${c.user.avatarUrl}`
                     : "/R.jpg"
                 }
                 alt="comment avatar"

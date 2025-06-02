@@ -19,7 +19,7 @@ import {
   HiCurrencyDollar,
 } from "react-icons/hi";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +35,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/candidates/check-applied/${job._id}`,
+        `${BASE_URL}/api/v1/candidates/check-applied/${job._id}`,
         {
           method: "GET",
           headers: {
@@ -128,15 +128,12 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
     }
 
     try {
-      const userResponse = await fetch(
-        "http://localhost:8000/api/v1/candidates/me",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const userResponse = await fetch(`${BASE_URL}/api/v1/candidates/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const userResult = await userResponse.json();
       if (!userResponse.ok) {
@@ -171,17 +168,14 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/apply",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ jobId: job._id }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/apply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ jobId: job._id }),
+      });
 
       const result = await response.json();
       if (!response.ok) {
@@ -218,17 +212,14 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/v1/candidates/unapply`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ jobId: job._id }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/unapply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ jobId: job._id }),
+      });
 
       const result = await response.json().catch(() => ({}));
 
@@ -251,7 +242,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const logoSrc = company?.avatarUrl
     ? company.avatarUrl.startsWith("http")
       ? company.avatarUrl
-      : `http://localhost:8000/${company.avatarUrl}`
+      : `${BASE_URL}/${company.avatarUrl}`
     : "/placeholder-logo.png";
 
   return (

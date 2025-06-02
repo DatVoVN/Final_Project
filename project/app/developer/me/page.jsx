@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/authContext";
 import { FaSpinner } from "react-icons/fa";
-
+import BASE_URL from "@/utils/config";
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
   try {
@@ -73,14 +73,11 @@ const ProfilePage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          "http://localhost:8000/api/v1/candidates/me",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${BASE_URL}/api/v1/candidates/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data = await response.json();
         if (!response.ok) {
           throw new Error(
@@ -144,17 +141,14 @@ const ProfilePage = () => {
     });
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/updateInfo",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/updateInfo`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
+      });
 
       const result = await response.json();
 
@@ -203,8 +197,6 @@ const ProfilePage = () => {
       }
 
       setAvatarError(null);
-
-      // Gọi đúng hàm upload hoặc update
       if (candidateData?.avatarUrl) {
         handleAvatarUpdate(file);
       } else {
@@ -226,16 +218,13 @@ const ProfilePage = () => {
     uploadFormData.append("avatar", fileToUpload);
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/me/avatar",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: uploadFormData,
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/me/avatar`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: uploadFormData,
+      });
 
       const responseText = await response.clone().text();
       const contentType = response.headers.get("content-type");
@@ -283,7 +272,7 @@ const ProfilePage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/candidates/me/avatar/${candidateData._id}`,
+        `${BASE_URL}/api/v1/candidates/me/avatar/${candidateData._id}`,
         {
           method: "POST",
           headers: {
@@ -344,14 +333,11 @@ const ProfilePage = () => {
     uploadFormData.append("cv", fileToUpload);
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/update-cv",
-        {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: uploadFormData,
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/update-cv`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: uploadFormData,
+      });
 
       const responseText = await response.clone().text();
       const contentType = response.headers.get("content-type");
@@ -397,16 +383,13 @@ const ProfilePage = () => {
     setIsDeletingCv(true);
     setCvError(null);
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/delete-cv",
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/delete-cv`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       const responseData = await response.json();
       if (!response.ok) {
         throw new Error(
@@ -439,17 +422,14 @@ const ProfilePage = () => {
 
     try {
       setIsChangingPassword(true);
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/change-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ Gửi token ở đây
-          },
-          body: JSON.stringify({ oldPassword, newPassword }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
 
       const result = await response.json();
       if (!response.ok)

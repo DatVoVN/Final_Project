@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
+import BASE_URL from "@/utils/config";
 const CompanyPage = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
@@ -17,18 +17,16 @@ const CompanyPage = () => {
   const [errorDetails, setErrorDetails] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [errorReviews, setErrorReviews] = useState(null);
-
-  const API_BASE_URL = "http://localhost:8000";
   const token = Cookies.get("authToken");
   useEffect(() => {
     const fetchCompanyDetails = async () => {
       setLoadingDetails(true);
       setErrorDetails(null);
       try {
-        const res = await axios.get(
-          `${API_BASE_URL}/api/v1/developer/companys/${id}`
-        );
-        setCompanyDetails(res.data.data);
+        const res = await fetch(`${BASE_URL}/api/v1/developer/companys/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch company details");
+        const data = await res.json();
+        setCompanyDetails(data.data);
       } catch (err) {
         console.error("Error fetching company details:", err);
         setErrorDetails("Failed to load company details.");
@@ -36,14 +34,17 @@ const CompanyPage = () => {
         setLoadingDetails(false);
       }
     };
+
     const fetchReviewData = async () => {
       setLoadingReviews(true);
       setErrorReviews(null);
       try {
-        const res = await axios.get(
-          `${API_BASE_URL}/api/v1/candidates/average-star/${id}`
+        const res = await fetch(
+          `${BASE_URL}/api/v1/candidates/average-star/${id}`
         );
-        setReviewData(res.data.data);
+        if (!res.ok) throw new Error("Failed to fetch review data");
+        const data = await res.json();
+        setReviewData(data.data);
       } catch (err) {
         console.error("Error fetching review data:", err);
         setErrorReviews("Failed to load review data.");
@@ -54,16 +55,20 @@ const CompanyPage = () => {
 
     const fetchLikedStatus = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE_URL}/api/v1/candidates/companies/${id}/liked-status`,
+        const res = await fetch(
+          `${BASE_URL}/api/v1/candidates/companies/${id}/liked-status`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setLikedStatus(res.data.isLiked);
-      } catch (err) {}
+        if (!res.ok) return;
+        const data = await res.json();
+        setLikedStatus(data.isLiked);
+      } catch (err) {
+        console.error("Error fetching liked status:", err);
+      }
     };
 
     if (id) {
@@ -89,26 +94,21 @@ const CompanyPage = () => {
     }
 
     try {
-      if (likedStatus) {
-        await axios.delete(
-          `${API_BASE_URL}/api/v1/candidates/favorite-company/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      } else {
-        await axios.post(
-          `${API_BASE_URL}/api/v1/candidates/favorite-company/${id}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      const url = `${BASE_URL}/api/v1/candidates/favorite-company/${id}`;
+      const options = {
+        method: likedStatus ? "DELETE" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      if (!likedStatus) {
+        options.body = JSON.stringify({});
       }
+
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error("Failed to update follow status");
 
       setLikedStatus((prevStatus) => !prevStatus);
     } catch (err) {

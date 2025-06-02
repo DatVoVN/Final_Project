@@ -1,10 +1,8 @@
-// app/jobdetail/[jobId]/page.jsx (Server Component)
-
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
-
+import BASE_URL from "@/utils/config";
 async function getJobData(jobId) {
-  const apiUrl = `http://localhost:8000/api/v1/developer/jobs/jobdetail/${jobId}`;
+  const apiUrl = `${BASE_URL}/api/v1/developer/jobs/jobdetail/${jobId}`;
   try {
     const res = await fetch(apiUrl, { cache: "no-store" });
     if (!res.ok) {

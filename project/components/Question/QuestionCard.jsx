@@ -9,7 +9,7 @@ import {
   FaTrashAlt,
 } from "react-icons/fa";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 const formatDate = (dateString) => {
   if (!dateString) return "Không rõ";
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -27,7 +27,7 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
       try {
         const token = Cookies.get("authToken");
         const res = await fetch(
-          `http://localhost:8000/api/v1/question/${question._id}/is-mine`,
+          `${BASE_URL}/api/v1/question/${question._id}/is-mine`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -52,24 +52,19 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
 
     try {
       const token = Cookies.get("authToken");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/question/${question._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/v1/question/${question._id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (res.ok) {
         if (onDeleted) onDeleted(question._id);
       } else {
-        alert("Xóa câu hỏi thất bại.");
       }
     } catch (err) {
       console.error("Delete error:", err);
-      alert("Đã xảy ra lỗi khi xóa câu hỏi.");
     }
   };
 
@@ -77,7 +72,7 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
 
   const candidateName = question.candidate?.fullName || "Ẩn danh";
   const candidateAvatar = question.candidate?.avatarUrl
-    ? `http://localhost:8000${question.candidate.avatarUrl}`
+    ? `${BASE_URL}${question.candidate.avatarUrl}`
     : null;
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect } from "react";
-
+import BASE_URL from "@/utils/config";
 const setCookie = (name, value, days) => {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
@@ -33,14 +33,11 @@ export const AuthProvider = ({ children }) => {
       return;
     }
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/candidates/me",
-        {
-          headers: {
-            Authorization: `Bearer ${currentToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/candidates/me`, {
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Token không hợp lệ hoặc hết hạn");
       }
@@ -63,16 +60,12 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   }, []);
-
-  // Hàm xử lý sau khi đăng nhập thành công
   const handleLoginSuccess = (loginData) => {
     const newToken = loginData.token;
     setToken(newToken);
     setUser(loginData.candidate);
     setCookie("authToken", newToken, 7);
   };
-
-  // Hàm đăng xuất
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -87,8 +80,6 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-// Hook tùy chỉnh để sử dụng AuthContext dễ dàng hơn
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

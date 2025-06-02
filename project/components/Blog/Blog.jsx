@@ -6,7 +6,7 @@ import {
   FaEllipsisH,
 } from "react-icons/fa";
 import { HiOutlineUserCircle } from "react-icons/hi2";
-
+import BASE_URL from "@/utils/config";
 const Blog = ({
   size = "small",
   imageUrl = "/placeholder-image.jpg",
@@ -45,21 +45,15 @@ const Blog = ({
     >
       {/* Phần Ảnh */}
       <div className="relative overflow-hidden aspect-w-16 aspect-h-9 sm:aspect-h-10">
-        {" "}
-        {/* aspect ratio cho ảnh */}
         <img
           src={
-            imageUrl.startsWith("http")
-              ? imageUrl
-              : `http://localhost:8000${imageUrl}`
+            imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`
           }
           alt={title || "Blog Thumbnail"}
           className="w-full h-full object-cover
             transition-transform duration-500 ease-out group-hover:scale-105"
         />
       </div>
-
-      {/* Phần Nội dung */}
       <div className="p-4 sm:p-5 flex flex-col flex-grow">
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <div className="flex items-center">
@@ -82,8 +76,6 @@ const Blog = ({
             <FaEllipsisH />
           </button>
         </div>
-
-        {/* Tiêu đề */}
         <h2 className="font-bold text-gray-800 mb-2 text-lg leading-snug group-hover:text-indigo-700 transition-colors duration-200 line-clamp-2">
           {title}
         </h2>

@@ -2,9 +2,8 @@
 import React, { useEffect, useState } from "react";
 import Blog from "@/components/Blog/Blog";
 import Pagination from "@/components/Pagination";
-import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
-
+import BASE_URL from "@/utils/config";
 const BlogPage = () => {
   const [blogPosts, setBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,12 +14,14 @@ const BlogPage = () => {
   const fetchBlogs = async (page) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/v1/blog?page=${page}&limit=${limit}`
+      const response = await fetch(
+        `${BASE_URL}/api/v1/blog?page=${page}&limit=${limit}`
       );
-      setBlogPosts(response.data.blogs || []);
-      setTotalPages(response.data.totalPages);
-      setCurrentPage(response.data.currentPage);
+      const data = await response.json();
+
+      setBlogPosts(data.blogs || []);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.currentPage);
     } catch (error) {
       console.error("Lỗi khi tải blog:", error);
       setBlogPosts([]);

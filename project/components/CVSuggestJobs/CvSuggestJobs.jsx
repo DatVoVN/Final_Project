@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, X } from "lucide-react";
-
+import BASE_URL from "@/utils/config";
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl shadow-lg ${className}`}>{children}</div>
 );
@@ -37,7 +37,7 @@ export default function CvSuggestJobs() {
     try {
       const form = new FormData();
       form.append("cv", file);
-      const res = await fetch("http://localhost:8000/api/upload-and-match", {
+      const res = await fetch(`${BASE_URL}/api/upload-and-match`, {
         method: "POST",
         body: form,
       });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 const Package = ({ pkg }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -20,7 +20,7 @@ const Package = ({ pkg }) => {
       localStorage.setItem("paidPackage", pkg.name);
 
       const response = await fetch(
-        "http://localhost:8000/api/checkout/create-checkout-session",
+        `${BASE_URL}/api/checkout/create-checkout-session`,
         {
           method: "POST",
           headers: {
@@ -147,7 +147,7 @@ const PackageList = () => {
     const fetchPackages = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/v1/admin/package?page=1&limit=5"
+          `${BASE_URL}/api/v1/admin/package?page=1&limit=5`
         );
         const data = await response.json();
         setPackages(data.data);

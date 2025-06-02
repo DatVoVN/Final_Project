@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-
+import BASE_URL from "@/utils/config";
 const LoginEmployers = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
@@ -29,16 +29,13 @@ const LoginEmployers = () => {
     setError(null);
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/login/employer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/login/employer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
       const data = await response.json();
 
@@ -75,14 +72,11 @@ const LoginEmployers = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/forgot-passwordE",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: resetEmail }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/forgot-passwordE`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -110,18 +104,15 @@ const LoginEmployers = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/reset-passwordE",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: resetEmail,
-            otp,
-            newPassword,
-          }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/reset-passwordE`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: resetEmail,
+          otp,
+          newPassword,
+        }),
+      });
 
       const data = await response.json();
       if (!response.ok) {

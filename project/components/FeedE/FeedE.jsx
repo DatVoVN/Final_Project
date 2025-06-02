@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import PostCardE from "./PostCardE";
 import Pagination from "../Pagination";
+import BASE_URL from "@/utils/config";
 import {
   FaRegImage,
   FaPaperPlane,
@@ -30,13 +31,17 @@ const FeedE = () => {
   const fetchPosts = useCallback(async (page = 1) => {
     setLoadingPosts(true);
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/post", {
-        params: { page, limit },
-      });
-      setPosts(res.data.posts || []);
-      setTotalPages(res.data.totalPages || 1);
-      setTotalPosts(res.data.totalPosts || 0);
+      const query = new URLSearchParams({ page, limit }).toString();
+      const res = await fetch(`${BASE_URL}/api/v1/post?${query}`);
+
+      if (!res.ok) throw new Error("Failed to fetch posts");
+
+      const data = await res.json();
+      setPosts(data.posts || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalPosts(data.totalPosts || 0);
     } catch (err) {
+      console.error("Fetch posts error:", err);
       setPosts([]);
     } finally {
       setLoadingPosts(false);
@@ -71,18 +76,19 @@ const FeedE = () => {
       formData.append("content", newPost);
       if (image) formData.append("image", image);
 
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/post",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/v1/post`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Không đặt "Content-Type" khi dùng FormData
+        },
+        body: formData,
+      });
 
-      const newPostedItem = res.data.post;
+      if (!res.ok) throw new Error("Failed to post content");
+
+      const data = await res.json();
+      const newPostedItem = data.post;
 
       if (currentPage === 1) {
         setPosts((prev) => [newPostedItem, ...prev].slice(0, limit));
@@ -98,7 +104,8 @@ const FeedE = () => {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      toast.error("Error posting:", err);
+      console.error("Error posting:", err);
+      toast.error("Đăng bài thất bại. Vui lòng thử lại.");
     } finally {
       setIsPosting(false);
     }

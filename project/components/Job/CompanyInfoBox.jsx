@@ -4,7 +4,7 @@ import Link from "next/link";
 import { IoLocationSharp } from "react-icons/io5";
 import { FaUsers, FaExternalLinkAlt } from "react-icons/fa";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-
+import BASE_URL from "@/utils/config";
 const CompanyInfoBox = ({ company }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -13,7 +13,6 @@ const CompanyInfoBox = ({ company }) => {
   return (
     <div className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100/80 hover:border-gray-200/90 mt-6 overflow-hidden">
       <div className="p-6 md:p-8">
-        {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-6">
           <div className="space-y-1">
             <h3 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -33,9 +32,7 @@ const CompanyInfoBox = ({ company }) => {
           </Link>
         </div>
 
-        {/* Company Details */}
         <div className="space-y-4">
-          {/* Address */}
           {company.address && (
             <div className="flex items-start gap-3">
               <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
@@ -51,8 +48,6 @@ const CompanyInfoBox = ({ company }) => {
               </div>
             </div>
           )}
-
-          {/* Company Size */}
           {company.companySize && (
             <div className="flex items-start gap-3">
               <div className="p-2 bg-purple-50 rounded-lg text-purple-600">

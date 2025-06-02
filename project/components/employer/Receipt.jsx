@@ -8,7 +8,7 @@ import {
   HiOutlineClock,
   HiOutlineChevronDown,
 } from "react-icons/hi";
-
+import BASE_URL from "@/utils/config";
 const Receipt = () => {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ const Receipt = () => {
       const methodParam =
         method !== "all" ? `&method=${encodeURIComponent(method)}` : "";
       const res = await fetch(
-        `http://localhost:8000/api/payment/my-receipts?page=${pageNumber}&limit=9${methodParam}`,
+        `${BASE_URL}/api/payment/my-receipts?page=${pageNumber}&limit=9${methodParam}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

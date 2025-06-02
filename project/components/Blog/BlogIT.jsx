@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Blog from "./Blog";
-
+import BASE_URL from "@/utils/config";
 const BlogIT = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -8,7 +8,7 @@ const BlogIT = () => {
   useEffect(() => {
     const fetchTopBlogs = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/v1/blog/top3");
+        const response = await fetch(`${BASE_URL}/api/v1/blog/top3`);
         const data = await response.json();
         setBlogs(data.blogs || []);
       } catch (error) {

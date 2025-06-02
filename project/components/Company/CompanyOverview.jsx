@@ -13,7 +13,7 @@ import {
   FaSearchMinus,
 } from "react-icons/fa";
 import Pagination from "../Pagination";
-
+import BASE_URL from "@/utils/config";
 const CompanyOverview = ({ searchQuery, city }) => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const CompanyOverview = ({ searchQuery, city }) => {
     setLoading(true);
     setError(null);
     try {
-      const baseURL = "http://localhost:8000/api/v1/developer/companys";
+      const baseURL = `${BASE_URL}/api/v1/developer/companys`;
 
       const queryParams = new URLSearchParams({
         ...(searchQuery && { name: searchQuery }),
@@ -130,7 +130,7 @@ const CompanyOverview = ({ searchQuery, city }) => {
                 <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:border-indigo-200 transition-all duration-300">
                   {company.avatarUrl && (
                     <Image
-                      src={`http://localhost:8000/${company.avatarUrl}`}
+                      src={`${BASE_URL}/${company.avatarUrl}`}
                       alt={`${company.name || "Company"} logo`}
                       layout="fill"
                       objectFit="contain"
@@ -172,8 +172,6 @@ const CompanyOverview = ({ searchQuery, city }) => {
                   </Link>
                 </div>
               </div>
-
-              {/* Stats Section */}
               <div className="md:w-1/4 lg:w-1/5 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 group-hover:from-indigo-600 group-hover:to-purple-700 transition-all duration-300 text-white p-6 md:p-8 flex flex-col justify-center items-center space-y-5 md:space-y-6 text-center">
                 <div className="flex flex-col items-center">
                   <div className="flex items-baseline gap-1">
@@ -208,8 +206,6 @@ const CompanyOverview = ({ searchQuery, city }) => {
           </div>
         ))}
       </div>
-
-      {/* Pagination */}
       <Pagination
         currentPage={pagination.currentPage}
         totalPages={pagination.totalPages}

@@ -4,7 +4,7 @@ import axios from "axios";
 import { useState } from "react";
 import { PlusCircle, Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 export default function CreateCV() {
   const [message, setMessage] = useState("");
   const token = Cookies.get("authToken");
@@ -65,17 +65,25 @@ export default function CreateCV() {
 
   const onSubmit = async (data) => {
     try {
-      await axios.put("http://localhost:8000/api/v1/candidates/cv", data, {
+      const res = await fetch(`${BASE_URL}/api/v1/candidates/cv`, {
+        method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(data),
       });
+
+      if (!res.ok) throw new Error("Failed to save CV");
+
       setMessage("CV saved successfully!");
       reset();
     } catch (err) {
+      console.error("Lỗi khi lưu CV:", err);
       setMessage("Failed to save CV.");
     }
   };
+
   if (!token) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-100 px-4">

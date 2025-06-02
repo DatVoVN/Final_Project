@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import ToolSection from "@/components/Tool";
 import Link from "next/link";
 import { FaArrowRight, FaCogs, FaNewspaper, FaBuilding } from "react-icons/fa";
-import ChatbaseWidget from "@/components/ChatbaseWidget/ChatbaseWidget";
+import BASE_URL from "@/utils/config";
 import CvSuggestJobs from "@/components/CVSuggestJobs/CvSuggestJobs";
 
 export default function DeveloperPageStyled() {
@@ -16,14 +16,14 @@ export default function DeveloperPageStyled() {
   useEffect(() => {
     const fetchFeaturedCompanies = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/developer/top3");
+        const res = await fetch(`${BASE_URL}/api/v1/developer/top3`);
         const result = await res.json();
         const data = result.data;
 
         const formattedCompanies = data.map((item) => ({
           id: item.companyId,
           companyName: item.name,
-          logoUrl: `http://localhost:8000/${item.avatarUrl}`,
+          logoUrl: `${BASE_URL}/${item.avatarUrl}`,
           skills: item.languages || [],
           location: item.city,
           jobCount: item.jobCount,

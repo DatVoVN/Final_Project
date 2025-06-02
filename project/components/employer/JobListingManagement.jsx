@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import JobFilterBar from "../JobListing/JobFilterBar";
 import JobEmptyState from "../JobListing/JobEmptyState";
 import JobTable from "../JobListing/JobTable";
-
+import BASE_URL from "@/utils/config";
 const getStatus = (isActive, deadline) => {
   const now = new Date();
   const deadlineDate = deadline ? new Date(deadline) : null;
@@ -39,7 +39,7 @@ const JobListingManagement = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/developer/employer/jobs`,
+        `${BASE_URL}/api/v1/developer/employer/jobs`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

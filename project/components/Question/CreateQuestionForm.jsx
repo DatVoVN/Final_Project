@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { FaQuestionCircle, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import Cookies from "js-cookie";
+import BASE_URL from "@/utils/config";
 async function createQuestionApi(content) {
   const token = Cookies.get("authToken");
-  const response = await fetch("http://localhost:8000/api/v1/question", {
+  const response = await fetch(`${BASE_URL}/api/v1/question`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

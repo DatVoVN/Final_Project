@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// Imports icon giữ nguyên
+import BASE_URL from "@/utils/config";
 import {
   HiOutlineCode,
   HiCurrencyDollar,
@@ -63,9 +63,7 @@ const EditJobFormModal = ({ job, onClose, onUpdated }) => {
 
     try {
       const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-        }/api/v1/developer/jobs/${job._id}`,
+        `${BASE_URL}/api/v1/developer/jobs/${job._id}`,
         {
           method: "PUT",
           headers: {

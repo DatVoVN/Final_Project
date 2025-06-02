@@ -5,7 +5,7 @@ import jsPDF from "jspdf";
 import Cookies from "js-cookie";
 import { FaSpinner } from "react-icons/fa";
 import autoTable from "jspdf-autotable";
-
+import BASE_URL from "@/utils/config";
 const ViewCV = () => {
   const [cvData, setCvData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,15 +17,16 @@ const ViewCV = () => {
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/api/v1/candidates/cv",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setCvData(response.data.structuredCV);
+        const res = await fetch(`${BASE_URL}/api/v1/candidates/cv`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch CV");
+
+        const data = await res.json();
+        setCvData(data.structuredCV);
       } catch (error) {
         console.error("Error fetching CV:", error);
       } finally {

@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import { FaReply, FaPaperPlane, FaSpinner } from "react-icons/fa";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 async function addAnswerApi(questionId, content) {
   const token = Cookies.get("authToken");
   const response = await fetch(
-    `http://localhost:8000/api/v1/question/${questionId}/answers`,
+    `${BASE_URL}/api/v1/question/${questionId}/answers`,
     {
       method: "POST",
       headers: {

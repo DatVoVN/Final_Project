@@ -1,42 +1,30 @@
 import React, { useState } from "react";
-import { FaSpinner } from "react-icons/fa"; // Icon loading
-
+import { FaSpinner } from "react-icons/fa";
+import BASE_URL from "@/utils/config";
 const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
-  // State cho form đăng ký ban đầu
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // State cho OTP
   const [otp, setOtp] = useState("");
-  const [showOtpInput, setShowOtpInput] = useState(false); // Hiển thị ô OTP hay form đăng ký?
-  const [registeredEmail, setRegisteredEmail] = useState(""); // Lưu email đã đăng ký để gửi OTP
-
-  // State chung
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); // Lỗi chung cho cả 2 bước
-  const [successMessage, setSuccessMessage] = useState(null); // Thông báo thành công
-
-  // State cho việc gửi lại OTP
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [isResendingOtp, setIsResendingOtp] = useState(false);
   const [resendOtpMessage, setResendOtpMessage] = useState(null);
 
   if (!isOpen) return null;
-
-  // --- Xử lý Đăng ký ban đầu (Gửi thông tin + yêu cầu OTP) ---
   const handleRegisterSubmit = async (event) => {
     event.preventDefault();
     setError(null);
     setSuccessMessage(null);
     setResendOtpMessage(null);
-
-    // Kiểm tra mật khẩu khớp
     if (password !== confirmPassword) {
       setError("Mật khẩu và xác nhận mật khẩu không khớp.");
       return;
     }
-    // Kiểm tra độ dài mật khẩu (ví dụ)
     if (password.length < 6) {
       setError("Mật khẩu phải có ít nhất 6 ký tự.");
       return;
@@ -46,7 +34,7 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/auth/candidate/register",
+        `${BASE_URL}/api/v1/auth/candidate/register`,
         {
           method: "POST",
           headers: {
@@ -86,7 +74,7 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/auth/candidate/verify-otp",
+        `${BASE_URL}/api/v1/auth/candidate/verify-otp`,
         {
           method: "POST",
           headers: {
@@ -101,8 +89,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       if (!response.ok) {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
-
-      // Xác thực thành công
       setSuccessMessage(data.message + " Đang chuyển đến đăng nhập...");
       setTimeout(() => {
         onClose();
@@ -115,8 +101,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       setIsLoading(false);
     }
   };
-
-  // --- Xử lý Gửi lại OTP ---
   const handleResendOtp = async () => {
     setError(null);
     setSuccessMessage(null);
@@ -125,7 +109,7 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/auth/candidate/resend-otp",
+        `${BASE_URL}/api/v1/auth/candidate/resend-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -136,10 +120,10 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       if (!response.ok) {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
-      setResendOtpMessage(data.message); // Hiển thị thông báo thành công/chung chung từ API
+      setResendOtpMessage(data.message);
     } catch (err) {
       console.error("Resend OTP failed:", err);
-      setError(err.message || "Gửi lại OTP thất bại."); // Hiển thị lỗi chung
+      setError(err.message || "Gửi lại OTP thất bại.");
     } finally {
       setIsResendingOtp(false);
     }
@@ -157,7 +141,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
         </button>
 
         {!showOtpInput ? (
-          // --- GIAO DIỆN ĐĂNG KÝ BAN ĐẦU ---
           <>
             <div className="flex justify-center mb-4">
               <h2 className="text-center text-xl font-bold mb-4 text-blue-600 border border-blue-600 px-4 py-1 rounded-full inline-block">
@@ -229,8 +212,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
                   className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-
-              {/* Hiển thị lỗi chung */}
               {error && (
                 <p className="text-sm text-red-600 text-center">{error}</p>
               )}
@@ -287,20 +268,18 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
                 </label>
                 <input
                   id="otp-input"
-                  type="text" // Nên dùng type="text" và pattern hoặc kiểm tra JS
+                  type="text"
                   value={otp}
                   onChange={(e) =>
                     setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
-                  } // Chỉ cho nhập số và giới hạn 6 ký tự
+                  }
                   placeholder="Nhập 6 chữ số"
                   required
                   maxLength={6}
-                  className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 tracking-widest text-center text-lg" // Style cho dễ nhìn OTP
+                  className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 tracking-widest text-center text-lg"
                   autoComplete="one-time-code"
                 />
               </div>
-
-              {/* Hiển thị lỗi/thành công */}
               {error && (
                 <p className="text-sm text-red-600 text-center">{error}</p>
               )}

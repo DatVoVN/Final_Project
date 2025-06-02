@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/authContext";
-
+import BASE_URL from "@/utils/config";
 const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,14 +37,11 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/candidate/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/candidate/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -81,14 +78,11 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/forgot-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: resetEmail }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/v1/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
@@ -116,18 +110,15 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/reset-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: resetEmail,
-            otp,
-            newPassword,
-          }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}S/api/v1/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: resetEmail,
+          otp,
+          newPassword,
+        }),
+      });
 
       const data = await response.json();
       if (!response.ok) {

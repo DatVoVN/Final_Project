@@ -14,7 +14,7 @@ import {
 } from "react-icons/hi";
 import { BiRadioCircle, BiRadioCircleMarked } from "react-icons/bi";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const PostJobForm = () => {
   const [formData, setFormData] = useState({
     title: "",
@@ -89,7 +89,7 @@ const PostJobForm = () => {
     }
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/developer/job-postings`,
+        `${BASE_URL}/api/v1/developer/job-postings`,
         {
           method: "POST",
           headers: {

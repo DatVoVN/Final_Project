@@ -1,4 +1,3 @@
-// File: app/forum/ForumClient.jsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -13,12 +12,12 @@ import {
   FaPlusCircle,
   FaComments,
 } from "react-icons/fa";
-
+import BASE_URL from "@/utils/config";
 async function fetchQuestionsApi(page = 1, limit = 7, mine = false) {
   const token = Cookies.get("authToken");
   const endpoint = mine
-    ? `http://localhost:8000/api/v1/question/mine?page=${page}&limit=${limit}`
-    : `http://localhost:8000/api/v1/question?page=${page}&limit=${limit}`;
+    ? `${BASE_URL}/api/v1/question/mine?page=${page}&limit=${limit}`
+    : `${BASE_URL}/api/v1/question?page=${page}&limit=${limit}`;
   const response = await fetch(endpoint, {
     headers: mine ? { Authorization: `Bearer ${token}` } : undefined,
   });
