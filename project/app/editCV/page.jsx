@@ -6,6 +6,7 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { FaSpinner } from "react-icons/fa";
 import BASE_URL from "@/utils/config";
+
 export default function EditCV() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +17,7 @@ export default function EditCV() {
     handleSubmit,
     control,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm();
 
   const {
@@ -24,16 +25,19 @@ export default function EditCV() {
     append: appendEdu,
     remove: removeEdu,
   } = useFieldArray({ control, name: "education" });
+
   const {
     fields: expFields,
     append: appendExp,
     remove: removeExp,
   } = useFieldArray({ control, name: "experience" });
+
   const {
     fields: skillsFields,
     append: appendSkill,
     remove: removeSkill,
   } = useFieldArray({ control, name: "skills" });
+
   const {
     fields: langFields,
     append: appendLang,
@@ -79,7 +83,7 @@ export default function EditCV() {
         reset(formatData);
       } catch (error) {
         console.error("Error fetching CV:", error);
-        setMessage("Failed to load CV data");
+        setMessage("Không thể tải dữ liệu CV");
       } finally {
         setIsLoading(false);
       }
@@ -119,274 +123,259 @@ export default function EditCV() {
 
       if (!res.ok) throw new Error("Failed to save CV");
 
-      setMessage("CV saved successfully!");
+      setMessage("CV đã được lưu thành công!");
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error saving CV:", err);
-      setMessage("Failed to save CV.");
+      setMessage("Lỗi khi lưu CV. Vui lòng thử lại.");
     }
   };
 
   if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <FaSpinner className="animate-spin text-indigo-500 text-4xl mb-4" />
-        <p className="text-slate-600">Đang tải...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <FaSpinner className="animate-spin text-indigo-600 text-4xl mb-4" />
+        <p className="text-gray-600 text-lg">Đang tải dữ liệu...</p>
       </div>
     );
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8 flex justify-center">
-        EDIT YOUR CV
-      </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            Personal Summary
-          </h2>
-          <textarea
-            {...register("summary")}
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={4}
-            placeholder="Describe your professional background and skills..."
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">CHỈNH SỬA CV</h1>
+        <p className="text-gray-600">
+          Cập nhật thông tin cá nhân và chuyên môn của bạn
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Summary Section */}
+        <SectionCard title="Tóm tắt cá nhân">
+          <TextAreaField
+            label="Mô tả về bản thân và mục tiêu nghề nghiệp"
+            placeholder="Ví dụ: Tôi là một kỹ sư phần mềm với 5 năm kinh nghiệm..."
+            error={errors.summary}
+            {...register("summary", {
+              required: "Vui lòng nhập thông tin tóm tắt",
+            })}
           />
-        </div>
+        </SectionCard>
 
         {/* Education Section */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Education</h2>
-            <button
-              type="button"
-              onClick={() =>
-                appendEdu({
-                  school: "",
-                  degree: "",
-                  fieldOfStudy: "",
-                  startDate: "",
-                  endDate: "",
-                  description: "",
-                })
-              }
-              className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-            >
-              <PlusCircle size={18} /> Add Education
-            </button>
-          </div>
-
+        <SectionCard
+          title="Học vấn"
+          onAdd={() => appendEdu(createNewEducation())}
+        >
           {eduFields.map((field, index) => (
             <div
               key={field.id}
-              className="border-l-4 border-blue-200 pl-4 mb-6 relative group"
+              className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 relative group"
             >
-              <button
-                type="button"
-                onClick={() => removeEdu(index)}
-                className="absolute -right-2 -top-2 bg-red-100 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 size={16} className="text-red-600" />
-              </button>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium text-gray-700">
+                  Trường học #{index + 1}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => removeEdu(index)}
+                  className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField
-                  label="School"
-                  {...register(`education.${index}.school`)}
+                  label="Tên trường*"
+                  placeholder="Đại học ABC"
+                  error={errors.education?.[index]?.school}
+                  {...register(`education.${index}.school`, {
+                    required: "Vui lòng nhập tên trường",
+                  })}
                 />
+
                 <InputField
-                  label="Degree"
+                  label="Bằng cấp"
+                  placeholder="Cử nhân, Thạc sĩ..."
                   {...register(`education.${index}.degree`)}
                 />
+
                 <InputField
-                  label="Field of Study"
+                  label="Chuyên ngành"
+                  placeholder="Khoa học máy tính"
                   {...register(`education.${index}.fieldOfStudy`)}
                 />
+
                 <div className="grid grid-cols-2 gap-4">
                   <InputField
                     type="date"
-                    label="Start Date"
+                    label="Ngày bắt đầu"
                     {...register(`education.${index}.startDate`)}
                   />
                   <InputField
                     type="date"
-                    label="End Date"
+                    label="Ngày kết thúc"
                     {...register(`education.${index}.endDate`)}
                   />
                 </div>
-                <TextAreaField
-                  label="Description"
-                  {...register(`education.${index}.description`)}
-                />
+
+                <div className="col-span-full">
+                  <TextAreaField
+                    label="Mô tả thêm"
+                    placeholder="Thành tích, dự án nổi bật..."
+                    {...register(`education.${index}.description`)}
+                  />
+                </div>
               </div>
             </div>
           ))}
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">
-              Work Experience
-            </h2>
-            <button
-              type="button"
-              onClick={() =>
-                appendExp({
-                  company: "",
-                  title: "",
-                  location: "",
-                  startDate: "",
-                  endDate: "",
-                  description: "",
-                })
-              }
-              className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-            >
-              <PlusCircle size={18} /> Add Experience
-            </button>
-          </div>
+        </SectionCard>
 
+        {/* Experience Section */}
+        <SectionCard
+          title="Kinh nghiệm làm việc"
+          onAdd={() => appendExp(createNewExperience())}
+        >
           {expFields.map((field, index) => (
             <div
               key={field.id}
-              className="border-l-4 border-blue-200 pl-4 mb-6 relative group"
+              className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 relative group"
             >
-              <button
-                type="button"
-                onClick={() => removeExp(index)}
-                className="absolute -right-2 -top-2 bg-red-100 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 size={16} className="text-red-600" />
-              </button>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium text-gray-700">
+                  Kinh nghiệm #{index + 1}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => removeExp(index)}
+                  className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField
-                  label="Company"
-                  {...register(`experience.${index}.company`)}
+                  label="Tên công ty*"
+                  placeholder="Công ty ABC"
+                  error={errors.experience?.[index]?.company}
+                  {...register(`experience.${index}.company`, {
+                    required: "Vui lòng nhập tên công ty",
+                  })}
                 />
+
                 <InputField
-                  label="Job Title"
-                  {...register(`experience.${index}.title`)}
+                  label="Vị trí*"
+                  placeholder="Kỹ sư phần mềm"
+                  error={errors.experience?.[index]?.title}
+                  {...register(`experience.${index}.title`, {
+                    required: "Vui lòng nhập vị trí công việc",
+                  })}
                 />
+
                 <InputField
-                  label="Location"
+                  label="Địa điểm"
+                  placeholder="Hà Nội, Việt Nam"
                   {...register(`experience.${index}.location`)}
                 />
+
                 <div className="grid grid-cols-2 gap-4">
                   <InputField
                     type="date"
-                    label="Start Date"
+                    label="Ngày bắt đầu"
                     {...register(`experience.${index}.startDate`)}
                   />
                   <InputField
                     type="date"
-                    label="End Date"
+                    label="Ngày kết thúc"
                     {...register(`experience.${index}.endDate`)}
                   />
                 </div>
-                <TextAreaField
-                  label="Job Description"
-                  {...register(`experience.${index}.description`)}
-                />
+
+                <div className="col-span-full">
+                  <TextAreaField
+                    label="Mô tả công việc"
+                    placeholder="Trách nhiệm và thành tựu đạt được..."
+                    {...register(`experience.${index}.description`)}
+                  />
+                </div>
               </div>
             </div>
           ))}
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Skills</h2>
-            <button
-              type="button"
-              onClick={() => appendSkill("")}
-              className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-            >
-              <PlusCircle size={18} /> Add Skill
-            </button>
-          </div>
+        </SectionCard>
 
+        {/* Skills Section */}
+        <SectionCard title="Kỹ năng chuyên môn" onAdd={() => appendSkill("")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {skillsFields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2">
+              <div key={field.id} className="flex items-start gap-2">
                 <InputField
-                  {...register(`skills.${index}`)}
-                  placeholder="e.g. Work group, Friendly..."
+                  placeholder="VD: Quản lý dự án..."
                   className="flex-1"
+                  {...register(`skills.${index}`)}
                 />
                 <button
                   type="button"
                   onClick={() => removeSkill(index)}
-                  className="text-red-500 hover:text-red-600"
+                  className="mt-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))}
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Languages</h2>
-            <button
-              type="button"
-              onClick={() => appendLang("")}
-              className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-            >
-              <PlusCircle size={18} /> Add Language
-            </button>
-          </div>
+        </SectionCard>
 
+        {/* Languages Section */}
+        <SectionCard title="Ngôn ngữ" onAdd={() => appendLang("")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {langFields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2">
+              <div key={field.id} className="flex items-start gap-2">
                 <InputField
-                  {...register(`languages.${index}`)}
-                  placeholder="e.g. C++, ReactJS"
+                  placeholder="VD: Tiếng Anh"
                   className="flex-1"
+                  {...register(`languages.${index}`)}
                 />
                 <button
                   type="button"
                   onClick={() => removeLang(index)}
-                  className="text-red-500 hover:text-red-600"
+                  className="mt-2 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))}
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-6 rounded-md hover:from-blue-700 hover:to-blue-600 transition-all font-semibold flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            ) : (
-              "Save CV"
-            )}
-          </button>
+        </SectionCard>
+
+        {/* Submit Button */}
+        <div className="sticky bottom-4 bg-white p-4 rounded-xl shadow-lg z-10">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white py-3 px-6 rounded-lg hover:from-indigo-700 hover:to-indigo-600 transition-all font-semibold flex items-center justify-center gap-2 shadow-md"
+            >
+              {isSubmitting ? (
+                <FaSpinner className="animate-spin text-white text-xl" />
+              ) : (
+                "LƯU CV"
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => (window.location.href = "/viewCV")}
+              className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            >
+              XEM TRƯỚC CV
+            </button>
+          </div>
 
           {message && (
             <div
-              className={`mt-4 p-3 rounded-md ${
-                message.includes("success")
+              className={`mt-3 p-3 rounded-md text-center ${
+                message.includes("thành công")
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
               }`}
@@ -399,28 +388,62 @@ export default function EditCV() {
     </div>
   );
 }
-const InputField = ({ label, type = "text", ...props }) => (
-  <div className="space-y-1">
-    {label && (
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-    )}
-    <input
-      type={type}
-      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      {...props}
-    />
+
+// Reusable Components
+const SectionCard = ({ title, children, onAdd }) => (
+  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+      {onAdd && (
+        <button
+          type="button"
+          onClick={onAdd}
+          className="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium"
+        >
+          <PlusCircle size={20} /> Thêm mới
+        </button>
+      )}
+    </div>
+    {children}
   </div>
 );
 
-const TextAreaField = ({ label, ...props }) => (
-  <div className="space-y-1 col-span-full">
+const InputField = ({ label, type = "text", placeholder, error, ...props }) => (
+  <div className="space-y-1">
     {label && (
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-gray-700">
+        {label}
+        {props.required && <span className="text-red-500 ml-1">*</span>}
+      </label>
     )}
-    <textarea
-      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      rows={3}
+    <input
+      type={type}
+      className={`w-full px-4 py-2.5 border ${
+        error ? "border-red-300" : "border-gray-300"
+      } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors`}
+      placeholder={placeholder}
       {...props}
     />
+    {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
+  </div>
+);
+
+const TextAreaField = ({ label, placeholder, error, ...props }) => (
+  <div className="space-y-1">
+    {label && (
+      <label className="block text-sm font-medium text-gray-700">
+        {label}
+        {props.required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+    )}
+    <textarea
+      className={`w-full px-4 py-2.5 border ${
+        error ? "border-red-300" : "border-gray-300"
+      } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors`}
+      rows={4}
+      placeholder={placeholder}
+      {...props}
+    />
+    {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
   </div>
 );

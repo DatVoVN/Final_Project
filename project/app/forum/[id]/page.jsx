@@ -43,7 +43,6 @@ async function checkOwnership(id) {
   const res = await fetch(`${BASE_URL}/api/v1/question/${id}/is-mine`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Không thể xác minh quyền sở hữu");
   const data = await res.json();
   return data.isOwner;
 }
@@ -58,7 +57,6 @@ async function updateQuestion(id, newContent) {
     },
     body: JSON.stringify({ content: newContent }),
   });
-  if (!res.ok) throw new Error("Không thể cập nhật câu hỏi");
   return res.json();
 }
 

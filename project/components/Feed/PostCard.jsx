@@ -76,6 +76,7 @@ export default function PostCard({ post, onDelete }) {
         );
 
         const data = await res.json();
+
         setHasLiked(data.liked);
       } catch (err) {
         console.error("Error checking like status:", err.message);
@@ -108,6 +109,7 @@ export default function PostCard({ post, onDelete }) {
       );
 
       const checkData = await check.json();
+
       setHasLiked(checkData.liked);
 
       if (checkData.liked) {
@@ -266,7 +268,6 @@ export default function PostCard({ post, onDelete }) {
 
   const authorName =
     post.author?.fullName || post.author?.companyName || "Ẩn danh";
-
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100 transition-all hover:shadow-xl">
       <div className="flex items-center gap-4 mb-4">

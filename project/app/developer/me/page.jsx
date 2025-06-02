@@ -489,6 +489,7 @@ const ProfilePage = () => {
       </div>
     );
   }
+  console.log(candidateData);
 
   return (
     <div className="min-h-screen bg-slate-100 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
@@ -509,10 +510,6 @@ const ProfilePage = () => {
                     }
                     alt="Ảnh đại diện"
                     className="rounded-full w-full h-full object-cover border-4 border-gray-200 shadow-md"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/placeholder-avatar.png";
-                    }}
                   />
                   <div
                     className={`absolute inset-0 bg-black/50 rounded-full flex items-center justify-center transition-opacity duration-300 ${

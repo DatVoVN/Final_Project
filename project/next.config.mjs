@@ -9,6 +9,7 @@ const nextConfig = {
       "cdn.pixabay.com",
       "yourcdn.com",
       "res.cloudinary.com",
+      "final-project-c62o.onrender.com",
     ],
   },
 };

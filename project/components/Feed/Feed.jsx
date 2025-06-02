@@ -101,7 +101,8 @@ const Feed = () => {
       } else {
         setCurrentPage(1);
       }
-
+      setCurrentPage(1);
+      fetchPosts(1);
       setNewPost("");
       setImage(null);
       setImagePreview(null);
