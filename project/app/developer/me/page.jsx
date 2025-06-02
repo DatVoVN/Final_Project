@@ -504,7 +504,7 @@ const ProfilePage = () => {
                   <img
                     src={
                       candidateData?.avatarUrl
-                        ? `http://localhost:8000${candidateData.avatarUrl}`
+                        ? `${BASE_URL}${candidateData.avatarUrl}`
                         : "/R.jpg"
                     }
                     alt="Ảnh đại diện"
@@ -886,9 +886,7 @@ const ProfilePage = () => {
                   <div className="flex items-center gap-3.5 overflow-hidden mr-2 flex-1 min-w-0">
                     <i className="bi bi-file-earmark-pdf-fill text-red-500 text-4xl flex-shrink-0"></i>{" "}
                     <a
-                      href={`http://localhost:8000${
-                        candidateData.cvUrl
-                      }?${Date.now()}`}
+                      href={`${BASE_URL}${candidateData.cvUrl}?${Date.now()}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-medium text-blue-600 hover:text-blue-700 hover:underline truncate"
