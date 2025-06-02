@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/authContext";
-
+import BASE_URL from "@/utils/config";
 const LoginPage = () => {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
@@ -13,8 +13,8 @@ const LoginPage = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const { login } = useAuth();
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

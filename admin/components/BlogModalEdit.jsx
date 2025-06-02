@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import slugify from "slugify";
 import { FileText, Image as ImageIcon, X } from "lucide-react";
-
+import BASE_URL from "@/utils/config";
 const BlogModalEdit = ({ isOpen, onClose, blog, onUpdate, blogId }) => {
   const [form, setForm] = useState({
     title: "",
@@ -15,8 +15,8 @@ const BlogModalEdit = ({ isOpen, onClose, blog, onUpdate, blogId }) => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   useEffect(() => {
     if (blog) {

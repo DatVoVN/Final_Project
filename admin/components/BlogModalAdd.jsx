@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import slugify from "slugify";
 import Cookies from "js-cookie";
-
+import BASE_URL from "@/utils/config";
 const BlogModalAdd = ({ isOpen, onClose, onCreated }) => {
   const [form, setForm] = useState({
     title: "",
@@ -11,8 +11,8 @@ const BlogModalAdd = ({ isOpen, onClose, onCreated }) => {
   });
   const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState("");
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };

@@ -9,7 +9,7 @@ import Pagination from "@/components/Paginations";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import JobDetailModal from "@/components/JobDetailModal";
-
+import BASE_URL from "@/utils/config";
 const JobPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +24,8 @@ const JobPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const fetchJobs = async (page = 1) => {
     try {

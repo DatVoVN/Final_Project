@@ -7,9 +7,9 @@ import {
   ListOrdered,
   Clock,
 } from "lucide-react";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+import BASE_URL from "@/utils/config";
+// const BASE_URL =
+//   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 const PackageModalAdd = ({ isOpen, onClose, onCreated }) => {
   const [form, setForm] = useState({

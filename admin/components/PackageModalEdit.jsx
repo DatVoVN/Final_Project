@@ -9,7 +9,7 @@ import {
   Clock,
   X,
 } from "lucide-react";
-
+import BASE_URL from "@/utils/config";
 const PackageModalEdit = ({
   isOpen,
   onClose,
@@ -24,10 +24,11 @@ const PackageModalEdit = ({
     priceVND: "",
     duration: "",
   });
+
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   useEffect(() => {
     if (packages) {

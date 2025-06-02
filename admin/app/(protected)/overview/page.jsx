@@ -19,14 +19,14 @@ import {
   YAxis,
 } from "recharts";
 import dayjs from "dayjs";
-
+import BASE_URL from "@/utils/config";
 const OverViewPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [topCompanies, setTopCompanies] = useState([]);
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   useEffect(() => {
     const fetchTopCompanies = async () => {

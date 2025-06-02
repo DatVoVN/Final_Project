@@ -10,7 +10,7 @@ import {
   Clock,
   Image as ImageIcon,
 } from "lucide-react";
-
+import BASE_URL from "@/utils/config";
 const InfoRow = ({ icon: Icon, label, value }) => (
   <div className="flex items-start py-3 px-4 rounded-lg bg-slate-750 hover:bg-slate-700/60 transition-colors">
     <div className="mr-3 p-2 bg-slate-700 rounded-lg">
@@ -24,8 +24,8 @@ const InfoRow = ({ icon: Icon, label, value }) => (
     </div>
   </div>
 );
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+// const BASE_URL =
+//   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const CompanyModalView = ({ isOpen, onClose, company }) => {
   if (!isOpen) return null;
 

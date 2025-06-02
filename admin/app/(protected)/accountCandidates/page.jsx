@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import ProfileModal from "@/components/ProfileModal";
 import Pagination from "@/components/Paginations";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const Page = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,8 +16,8 @@ const Page = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   const fetchCandidates = async (page = 1) => {
     try {
       setLoading(true);

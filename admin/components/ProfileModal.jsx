@@ -10,9 +10,9 @@ import {
   File,
   User as UserIcon,
 } from "lucide-react";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+import BASE_URL from "@/utils/config";
+// const BASE_URL =
+//   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 const InfoRow = ({ icon: Icon, label, value }) => (
   <div className="flex items-start py-3 px-4 rounded-lg bg-slate-750 hover:bg-slate-700/60 transition-colors">

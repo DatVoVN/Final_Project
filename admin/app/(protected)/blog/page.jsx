@@ -8,7 +8,7 @@ import BlogModalView from "@/components/BlogModalView";
 import BlogModalEdit from "@/components/BlogModalEdit";
 import BlogModalAdd from "@/components/BlogModalAdd";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,8 +20,8 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const fetchBlogs = async (page = 1) => {
     try {

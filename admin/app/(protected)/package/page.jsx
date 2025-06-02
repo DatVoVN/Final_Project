@@ -9,7 +9,7 @@ import PackageModalAdd from "@/components/PackageModalAdd";
 import PackageModalEdit from "@/components/PackageModalEdit";
 import PackageModalView from "@/components/PackageModalView";
 import toast from "react-hot-toast";
-
+import BASE_URL from "@/utils/config";
 const PackagePage = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +22,8 @@ const PackagePage = () => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
 
-  const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  // const BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
   const fetchPackages = async (page = 1) => {
     try {

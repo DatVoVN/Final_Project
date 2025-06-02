@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import { Eye, Pencil, Trash } from "lucide-react";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+import BASE_URL from "@/utils/config";
+// const BASE_URL =
+//   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 const BlogTable = ({ blogs, onView, onEdit, onDelete }) => {
   if (!blogs || blogs.length === 0) {
