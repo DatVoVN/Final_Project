@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,7 +54,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       setRegisteredEmail(email);
       setShowOtpInput(true);
     } catch (err) {
-      console.error("Registration failed:", err);
       setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
@@ -69,9 +69,7 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       setError("Vui lòng nhập mã OTP gồm 6 chữ số.");
       return;
     }
-
     setIsLoading(true);
-
     try {
       const response = await fetch(
         `${BASE_URL}/api/v1/auth/candidate/verify-otp`,
@@ -89,13 +87,13 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       if (!response.ok) {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
-      setSuccessMessage(data.message + " Đang chuyển đến đăng nhập...");
+      setSuccessMessage(data.message);
+      toast.success("Đăng ký thành công");
       setTimeout(() => {
         onClose();
         onSwitchToLogin();
       }, 2000);
     } catch (err) {
-      console.error("OTP Verification failed:", err);
       setError(err.message || "Xác thực OTP thất bại. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
@@ -122,7 +120,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
       }
       setResendOtpMessage(data.message);
     } catch (err) {
-      console.error("Resend OTP failed:", err);
       setError(err.message || "Gửi lại OTP thất bại.");
     } finally {
       setIsResendingOtp(false);
@@ -215,13 +212,6 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
               {error && (
                 <p className="text-sm text-red-600 text-center">{error}</p>
               )}
-
-              <div className="text-sm text-gray-600">
-                Bằng việc nhấn nút đăng ký, tôi đồng ý với các{" "}
-                <a href="#" className="text-blue-600 underline">
-                  Điều khoản sử dụng
-                </a>
-              </div>
 
               <button
                 type="submit"

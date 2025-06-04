@@ -67,11 +67,7 @@ const OverViewPage = () => {
   }
 
   if (!stats) {
-    return (
-      <div className="text-center text-red-400 py-8">
-        Không thể tải thống kê.
-      </div>
-    );
+    return <div className="text-center ">Không thể tải thống kê.</div>;
   }
 
   const chartData = stats.jobsPerDay
@@ -124,7 +120,11 @@ const OverViewPage = () => {
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-3">
                           <img
-                            src={`${BASE_URL}/${company.avatarUrl}`}
+                            src={
+                              company.avatarUrl
+                                ? `${BASE_URL}/${company.avatarUrl}`
+                                : "/images/company.png"
+                            }
                             alt={company.name}
                             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                           />

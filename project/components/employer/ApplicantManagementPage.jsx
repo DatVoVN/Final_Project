@@ -113,7 +113,11 @@ const ApplicantManagementPage = () => {
         {applicant.job?.title || "Không có tên công việc"}
       </td>
       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-        {new Date(applicant.appliedAt).toLocaleDateString("vi-VN")}
+        {new Date(applicant.appliedAt).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })}
       </td>
       <td className="px-4 py-3 whitespace-nowrap text-sm">
         <span
@@ -131,15 +135,15 @@ const ApplicantManagementPage = () => {
             "Không xác định"}
         </span>
       </td>
-      <td className="px-4 py-3 flex">
+      <td className="px-4 py-3 flex items-center justify-center">
         <a
-          href={`http://localhost:8000${applicant.candidate?.cvUrl}` || "#"}
+          href={`${BASE_URL}${applicant.candidate?.cvUrl}` || "#"}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 text-blue-600 hover:bg-blue-100 rounded"
-          title="Xem hồ sơ"
+          title="Xem CV"
         >
-          <span className="sr-only justify-center">Xem hồ sơ</span>📄
+          <span className="sr-only justify-center">Xem CV</span>📄
         </a>
       </td>
     </tr>
@@ -228,7 +232,7 @@ const ApplicantManagementPage = () => {
             ) : filteredApplicants.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4">
-                  Chưa có ứng viên ứng tuyển
+                  Chưa có thông tin
                 </td>
               </tr>
             ) : (

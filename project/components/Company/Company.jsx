@@ -42,11 +42,11 @@ const CompanyCard = ({
       <div className="relative flex justify-center mb-5 h-28 group">
         <div className="relative w-24 h-24 sm:w-28 sm:h-28">
           <Image
-            src={imgSrc || "/fallback.jpg"}
+            src={imgSrc || "/company.png"}
             alt={`${companyName} logo`}
             fill
             className="object-contain rounded-full border-4 border-white shadow-md transition-transform duration-300 group-hover:scale-110"
-            onError={() => setImgSrc("/fallback.jpg")}
+            onError={() => setImgSrc("/company.png")}
           />
         </div>
         <Link href={companyLink}></Link>

@@ -17,11 +17,8 @@ const suggestRoutes = require("./routes/suggestRoutes");
 
 const app = express();
 dotenv.config();
-
-// ⚠️ Stripe webhook cần xử lý raw trước express.json()
 app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 
-// ✅ CORS & Middleware cho các route khác
 const corsOptions = {
   origin: "*",
   methods: "GET,POST,PUT,DELETE,PATCH",
@@ -55,6 +52,7 @@ app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/cv", cvRoutes);
 app.use("/api", suggestRoutes);
+app.use("/api", require("./routes/chatbot"));
 
 // app.use("/api/stripe", require("./routes/stripeWebhook"));
 app.use("/api/payment", require("./routes/manualPaymentCheck"));

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/authContext";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -8,7 +9,6 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { handleLoginSuccess } = useAuth();
-
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -16,9 +16,7 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [resetError, setResetError] = useState(null);
   const [isResetLoading, setIsResetLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-
   if (!isOpen) return null;
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
@@ -29,13 +27,6 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
       setIsLoading(false);
       return;
     }
-
-    if (!agreed) {
-      setError("Bạn phải đồng ý với điều khoản sử dụng trước khi tiếp tục.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const response = await fetch(`${BASE_URL}/api/v1/auth/candidate/login`, {
         method: "POST",
@@ -76,20 +67,17 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
       setIsResetLoading(false);
       return;
     }
-
     try {
       const response = await fetch(`${BASE_URL}/api/v1/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail }),
       });
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
-
-      alert("Mã OTP đã được gửi đến email của bạn.");
+      toast.success("Mã OTP đã được gửi đến email của bạn.");
       setOtpSent(true);
     } catch (err) {
       setResetError(err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
@@ -110,7 +98,7 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}S/api/v1/auth/reset-password`, {
+      const response = await fetch(`${BASE_URL}/api/v1/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -125,7 +113,7 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
 
-      alert("Mật khẩu đã được thay đổi thành công.");
+      toast.success("Mật khẩu đã được thay đổi thành công.");
       setIsForgotPasswordOpen(false);
     } catch (err) {
       setResetError(err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
@@ -193,21 +181,6 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
             </div>
           </div>
 
-          <div className="flex items-start text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mr-2 mt-1"
-            />
-            <p>
-              Bằng việc nhấn nút tiếp tục, tôi đồng ý với{" "}
-              <a href="#" className="text-blue-600 underline">
-                Điều khoản sử dụng
-              </a>
-            </p>
-          </div>
-
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
           <button
@@ -215,7 +188,7 @@ const LoginDevelops = ({ isOpen, onClose, onSwitchToRegister }) => {
             disabled={isLoading}
             className="w-full bg-[#5A00CC] hover:bg-[#4C00B8] text-white font-semibold py-2 rounded"
           >
-            {isLoading ? "Đang xử lý..." : "Tiếp tục"}
+            {isLoading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">

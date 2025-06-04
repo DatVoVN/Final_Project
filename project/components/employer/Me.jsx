@@ -329,9 +329,11 @@ const Me = () => {
         body: JSON.stringify({ oldPassword, newPassword }),
       });
 
-      if (!res.ok) throw new Error("Đổi mật khẩu thất bại");
-
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Mật khẩu cũ không đúng.");
+      }
+
       toast.success(data.message || "Đổi mật khẩu thành công");
 
       setChangePasswordForm({

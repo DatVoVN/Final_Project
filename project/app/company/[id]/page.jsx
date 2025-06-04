@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa";
 const CompanyPage = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
@@ -89,7 +91,7 @@ const CompanyPage = () => {
 
   const handleFollow = async () => {
     if (!token) {
-      alert("You need to be logged in to follow a company.");
+      toast.error("Bạn cần đăng nhập");
       return;
     }
 
@@ -111,15 +113,29 @@ const CompanyPage = () => {
       if (!res.ok) throw new Error("Failed to update follow status");
 
       setLikedStatus((prevStatus) => !prevStatus);
+
+      toast.success(
+        likedStatus ? "Đã bỏ theo dõi công ty" : "Đã theo dõi công ty"
+      );
     } catch (err) {
       console.error("Error updating follow status:", err);
+      toast.error("Đã xảy ra lỗi khi cập nhật trạng thái theo dõi");
     }
   };
 
   const isLoading = loadingDetails || loadingReviews;
   const criticalError = errorDetails;
 
-  if (isLoading) return <div className="text-center p-10">Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[1000px] py-12 text-center">
+        <FaSpinner className="animate-spin text-indigo-500 text-5xl mb-6" />
+        <p className="text-lg font-medium text-slate-700">Đang tải...</p>
+        <p className="text-sm text-slate-500 mt-1">
+          Vui lòng đợi trong giây lát.
+        </p>
+      </div>
+    );
   if (criticalError)
     return <div className="text-center p-10 text-red-500">{criticalError}</div>;
   if (!companyDetails)
@@ -138,44 +154,97 @@ const CompanyPage = () => {
     <div className="h-auto w-full bg-gray-50 pb-10">
       <div className="w-full h-auto md:h-80 grid grid-cols-1 md:grid-cols-2 bg-white border border-gray-200 shadow-md rounded-xl p-6 gap-6 md:gap-8 mb-5">
         <div className="flex justify-center items-center">
-          <div className="flex flex-col sm:flex-row gap-5 items-center text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row gap-6 items-center text-center sm:text-left p-6 bg-white rounded-xl shadow-md border border-gray-100 w-full max-w-4xl">
             <div className="flex-shrink-0">
-              {companyDetails.avatarUrl && (
-                <img
-                  src={companyDetails.avatarUrl}
-                  alt={`${companyDetails.name || "Company"} logo`}
-                  className="w-28 h-28 object-cover rounded-lg shadow-md border border-gray-100 mx-auto sm:mx-0"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.style.display = "none";
-                  }}
-                />
-              )}
+              <img
+                src={companyDetails.avatarUrl || "/company.png"}
+                alt={`${companyDetails.name || "Company"} logo`}
+                className="w-28 h-28 object-cover rounded-xl shadow-inner border border-gray-200"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/company.png";
+                }}
+              />
             </div>
-            <div>
-              <div className="text-2xl font-semibold text-gray-800 mb-3">
+
+            <div className="flex-1">
+              <div className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">
                 {companyDetails.name || "Company Name"}
               </div>
+
+              <p className="text-sm text-gray-500 mb-4">
+                Công ty uy tín với nhiều cơ hội việc làm hấp dẫn. Hãy theo dõi
+                để không bỏ lỡ!
+              </p>
+
               <div className="flex gap-4 justify-center sm:justify-start">
                 <button
                   onClick={handleFollow}
-                  className={`px-5 py-2 rounded-full shadow-sm text-sm font-medium transition duration-150
-      ${
-        likedStatus
-          ? "bg-red-100 text-red-600 border border-red-300 hover:bg-red-200"
-          : "bg-white text-indigo-600 border border-indigo-300 hover:bg-gray-50"
-      }`}
+                  className={`px-6 py-2.5 rounded-full text-sm font-medium transition duration-200 flex items-center gap-2
+            ${
+              likedStatus
+                ? "bg-red-50 text-red-600 border border-red-300 hover:bg-red-100"
+                : "bg-indigo-50 text-indigo-600 border border-indigo-300 hover:bg-indigo-100"
+            }`}
                 >
-                  {likedStatus ? "Unfollow" : "Follow"}
+                  {likedStatus ? (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M18 12H6"
+                        />
+                      </svg>
+                      <span>Bỏ theo dõi</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 6v12m6-6H6"
+                        />
+                      </svg>
+                      <span>Theo dõi</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           </div>
         </div>
+
         <div className="flex justify-center items-center gap-3 sm:gap-4 mt-4 md:mt-0">
           <Link href={`/alljob/${companyDetails._id}`}>
-            <div className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-md shadow-sm text-sm font-medium transition duration-150 cursor-pointer">
-              Số lượng Job hiện có
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-full shadow-md text-sm font-semibold transition duration-200 transform hover:scale-105 cursor-pointer">
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 10h4l3 10h8l3-10h4M9 10V5a1 1 0 011-1h4a1 1 0 011 1v5"
+                />
+              </svg>
+              <span>Xem các công việc đang tuyển</span>
             </div>
           </Link>
         </div>
@@ -224,127 +293,139 @@ const CompanyPage = () => {
       </div>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {activeTab === "overview" && (
-          <div className="space-y-5">
-            <div className="bg-white shadow-md rounded-2xl px-4 py-5 sm:px-5 sm:pt-6 sm:pb-8 xl:px-6 xl:pb-8">
-              <h2 className="border-b border-dashed pb-4 text-lg sm:text-xl font-semibold text-gray-800">
-                Thông tin công ty
-              </h2>
-              <div className="flex flex-col xl:flex-row xl:pt-4 divide-y xl:divide-y-0 xl:divide-x divide-dotted text-sm sm:text-base">
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Loại Công Ty
-                  </div>
-                  <div className="text-sm sm:text-base">IT Product</div>
-                </div>
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Địa chỉ công ty
-                  </div>
-                  <div className="text-right xl:text-left">
-                    <div className="pl-2 md:pl-0">
-                      <div className="inline-flex flex-wrap text-sm sm:text-base">
-                        {companyDetails.city ? "" : ""}
-                        {companyDetails.city || ""}
-                      </div>
+          <div className="space-y-6">
+            <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Thông tin công ty
+                </h2>
+              </div>
+
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Loại hình công ty
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.companyType || "IT Product"}
                     </div>
                   </div>
-                </div>
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Quy mô công ty
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Địa chỉ công ty
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.address || "Chưa cập nhật"}
+                    </div>
                   </div>
-                  <div className="text-sm sm:text-base">
-                    {companyDetails.companySize
-                      ? `${companyDetails.companySize} nhân viên`
-                      : "N/A"}
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Quy mô công ty
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.companySize
+                        ? `${companyDetails.companySize} nhân viên`
+                        : "Chưa cập nhật"}
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex flex-col xl:flex-row xl:pt-4 divide-y xl:divide-y-0 xl:divide-x divide-dotted mt-2 xl:mt-0 text-sm sm:text-base">
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Email
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Email liên hệ
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.email || "Chưa cập nhật"}
+                    </div>
                   </div>
-                  <div className="text-sm sm:text-base">
-                    {companyDetails.email || "N/A"}
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Ngày làm việc
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.workingDays?.from &&
+                      companyDetails.workingDays?.to
+                        ? `${companyDetails.workingDays.from} - ${companyDetails.workingDays.to}`
+                        : "Thứ 2 - Thứ 6"}
+                    </div>
                   </div>
-                </div>
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Working days
-                  </div>
-                  <div className="text-sm sm:text-base">
-                    {companyDetails.workingDays?.from &&
-                    companyDetails.workingDays?.to
-                      ? `${companyDetails.workingDays.from} - ${companyDetails.workingDays.to}`
-                      : "N/A"}
-                  </div>
-                </div>
-                <div className="xl:w-1/3 flex flex-col justify-between py-2 xl:py-0 px-0 xl:px-4">
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium mb-1">
-                    Chính sách Overtime
-                  </div>
-                  <div className="text-sm sm:text-base">
-                    {companyDetails.overtimePolicy || "N/A"}
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="text-gray-600 text-sm font-medium mb-1">
+                      Chính sách tăng ca
+                    </div>
+                    <div className="text-gray-800 font-medium">
+                      {companyDetails.overtimePolicy || "Theo luật lao động"}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
             {companyDetails.overview && (
-              <div className="bg-white shadow-md rounded-2xl px-4 py-5 sm:px-5 sm:pt-6 sm:pb-8 xl:px-6 xl:pb-8">
-                <h2 className="border-b border-dashed pb-4 text-lg sm:text-xl font-semibold">
-                  Tổng quan về công ty
-                </h2>
-                <div className="pt-4 break-words prose prose-sm sm:prose max-w-none text-gray-700">
+              <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Tổng quan về công ty
+                  </h2>
+                </div>
+                <div className="p-6 prose prose-blue max-w-none">
                   {companyDetails.overview
                     .split("\n")
                     .map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
+                      <p key={index} className="text-gray-700 mb-3">
+                        {paragraph}
+                      </p>
                     ))}
                 </div>
               </div>
             )}
-
             {(skills.length > 0 || companyDetails.description) && (
-              <div className="bg-white shadow-md rounded-2xl px-4 py-5 sm:px-5 sm:pt-6 sm:pb-8 xl:px-6 xl:pb-8">
-                <h2 className="border-b border-dashed pb-4 text-lg sm:text-xl font-semibold">
-                  Our key skills & Description
-                </h2>
-                <div className="pt-4 break-words">
+              <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Kỹ năng chính & Mô tả công ty
+                  </h2>
+                </div>
+                <div className="p-6">
                   {skills.length > 0 && (
-                    <>
-                      <div className="text-base sm:text-lg font-medium">
-                        Skills We Use
-                      </div>
-                      <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                        Công nghệ & Kỹ năng sử dụng
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
                         {skills.map((skill) => (
                           <span
                             key={skill}
-                            className="px-3 py-1 text-xs sm:text-sm bg-gray-100 text-gray-700 rounded-full cursor-default"
+                            className="px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-medium shadow-sm"
                           >
                             {skill}
                           </span>
                         ))}
                       </div>
-                    </>
+                    </div>
                   )}
+
                   {companyDetails.description && (
                     <div
-                      className={`prose prose-sm sm:prose max-w-none text-gray-700 ${
-                        skills.length > 0
-                          ? "mt-4 border-t border-dashed pt-4"
-                          : "pt-4"
-                      }`}
+                      className={
+                        skills.length > 0 ? "border-t border-gray-200 pt-6" : ""
+                      }
                     >
-                      <div className="text-base sm:text-lg font-medium mb-2">
-                        Mô tả
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                        Mô tả chi tiết
+                      </h3>
+                      <div className="prose prose-blue max-w-none">
+                        {companyDetails.description
+                          .split("\n")
+                          .map((paragraph, index) => (
+                            <p key={index} className="text-gray-700 mb-3">
+                              {paragraph}
+                            </p>
+                          ))}
                       </div>
-                      {companyDetails.description
-                        .split("\n")
-                        .map((paragraph, index) => (
-                          <p key={index}>{paragraph}</p>
-                        ))}
                     </div>
                   )}
                 </div>
@@ -411,7 +492,15 @@ const CompanyPage = () => {
               </>
             )}
             {!errorReviews && loadingReviews && (
-              <div className="text-center p-10">Loading reviews...</div>
+              <div className="flex flex-col justify-center items-center min-h-[1000px] py-12 text-center">
+                <FaSpinner className="animate-spin text-indigo-500 text-5xl mb-6" />
+                <p className="text-lg font-medium text-slate-700">
+                  Đang tải nhận xét...
+                </p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Vui lòng đợi trong giây lát.
+                </p>
+              </div>
             )}
           </div>
         )}

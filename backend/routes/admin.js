@@ -49,4 +49,12 @@ router.get("/package/:name", adminController.getPackageByName);
 router.post("/package", protectAdmin, adminController.createPackage);
 router.put("/package/:id", protectAdmin, adminController.updatePackage);
 router.delete("/package/:id", protectAdmin, adminController.deletePackage);
+////////// QUẢN lý câu hỏi /////////////////
+router.delete(
+  "/questions/:id",
+  protectAdmin,
+  adminController.deleteQuestionByAdmin
+);
+//////////FEED////////////////////////
+router.delete("/posts/:id", protectAdmin, adminController.deletePostByAdmin);
 module.exports = router;

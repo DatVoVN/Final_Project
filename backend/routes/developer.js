@@ -29,6 +29,7 @@ const {
   getTop5CompaniesWithJobDetails,
   updateMyInfo,
   deleteApplicant,
+  getJobSuggestions,
 } = require("../controllers/developerController");
 const protectEmployer = require("../middleware/protectDeveloper");
 const uploadAvatar = require("../middleware/uploadAvatar");
@@ -60,7 +61,7 @@ router.get("/jobs/:id", getJobPostingByIdFix);
 /// Tìm kiếm job
 router.get("/searchJob", searchJob);
 // suggest
-router.get("/suggestions", getSuggestions);
+router.get("/suggestions", getJobSuggestions);
 //////////////////////////////// THÔNG TIN ////////////////////////////////////
 /// xem thong tin cua developer
 router.get("/me", protectEmployer, getMyInfo);

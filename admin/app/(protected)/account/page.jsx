@@ -100,7 +100,7 @@ const Page = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <h2 className="text-2xl font-semibold text-gray-100 mb-4">
-            Danh sách đang chờ duyệt tài khoản
+            Danh sách tài khoản cần phê duyệt
           </h2>
           {loading ? (
             <p className="text-white">Đang tải...</p>

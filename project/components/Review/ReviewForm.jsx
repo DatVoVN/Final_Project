@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { StarIcon } from "@heroicons/react/20/solid";
 import toast from "react-hot-toast";
 import BASE_URL from "@/utils/config";
@@ -27,7 +26,6 @@ const ReviewForm = ({ companyId }) => {
       toast.error("Bạn phải đăng nhập để đánh giá");
       return;
     }
-
     if (rating === 0) {
       toast.error("Vui lòng chọn số sao trước khi gửi");
       return;
@@ -36,17 +34,14 @@ const ReviewForm = ({ companyId }) => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(
-        `${BASE_URL}/api/v1/candidates/${companyId}/reviews`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ rating, comment }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/v1/candidates/${companyId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rating, comment }),
+      });
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -59,7 +54,6 @@ const ReviewForm = ({ companyId }) => {
       setComment("");
     } catch (error) {
       console.error("Lỗi gửi đánh giá:", error.message);
-      alert(`Có lỗi xảy ra khi gửi đánh giá: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,8 +98,6 @@ const ReviewForm = ({ companyId }) => {
               )}
             </div>
           </div>
-
-          {/* Comment Section */}
           <div>
             <label
               htmlFor="comment"

@@ -1,2 +1,0 @@
-2025-05-16 07:33:27,792 - INFO - Use pytorch device_name: cpu
-2025-05-16 07:33:27,793 - INFO - Load pretrained SentenceTransformer: paraphrase-multilingual-MiniLM-L12-v2

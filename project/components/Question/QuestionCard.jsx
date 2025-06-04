@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import Cookies from "js-cookie";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const formatDate = (dateString) => {
   if (!dateString) return "Không rõ";
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -46,26 +47,60 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
     checkOwner();
   }, [question]);
 
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    if (!window.confirm("Bạn có chắc chắn muốn xóa câu hỏi này không?")) return;
+  const handleDelete = (questionId) => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa câu hỏi này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("authToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/question/${questionId}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
 
-    try {
-      const token = Cookies.get("authToken");
-      const res = await fetch(`${BASE_URL}/api/v1/question/${question._id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+                  if (res.ok) {
+                    if (onDeleted) onDeleted(questionId);
+                    toast.success("Đã xóa câu hỏi");
+                  } else {
+                    toast.error("Xóa câu hỏi thất bại");
+                  }
+                } catch (error) {
+                  toast.error("Đã xảy ra lỗi khi xóa");
+                  console.error("Lỗi khi xóa:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
         },
-      });
-
-      if (res.ok) {
-        if (onDeleted) onDeleted(question._id);
-      } else {
       }
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
+    );
   };
 
   if (!question) return null;
@@ -84,7 +119,11 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
       >
         {isOwner && (
           <button
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleDelete(question._id);
+            }}
             className="absolute top-3 right-3 text-red-500 hover:text-red-700 bg-white rounded-full p-1 shadow-sm"
             title="Xóa câu hỏi"
           >

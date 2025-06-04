@@ -17,6 +17,8 @@ import {
   UserCheck,
   FileStack,
   LogOut,
+  MessageSquare,
+  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,6 +39,8 @@ const ICONS = {
   File,
   UserCheck,
   FileStack,
+  MessageSquare,
+  LayoutGrid,
 };
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

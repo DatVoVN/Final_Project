@@ -685,44 +685,53 @@ exports.searchJob = async (req, res) => {
 };
 
 // suggest job
-exports.getSuggestions = async (req, res) => {
+exports.getJobSuggestions = async (req, res) => {
   try {
-    const { query } = req.query;
-
-    if (!query || query.trim().length === 0) {
-      return res.status(400).json({ message: "Không có từ khóa tìm kiếm" });
+    const query = req.query.query;
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ message: "Thiếu từ khóa." });
     }
 
-    const regex = new RegExp(query.trim(), "i");
-    console.log("Regex tìm kiếm: ", regex);
-    const suggestions = await JobPosting.find({
-      $or: [
-        { title: { $regex: regex } },
-        { languages: { $regex: regex } },
-        { "company.name": { $regex: regex } },
-      ],
-    })
-      .select("title languages company")
-      .populate("company", "name")
-      .limit(5)
-      .lean();
-    console.log(suggestions);
-    if (!suggestions || suggestions.length === 0) {
-      return res.status(200).json({ suggestions: [] });
-    }
+    const regex = new RegExp(query, "i");
 
-    const result = suggestions.map((job) => ({
-      title: job.title,
-      languages: job.languages.join(", "),
-      company: job.company?.name || "Unknown",
-    }));
+    const jobs = await JobPosting.aggregate([
+      {
+        $lookup: {
+          from: "companies",
+          localField: "company",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      { $unwind: "$company" },
+      {
+        $match: {
+          $or: [
+            { title: { $regex: regex } },
+            { "company.name": { $regex: regex } },
+          ],
+        },
+      },
+      { $limit: 10 },
+      {
+        $project: {
+          _id: 0,
+          title: 1,
+          companyName: "$company.name",
+        },
+      },
+    ]);
 
-    return res.status(200).json({ suggestions: result });
+    const suggestions = jobs
+      .flatMap((job) => [job.title, job.companyName])
+      .filter(Boolean);
+
+    const unique = [...new Set(suggestions)];
+
+    res.status(200).json({ suggestions: unique });
   } catch (error) {
     console.error("Lỗi khi lấy gợi ý:", error);
-    return res
-      .status(500)
-      .json({ message: "Lỗi server", error: error.message });
+    res.status(500).json({ message: "Lỗi server khi lấy gợi ý." });
   }
 };
 

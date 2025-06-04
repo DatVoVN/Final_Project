@@ -496,15 +496,11 @@ const authController = {
           .status(400)
           .json({ message: "OTP không hợp lệ hoặc đã hết hạn." });
       }
-
-      // KHÔNG cần hash ở đây nữa, chỉ cần gán password mới
       employer.password = newPassword;
-
-      // Reset OTP fields
       employer.otp = undefined;
       employer.otpExpires = undefined;
 
-      await employer.save(); // ← Nó sẽ tự động hash ở pre("save")
+      await employer.save();
 
       res.status(200).json({ message: "Đặt lại mật khẩu thành công." });
     } catch (error) {

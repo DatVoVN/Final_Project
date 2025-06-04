@@ -226,8 +226,10 @@ exports.addComment = async (req, res) => {
     await post.save();
     const updatedPost = await Post.findById(post._id).populate({
       path: "comments.user",
+      select: "fullName companyName avatarUrl",
     });
-
+    console.log({ userId, userType, content });
+    console.log("1", updatedPost.comments);
     res.status(201).json({
       message: "Đã bình luận",
       comments: updatedPost.comments,

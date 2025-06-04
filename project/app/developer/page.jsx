@@ -8,6 +8,7 @@ import Link from "next/link";
 import { FaArrowRight, FaCogs, FaNewspaper, FaBuilding } from "react-icons/fa";
 import BASE_URL from "@/utils/config";
 import CvSuggestJobs from "@/components/CVSuggestJobs/CvSuggestJobs";
+import ChatbotWidget from "@/components/ChatbotWidget";
 
 export default function DeveloperPageStyled() {
   const [featuredCompanies, setFeaturedCompanies] = useState([]);
@@ -140,6 +141,7 @@ export default function DeveloperPageStyled() {
           <BlogIT />
           {/* <ChatbaseWidget /> */}
           <CvSuggestJobs />
+          <ChatbotWidget />
         </div>
       </section>
     </>

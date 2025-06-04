@@ -1,15 +1,15 @@
 {
   "sidebarItems": [
-    { "name": "Dashboard", "icon": "House", "href": "/" },
-    { "name": "Account", "icon": "UserCheck", "href": "/account" },
-    { "name": "Job", "icon": "File", "href": "/job" },
+    { "name": "Bảng điều khiển", "icon": "House", "href": "/" },
+    { "name": "Tài khoản", "icon": "UserCheck", "href": "/account" },
+    { "name": "Việc làm", "icon": "File", "href": "/job" },
     {
-      "name": "Candidates",
+      "name": "Ứng viên",
       "icon": "Users",
       "href": "/accountCandidates"
     },
     {
-      "name": "Developers",
+      "name": "Người tuyển dụng",
       "icon": "ShieldUser",
       "href": "/accountDevelopers"
     },
@@ -18,12 +18,21 @@
       "icon": "FileStack",
       "href": "/blog"
     },
-
     {
-      "name": "Package",
+      "name": "Gói dịch vụ",
       "icon": "Box",
       "href": "/package"
     },
-    { "name": "Logout", "icon": "LogOut", "href": "/logout" }
+    {
+      "name": "Quản lý câu hỏi",
+      "icon": "MessageSquare",
+      "href": "/questions"
+    },
+    {
+      "name": "Bảng Feed",
+      "icon": "LayoutGrid",
+      "href": "/feed"
+    },
+    { "name": "Đăng xuất", "icon": "LogOut", "href": "/logout" }
   ]
 }

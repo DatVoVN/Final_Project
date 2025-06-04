@@ -26,7 +26,6 @@ const FeedE = () => {
   const limit = 5;
   const token = Cookies.get("token");
   const fileInputRef = useRef(null);
-
   const fetchPosts = useCallback(async (page = 1) => {
     setLoadingPosts(true);
     try {
@@ -40,13 +39,11 @@ const FeedE = () => {
       setTotalPages(data.totalPages || 1);
       setTotalPosts(data.totalPosts || 0);
     } catch (err) {
-      console.error("Fetch posts error:", err);
       setPosts([]);
     } finally {
       setLoadingPosts(false);
     }
   }, []);
-
   useEffect(() => {
     fetchPosts(currentPage);
     if (currentPage > 1) {
@@ -79,16 +76,14 @@ const FeedE = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Không đặt "Content-Type" khi dùng FormData
         },
         body: formData,
       });
 
       if (!res.ok) throw new Error("Failed to post content");
-
+      fetchPosts();
       const data = await res.json();
       const newPostedItem = data.post;
-
       if (currentPage === 1) {
         setPosts((prev) => [newPostedItem, ...prev].slice(0, limit));
         setTotalPosts((prev) => prev + 1);
@@ -102,6 +97,8 @@ const FeedE = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+
+      toast.success("Đăng bài thành công!");
     } catch (err) {
       console.error("Error posting:", err);
       toast.error("Đăng bài thất bại. Vui lòng thử lại.");
@@ -193,7 +190,12 @@ const FeedE = () => {
       ) : posts.length > 0 ? (
         <div className="space-y-6">
           {posts.map((post) => (
-            <PostCardE key={post._id} post={post} />
+            <PostCardE
+              key={post._id}
+              post={post}
+              onRefreshPosts={fetchPosts}
+              fetchPosts={fetchPosts}
+            />
           ))}
         </div>
       ) : (

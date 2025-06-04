@@ -111,7 +111,7 @@ const JobDes = ({ jobs }) => {
                     src={
                       job.company?.avatarUrl
                         ? `http://localhost:8000/${job.company.avatarUrl}`
-                        : "https://via.placeholder.com/150"
+                        : "/company.png"
                     }
                     alt={job.company?.name}
                     className="w-full h-full object-cover"

@@ -8,6 +8,8 @@ const Candidate = require("../models/Candidate");
 const JobPosting = require("../models/JobPosting");
 const Blog = require("../models/Blog");
 const Package = require("../models/Package");
+const Question = require("../models/Question");
+const Post = require("../models/Post");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 //////////////////////////////////////ADMIN//////////////////////////////////
 ///////// AUTH
@@ -491,5 +493,38 @@ exports.deletePackage = async (req, res) => {
     res.json({ message: "Đã xoá gói thành công." });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi xoá gói." });
+  }
+};
+//////////// QUẢN LÝ CÂU HỎI///////////////////
+exports.deleteQuestionByAdmin = async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+
+    if (!question) {
+      return res.status(404).json({ message: "Câu hỏi không tồn tại" });
+    }
+
+    await Question.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Đã xóa câu hỏi thành công" });
+  } catch (err) {
+    console.error("❌ Lỗi khi xóa câu hỏi:", err);
+    res.status(500).json({ message: "Lỗi server khi xóa câu hỏi" });
+  }
+};
+/////////// QUẢN LÝ FEED ////////////////
+exports.deletePostByAdmin = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Bài viết không tồn tại" });
+    }
+
+    await Post.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Đã xóa bài viết thành công" });
+  } catch (err) {
+    console.error("❌ Lỗi khi xóa bài viết:", err);
+    res.status(500).json({ message: "Lỗi server khi xóa bài viết" });
   }
 };

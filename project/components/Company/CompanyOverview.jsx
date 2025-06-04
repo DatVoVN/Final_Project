@@ -128,19 +128,19 @@ const CompanyOverview = ({ searchQuery, city }) => {
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/4 lg:w-1/5 flex-shrink-0 bg-slate-50 group-hover:bg-slate-100 transition-colors duration-300 p-6 flex items-center justify-center">
                 <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:border-indigo-200 transition-all duration-300">
-                  {company.avatarUrl && (
-                    <Image
-                      src={`${BASE_URL}/${company.avatarUrl}`}
-                      alt={`${company.name || "Company"} logo`}
-                      layout="fill"
-                      objectFit="contain"
-                      className="transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "";
-                      }}
-                    />
-                  )}
+                  <img
+                    src={
+                      company.avatarUrl
+                        ? `${BASE_URL}/${company.avatarUrl}`
+                        : "/company.png"
+                    }
+                    alt={`${company.name || "Company"} logo`}
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/company.png";
+                    }}
+                  />
                 </div>
               </div>
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/authContext";
 import { FaSpinner } from "react-icons/fa";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
   try {
@@ -359,7 +360,7 @@ const ProfilePage = () => {
         ...prevData,
         cvUrl: result.cvUrl,
       }));
-      alert("Cập nhật CV thành công!");
+      toast.success("Cập nhật Cv thành công");
     } catch (err) {
       console.error("CV upload failed:", err);
       setCvError(err.message || "Tải CV lên thất bại.");
@@ -447,16 +448,13 @@ const ProfilePage = () => {
       setIsChangingPassword(false);
     }
   };
-
   const editLabelClass = "block text-sm font-medium text-gray-700";
   const displayLabelClass =
     "text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1";
-
   const commonInputClass =
     "block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm py-2.5";
   const inputWithIconClass = `${commonInputClass} px-3.5 !pl-10`;
   const selectInputClass = `${commonInputClass} px-3.5`;
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-100">
@@ -464,7 +462,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-100 px-4">
@@ -489,8 +486,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-  console.log(candidateData);
-
   return (
     <div className="min-h-screen bg-slate-100 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -744,7 +739,6 @@ const ProfilePage = () => {
                     </>
                   )}
                 </div>
-                {/* Date of Birth */}
                 <div>
                   {isEditing ? (
                     <div>

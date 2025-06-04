@@ -243,7 +243,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
     ? company.avatarUrl.startsWith("http")
       ? company.avatarUrl
       : `${BASE_URL}/${company.avatarUrl}`
-    : "/placeholder-logo.png";
+    : "/company.png";
 
   return (
     <div className="bg-white p-4 md:px-10 py-3 md:py-4 rounded-lg shadow-md border border-gray-100 mb-5">

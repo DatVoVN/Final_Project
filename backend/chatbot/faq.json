@@ -1,0 +1,14 @@
+[
+  {
+    "question": "Làm sao để đăng ký tài khoản nhà tuyển dụng?",
+    "answer": "Bạn có thể đăng ký tài khoản bằng cách nhấn nút 'Đăng ký' và chọn loại tài khoản phù hợp."
+  },
+  {
+    "question": "Tôi quên mật khẩu thì làm sao?",
+    "answer": "Nhấn 'Quên mật khẩu' trong trang đăng nhập để đặt lại mật khẩu qua email."
+  },
+  {
+    "question": "Tôi có thể thanh toán bằng hình thức nào?",
+    "answer": "Bạn có thể thanh toán bằng Stripe hoặc PayOS khi mua gói dịch vụ."
+  }
+]

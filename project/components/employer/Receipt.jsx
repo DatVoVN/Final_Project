@@ -131,7 +131,9 @@ const Receipt = () => {
                   </td>
 
                   <td className="px-4 py-3 text-gray-600">
-                    <code className="text-xs">{receipt.orderCode}</code>
+                    <code className="text-xs">
+                      {receipt.orderCode || receipt.sessionId}
+                    </code>
                   </td>
                   <td className="px-4 py-3 text-gray-700 font-medium">
                     {receipt.amount.toLocaleString("vi-VN")} đ

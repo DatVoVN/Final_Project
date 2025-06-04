@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import BASE_URL from "@/utils/config";
-export default function PostCard({ post, onDelete }) {
+import axios from "axios";
+export default function PostCard({ post, onDelete, fetchPosts }) {
   const [comments, setComments] = useState(post.comments || []);
   const [newComment, setNewComment] = useState("");
   const [canEdit, setCanEdit] = useState(false);
@@ -87,43 +88,33 @@ export default function PostCard({ post, onDelete }) {
   }, [post._id, token]);
   const handleToggleLike = async () => {
     if (isProcessing) return;
-
     setIsProcessing(true);
     try {
       const url = hasLiked
-        ? `${BASE_URL}/api/v1/post/${post._id}/unlike`
-        : `${BASE_URL}/api/v1/post/${post._id}/like`;
+        ? `http://localhost:8000/api/v1/post/${post._id}/unlike`
+        : `http://localhost:8000/api/v1/post/${post._id}/like`;
 
-      const res = await fetch(url, {
-        method: "POST",
+      const res = await axios.post(url, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error();
-
-      const check = await fetch(
-        `${BASE_URL}/api/v1/post/${post._id}/check-like`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      post.likes = res.data.likes;
+      const check = await axios.get(
+        `http://localhost:8000/api/v1/post/${post._id}/check-like`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      const checkData = await check.json();
-
-      setHasLiked(checkData.liked);
-
-      if (checkData.liked) {
+      const liked = check.data.liked;
+      setHasLiked(liked);
+      if (liked) {
         toast.success("Đã thích bài viết!");
       } else {
         toast("Đã bỏ thích.", { icon: "💔" });
       }
     } catch (err) {
-      toast.error("Bạn cần phải đăng nhập");
+      toast.error("Bạn cần đăng nhập");
     } finally {
       setIsProcessing(false);
     }
   };
-
   const handleSaveCommentEdit = async (commentId) => {
     if (!editCommentContent.trim()) return;
 
@@ -147,7 +138,6 @@ export default function PostCard({ post, onDelete }) {
       setEditCommentContent("");
     } catch (err) {}
   };
-
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
     try {
@@ -168,7 +158,6 @@ export default function PostCard({ post, onDelete }) {
       toast.error("Bạn không có quyền comment. Vui lòng đăng nhập.");
     }
   };
-
   // Cập nhật bài đăng
   const handleSaveEdit = async () => {
     try {
@@ -194,27 +183,56 @@ export default function PostCard({ post, onDelete }) {
       console.error("Lỗi cập nhật bài đăng:", err.message);
     }
   };
-
   // Xóa bài đăng
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xóa bài viết này?"
-    );
-    if (!confirmDelete) return;
+  const handleDelete = () => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa bài viết này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  await fetch(`${BASE_URL}/api/v1/post/${post._id}`, {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` },
+                  });
 
-    try {
-      await fetch(`${BASE_URL}/api/v1/post/${post._id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+                  toast.success("✅ Đã xóa bài viết");
+                  if (typeof onDelete === "function") {
+                    onDelete?.(post._id);
+                  }
+
+                  fetchPosts();
+                } catch (err) {
+                  toast.error("❌ Lỗi khi xóa bài viết");
+                  console.error("Lỗi khi xóa bài đăng:", err.message);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
         },
-      });
-      window.location.reload();
-    } catch (err) {
-      console.error("Lỗi khi xóa bài đăng:", err.message);
-    }
+      }
+    );
   };
-
   // Kiểm tra quyền xóa bình luận
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -242,30 +260,55 @@ export default function PostCard({ post, onDelete }) {
       fetchPermissions();
     }
   }, [comments, post._id, token]);
-
   // Xử lý xóa bình luận
-  const handleDeleteComment = async (commentId) => {
-    const confirmDelete = window.confirm("Bạn có chắc muốn xóa bình luận này?");
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/v1/post/${post._id}/comment/${commentId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      setComments(data.comments);
-    } catch (err) {
-      console.error("Lỗi khi xóa bình luận:", err.message);
-    }
+  const handleDeleteComment = (commentId) => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa bình luận này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/post/${post._id}/comment/${commentId}`,
+                    {
+                      method: "DELETE",
+                      headers: { Authorization: `Bearer ${token}` },
+                    }
+                  );
+                  const data = await res.json();
+                  setComments(data.comments);
+                  toast.success("✅ Đã xóa bình luận");
+                } catch (err) {
+                  toast.error("❌ Lỗi khi xóa bình luận");
+                  console.error("Lỗi khi xóa bình luận:", err.message);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
+      }
+    );
   };
-
   const authorName =
     post.author?.fullName || post.author?.companyName || "Ẩn danh";
   return (

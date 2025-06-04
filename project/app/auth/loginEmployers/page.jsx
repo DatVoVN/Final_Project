@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const LoginEmployers = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
@@ -83,7 +84,7 @@ const LoginEmployers = () => {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
 
-      alert("Mã OTP đã được gửi đến email của bạn.");
+      toast.success("Mã OTP đã được gửi đến email của bạn.");
       setOtpSent(true);
     } catch (err) {
       setResetError(err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
@@ -119,7 +120,7 @@ const LoginEmployers = () => {
         throw new Error(data.message || `Lỗi ${response.status}`);
       }
 
-      alert("Mật khẩu đã được thay đổi thành công.");
+      toast.success("Mật khẩu đã được thay đổi thành công.");
       setIsForgotPasswordOpen(false);
     } catch (err) {
       setResetError(err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
@@ -154,7 +155,7 @@ const LoginEmployers = () => {
               autoComplete="email"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
-              placeholder="alex.jordan@gmail.com"
+              placeholder="dat@gmail.com"
               value={form.email}
               onChange={handleChange}
             />
@@ -179,20 +180,7 @@ const LoginEmployers = () => {
             />
           </div>
           <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-gray-900">
-                Ghi nhớ đăng nhập
-              </label>
-            </div>
-
+            <div className="flex items-center"></div>
             <button
               type="button"
               onClick={handleForgotPassword}
@@ -227,7 +215,6 @@ const LoginEmployers = () => {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
       {isForgotPasswordOpen && (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/30 backdrop-blur-sm text-black">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative p-6">
