@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
 from flask_cors import CORS
-
+import os
 app = Flask(__name__)
 CORS(app)
 model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -18,4 +18,5 @@ def health():
     return "✅ SBERT Embed Service is running"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
