@@ -3,7 +3,7 @@ const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/User");
 const Package = require("../models/Package");
-const Receipt = require("../models/Receipt"); // Import model Receipt
+const Receipt = require("../models/Receipt");
 
 router.post(
   "/webhook",
@@ -49,7 +49,6 @@ router.post(
           return res.status(404).send("Không tìm thấy user hoặc gói.");
         }
 
-        // ➕ Cập nhật thông tin người dùng
         user.postsRemaining =
           (user.postsRemaining || 0) + selectedPackage.posts;
         user.package = selectedPackage.name;
@@ -65,8 +64,6 @@ router.post(
         );
 
         await user.save();
-
-        // ✅ Cập nhật trạng thái hóa đơn trong bảng Receipt
         const receiptUpdate = await Receipt.findOneAndUpdate(
           { sessionId: session.id },
           { status: "paid" }

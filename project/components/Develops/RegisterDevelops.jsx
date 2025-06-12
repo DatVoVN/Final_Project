@@ -130,7 +130,22 @@ const RegisterDevelops = ({ isOpen, onClose, onSwitchToLogin }) => {
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/30 backdrop-blur-sm text-black">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative p-6">
         <button
-          onClick={onClose}
+          onClick={() => {
+            setFullName("");
+            setEmail("");
+            setPassword("");
+            setConfirmPassword("");
+            setOtp("");
+            setShowOtpInput(false);
+            setRegisteredEmail("");
+            setIsLoading(false);
+            setError(null);
+            setSuccessMessage(null);
+            setIsResendingOtp(false);
+            setResendOtpMessage(null);
+
+            onClose();
+          }}
           disabled={isLoading || isResendingOtp}
           className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold disabled:opacity-50"
         >

@@ -1,24 +1,26 @@
 const pdfParse = require("pdf-parse");
 const OpenAI = require("openai");
 const fs = require("fs");
-const JobPosting = require("../models/JobPosting");
+const path = require("path");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const roleProfiles = JSON.parse(
   fs.readFileSync("./data/roleProfiles.json", "utf-8")
 );
+
 const cosine = (a, b) => {
   const dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
   const magA = Math.sqrt(a.reduce((sum, v) => sum + v * v, 0));
   const magB = Math.sqrt(b.reduce((sum, v) => sum + v * v, 0));
   return dot / (magA * magB || 1e-6);
 };
+
 const canon = (s = "") => s.trim().toLowerCase();
+
 const buildEmbeddingText = (data) => {
-  return `Role: ${data.role || ""}. Skills: ${(data.skills || []).join(
-    ", "
-  )}. Edu: ${data.education || ""}. Exp: ${data.experience || ""}`;
+  return `Role: ${data.role || ""}. Skills: ${(data.skills || []).join(", ")}`;
 };
+
 function suggestRolesFromCV(cvSkills) {
   const cvCan = new Set((cvSkills || []).map(canon));
   const results = [];
@@ -50,15 +52,14 @@ function suggestRolesFromCV(cvSkills) {
 exports.matchJobsFromCVUpload = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chưa upload CV PDF" });
+
     const text = (await pdfParse(req.file.buffer)).text.slice(0, 3000);
     const prompt = `
 Trích xuất thông tin từ CV sau. Trả về JSON:
 
 {
   "role": "",
-  "skills": [],
-  "education": "",
-  "experience": ""
+  "skills": []
 }
 
 CV:
@@ -73,7 +74,6 @@ CV:
 
     const structuredInfo = JSON.parse(gptResp.choices[0].message.content);
     const cvSkills = structuredInfo.skills || [];
-
     const suggestedRoles = suggestRolesFromCV(cvSkills);
     const topRoles = suggestedRoles.map((r) => r.role.toLowerCase());
 
@@ -83,16 +83,19 @@ CV:
       input: cvText,
     });
     const cvEmbedding = data[0].embedding;
-    const jobs = await JobPosting.find({
-      isActive: true,
-      jobEmbedding: { $exists: true, $not: { $size: 0 } },
-    }).lean();
+    const jobsPath = path.join(
+      __dirname,
+      "../suggest/jobs_with_embeddings.json"
+    );
+    const jobs = JSON.parse(fs.readFileSync(jobsPath, "utf-8"));
 
     const matches = [];
 
     for (const job of jobs) {
-      const sim = cosine(cvEmbedding, job.jobEmbedding);
+      const jobEmbedding = job.jobEmbedding;
+      if (!jobEmbedding || !Array.isArray(jobEmbedding)) continue;
 
+      const sim = cosine(cvEmbedding, jobEmbedding);
       const jobRole = job.structuredInfo?.role?.toLowerCase() || "";
       const roleMatch = topRoles.includes(jobRole);
       const roleScore = roleMatch
@@ -100,12 +103,11 @@ CV:
           0
         : 0;
       const bonus = roleMatch ? 0.2 : -0.05;
-
       const finalScore = 0.5 * sim + 0.4 * roleScore + bonus;
 
       if (finalScore >= 0.6) {
         matches.push({
-          jobId: job._id,
+          jobId: job._id || job.id || "N/A",
           title: job.title,
           matchedRole: job.structuredInfo?.role || "N/A",
           similarity: +(sim * 100).toFixed(1),

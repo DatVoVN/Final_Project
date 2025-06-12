@@ -39,7 +39,6 @@ router.post("/chat", async (req, res) => {
 
     res.json({ answer: bestAnswer, similarity: bestScore.toFixed(4) });
   } catch (err) {
-    console.error("❌ Chatbot error:", err.message);
     res.status(500).json({ error: "Chatbot error" });
   }
 });

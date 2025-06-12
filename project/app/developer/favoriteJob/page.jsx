@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
+import BASE_URL from "@/utils/config";
 import {
   FaSpinner,
   FaExclamationTriangle,
@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import Pagination from "@/components/Pagination";
-import BASE_URL from "@/utils/config";
+
 const FavoriteJobPage = () => {
   const [favoriteJobs, setFavoriteJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ const FavoriteJobPage = () => {
     const token = Cookies.get("authToken");
 
     if (!token) {
-      alert("Bạn cần đăng nhập để thực hiện thao tác này.");
+      toast.error("Bạn cần đăng nhập để thực hiện thao tác này.");
       return;
     }
 
@@ -196,8 +196,8 @@ const FavoriteJobPage = () => {
                     <img
                       src={
                         job.company?.avatarUrl
-                          ? `http://localhost:8000/${job.company.avatarUrl}`
-                          : "https://via.placeholder.com/150"
+                          ? `${BASE_URL}/${job.company.avatarUrl}`
+                          : "/company.png"
                       }
                       alt={job.company?.name}
                       className="w-full h-full object-cover"

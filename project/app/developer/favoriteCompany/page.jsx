@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import Link from "next/link";
+import BASE_URL from "@/utils/config";
 import {
   FaArrowRight,
   FaBuilding,
@@ -14,7 +14,6 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import Pagination from "@/components/Pagination";
-import BASE_URL from "@/utils/config";
 const FavoriteCompaniesPage = () => {
   const [favoriteCompanies, setFavoriteCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,15 +180,17 @@ const FavoriteCompaniesPage = () => {
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-1/4 lg:w-1/5 flex-shrink-0 bg-slate-50 group-hover:bg-slate-100 transition-colors duration-300 p-6 flex items-center justify-center">
                   <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:border-indigo-200 transition-all duration-300">
-                    {company.avatarUrl && (
-                      <Image
-                        src={`http://localhost:8000/${company.avatarUrl}`}
-                        alt={`${company.name || "Company"} logo`}
-                        fill
-                        style={{ objectFit: "contain" }}
-                        className="transition-transform duration-500 group-hover:scale-105"
-                      />
-                    )}
+                    <Image
+                      src={
+                        company.avatarUrl
+                          ? `${BASE_URL}/${company.avatarUrl}`
+                          : "/company.png"
+                      }
+                      alt={`${company.name || "Company"} logo`}
+                      fill
+                      style={{ objectFit: "contain" }}
+                      className="transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                 </div>
 
@@ -221,8 +222,6 @@ const FavoriteCompaniesPage = () => {
                     </Link>
                   </div>
                 </div>
-
-                {/* Stats Section */}
                 <div className="md:w-1/4 lg:w-1/5 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 group-hover:from-indigo-600 group-hover:to-purple-700 transition-all duration-300 text-white p-6 md:p-8 flex flex-col justify-center items-center space-y-5 md:space-y-6 text-center">
                   <div className="flex flex-col items-center">
                     <div className="flex items-baseline gap-1">

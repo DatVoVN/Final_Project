@@ -15,7 +15,6 @@ async function generate() {
   }
 
   fs.writeFileSync("faq_with_embeddings.json", JSON.stringify(faq, null, 2));
-  console.log("✅ Lưu vào faq_with_embeddings.json");
 }
 
 generate().catch(console.error);

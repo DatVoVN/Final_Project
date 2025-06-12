@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-
 const authRouter = require("./routes/auth");
 const candidateRoutes = require("./routes/candidate");
 const adminRouter = require("./routes/admin");
@@ -50,10 +49,12 @@ app.use("/api/v1/developer", developerRouter);
 app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/post", postRouter);
+
+///chatbot
+app.use("/api", require("./routes/chatbot"));
+/// suggest
 app.use("/api/v1/cv", cvRoutes);
 app.use("/api", suggestRoutes);
-app.use("/api", require("./routes/chatbot"));
-
 // app.use("/api/stripe", require("./routes/stripeWebhook"));
 app.use("/api/payment", require("./routes/manualPaymentCheck"));
 app.use("/api/checkout", require("./routes/checkoutAll"));

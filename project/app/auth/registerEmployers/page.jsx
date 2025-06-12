@@ -128,7 +128,6 @@ const EmployerRegistrationForm = () => {
       );
       setIsSuccess(true);
     } catch (err) {
-      console.error("Registration failed:", err);
       setError(
         err.message ||
           "Đã có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại."
