@@ -17,8 +17,19 @@ const cosine = (a, b) => {
 };
 
 async function getEmbedding(text) {
-  const res = await axios.post(process.env.EMBEDDING_API_URL, { text });
-  return res.data.embedding;
+  try {
+    const res = await axios.post(process.env.EMBEDDING_API_URL, { text });
+    return res.data.embedding;
+  } catch (err) {
+    console.error("❌ Lỗi khi gọi embedding API:", {
+      url: process.env.EMBEDDING_API_URL,
+      text: text,
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message,
+    });
+    throw err;
+  }
 }
 router.post("/chat", async (req, res) => {
   const { question } = req.body;
@@ -39,7 +50,14 @@ router.post("/chat", async (req, res) => {
 
     res.json({ answer: bestAnswer, similarity: bestScore.toFixed(4) });
   } catch (err) {
-    res.status(500).json({ error: "Chatbot error" });
+    console.error(
+      "❌ Lỗi khi xử lý /chat:",
+      err.response?.data || err.message || err
+    );
+    res.status(500).json({
+      error: "Chatbot error",
+      detail: err.response?.data || err.message || "Unknown error",
+    });
   }
 });
 
