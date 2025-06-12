@@ -2,11 +2,17 @@ from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
 from flask_cors import CORS
 import os
+
 app = Flask(__name__)
 CORS(app)
-model = SentenceTransformer("all-MiniLM-L6-v2")
+
+model = None
+
 @app.route("/embed", methods=["POST"])
 def embed():
+    global model
+    if model is None:
+        model = SentenceTransformer("all-MiniLM-L6-v2")
     data = request.get_json()
     if not data or "text" not in data:
         return jsonify({"error": "Missing 'text' field"}), 400
