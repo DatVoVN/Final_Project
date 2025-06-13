@@ -10,5 +10,125 @@
   {
     "question": "Tôi có thể thanh toán bằng hình thức nào?",
     "answer": "Bạn có thể thanh toán bằng Stripe hoặc PayOS khi mua gói dịch vụ."
+  },
+  {
+    "question": "Làm sao để cập nhật thông tin công ty?",
+    "answer": "Bạn có thể vào trang 'Hồ sơ công ty' và nhấn 'Chỉnh sửa' để cập nhật thông tin."
+  },
+  {
+    "question": "Tôi có thể đăng bao nhiêu tin tuyển dụng?",
+    "answer": "Số lượng tin phụ thuộc vào gói dịch vụ bạn đã mua."
+  },
+  {
+    "question": "Làm sao để xóa tin tuyển dụng?",
+    "answer": "Vào trang quản lý tin tuyển dụng, chọn tin và nhấn nút 'Xóa'."
+  },
+  {
+    "question": "CV ứng viên được lưu ở đâu?",
+    "answer": "CV được lưu trong mục 'Quản lý ứng viên' của bạn."
+  },
+  {
+    "question": "Ứng viên có nhận được thông báo khi tôi gửi lời mời phỏng vấn?",
+    "answer": "Có, ứng viên sẽ nhận được email thông báo và trên hệ thống."
+  },
+  {
+    "question": "Tôi có thể tải CV của ứng viên không?",
+    "answer": "Có, bạn có thể tải CV ở định dạng PDF từ mục ứng viên."
+  },
+  {
+    "question": "Làm sao để lọc ứng viên theo kỹ năng?",
+    "answer": "Bạn có thể sử dụng bộ lọc trong mục 'Danh sách ứng viên'."
+  },
+  {
+    "question": "Hệ thống có gợi ý ứng viên phù hợp không?",
+    "answer": "Có, hệ thống sẽ gợi ý dựa trên AI và phân tích CV."
+  },
+  {
+    "question": "Tôi có thể chỉnh sửa tin tuyển dụng sau khi đăng không?",
+    "answer": "Có, vào 'Quản lý tin' và nhấn 'Chỉnh sửa'."
+  },
+  {
+    "question": "Khi nào tin tuyển dụng sẽ hiển thị?",
+    "answer": "Ngay sau khi bạn đăng và được hệ thống duyệt (nếu cần)."
+  },
+  {
+    "question": "Gói dịch vụ có thời hạn bao lâu?",
+    "answer": "Tùy vào gói bạn chọn, thường là 30, 60 hoặc 90 ngày."
+  },
+  {
+    "question": "Hệ thống hỗ trợ ngôn ngữ nào?",
+    "answer": "Hiện tại hệ thống hỗ trợ tiếng Việt."
+  },
+  {
+    "question": "Tôi có thể liên hệ hỗ trợ ở đâu?",
+    "answer": "Bạn có thể liên hệ qua email, hotline hoặc khung chat trực tuyến."
+  },
+  {
+    "question": "Làm sao để xem lịch sử giao dịch?",
+    "answer": "Vào mục 'Lịch sử thanh toán' trong trang tài khoản của bạn."
+  },
+  {
+    "question": "Có thể hủy gói dịch vụ đã mua không?",
+    "answer": "Rất tiếc, hiện hệ thống không hỗ trợ hoàn/hủy gói sau khi thanh toán."
+  },
+  {
+    "question": "Tôi bị lỗi khi thanh toán thì làm sao?",
+    "answer": "Hãy kiểm tra lại thông tin thẻ, hoặc thử phương thức khác, nếu vẫn lỗi thì liên hệ hỗ trợ."
+  },
+  {
+    "question": "Làm sao để gia hạn gói dịch vụ?",
+    "answer": "Bạn có thể mua gói mới hoặc gia hạn trong mục 'Gói dịch vụ'."
+  },
+  {
+    "question": "Tôi không nhận được email xác nhận?",
+    "answer": "Hãy kiểm tra thư rác hoặc liên hệ hỗ trợ để được gửi lại."
+  },
+  {
+    "question": "Tôi có thể xóa tài khoản không?",
+    "answer": "Không hiện giờ hệ thông chưa có chức năng xóa tài khoản"
+  },
+  {
+    "question": "Có cách nào lọc công việc theo vị trí địa lý không?",
+    "answer": "Có, bạn có thể lọc theo tỉnh/thành trong danh sách công việc."
+  },
+  {
+    "question": "Tôi có thể đăng tin tuyển thực tập không?",
+    "answer": "Có, bạn có thể đăng tin thực tập nếu bạn muốn khi bạn bấm vào bảng feed khi đăng tin."
+  },
+  {
+    "question": "Có giới hạn kích thước file CV không?",
+    "answer": "Có, hệ thống hỗ trợ CV dưới 5MB ở định dạng PDF hoặc DOCX."
+  },
+  {
+    "question": "Tôi muốn xem lượt xem tin tuyển dụng thì làm sao?",
+    "answer": "Bạn có thể xem thống kê trong trang 'Quản lý tin'."
+  },
+  {
+    "question": "Hệ thống có đảm bảo dữ liệu cá nhân không bị lộ không?",
+    "answer": "Có, hệ thống tuân thủ các chính sách bảo mật nghiêm ngặt."
+  },
+  {
+    "question": "Có thể xuất danh sách ứng viên ra Excel không?",
+    "answer": "Hiện tại hệ thống chưa hỗ trợ tính năng này, nhưng đang được phát triển."
+  },
+  {
+    "question": "Có thể đánh dấu công việc và công ty yêu thích không?",
+    "answer": "Có, bạn có thể đánh dấu yêu thích cho công việc và công ty bạn yêu thích."
+  },
+  {
+    "question": "Có hỗ trợ tích hợp với hệ thống ATS không?",
+    "answer": "Hiện tại hệ thống đang phát triển API mở để hỗ trợ tích hợp."
+  },
+  {
+    "question": "Ứng viên có bị thông báo khi bị từ chối không?",
+    "answer": "Tùy vào hành động của bạn, nếu từ chối ứng viên bạn có thể gửi email thông báo."
+  },
+  {
+    "question": "Làm sao để xem đánh giá của ứng viên về công ty tôi?",
+    "answer": "Nếu hệ thống có tích hợp đánh giá, bạn có thể xem trong hồ sơ công ty."
+  },
+  {
+    "question": "Tôi có thể đăng tuyển nhiều vị trí trong cùng 1 tin không?",
+    "answer": "Bạn nên đăng mỗi vị trí riêng biệt để ứng viên dễ theo dõi."
   }
 ]
