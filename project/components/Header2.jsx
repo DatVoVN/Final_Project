@@ -7,8 +7,6 @@ import Image from "next/image";
 const Header2 = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Đọc token từ cookie
   useEffect(() => {
     const hasToken = document.cookie
       .split("; ")
