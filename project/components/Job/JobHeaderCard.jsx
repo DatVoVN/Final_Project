@@ -104,7 +104,6 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   //     setHasApplied(true);
 
   //     // Optional: alert hoặc toast tùy bạn muốn UI sao
-  //     alert("🎉 Ứng tuyển thành công!");
   //   } catch (err) {
   //     console.error("Apply Error:", err);
   //     setError(err.message || "Đã xảy ra lỗi khi nộp hồ sơ.");

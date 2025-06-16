@@ -6,7 +6,7 @@
   },
   "Frontend Developer": {
     "description": "Phát triển giao diện web tương tác và tối ưu hiệu năng.",
-    "requiredSkills": ["JavaScript", "React", "HTML", "CSS"],
+    "requiredSkills": ["JavaScript", "ReactJS", "HTML", "CSS"],
     "preferredSkills": ["TypeScript", "Next.js", "Redux", "Unit Testing"]
   },
   "Full‑Stack Developer": {

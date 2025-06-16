@@ -36,7 +36,7 @@ const HeroSectionEmployerNew = () => {
               <div className="flex items-center justify-center lg:justify-start gap-3">
                 <HiOutlineUserGroup className="w-6 h-6 text-sky-400 flex-shrink-0" />{" "}
                 <span className="text-gray-100 font-medium drop-shadow">
-                  Tiếp cận 50,000+ hồ sơ IT chất lượng, cập nhật liên tục.
+                  Tiếp cận các hồ sơ IT chất lượng, cập nhật liên tục.
                 </span>
               </div>
               <div className="flex items-center justify-center lg:justify-start gap-3">
@@ -83,7 +83,7 @@ const HeroSectionEmployerNew = () => {
               <div className="absolute -bottom-6 -right-6 z-20 hidden sm:block">
                 <div className="p-4 bg-white rounded-lg shadow-lg border border-gray-100">
                   <p className="text-xs text-indigo-600 font-semibold">
-                    +150 New Profiles Today
+                    Profiles Today
                   </p>
                 </div>
               </div>

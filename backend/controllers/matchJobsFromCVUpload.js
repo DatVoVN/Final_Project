@@ -97,15 +97,22 @@ CV:
 
       const sim = cosine(cvEmbedding, jobEmbedding);
       const jobRole = job.structuredInfo?.role?.toLowerCase() || "";
-      const roleMatch = topRoles.includes(jobRole);
+      const roleMatch = topRoles.some(
+        (r) => jobRole.includes(r) || r.includes(jobRole)
+      );
+
       const roleScore = roleMatch
         ? suggestedRoles.find((r) => r.role.toLowerCase() === jobRole)?.score ||
           0
         : 0;
       const bonus = roleMatch ? 0.2 : -0.05;
-      const finalScore = 0.5 * sim + 0.4 * roleScore + bonus;
-
-      if (finalScore >= 0.6) {
+      const finalScore = 0.7 * sim + 0.2 * roleScore + bonus;
+      console.log(
+        `✅ Job: ${job.title} | Role match: ${roleMatch} | Sim: ${sim.toFixed(
+          3
+        )} | RoleScore: ${roleScore} | FinalScore: ${finalScore.toFixed(3)}`
+      );
+      if (finalScore >= 0.4) {
         matches.push({
           jobId: job._id || job.id || "N/A",
           title: job.title,

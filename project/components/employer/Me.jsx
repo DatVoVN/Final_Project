@@ -213,7 +213,6 @@ const Me = () => {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // ⚠️ KHÔNG cần Content-Type nếu dùng FormData
         },
         body: formData,
       });
@@ -518,7 +517,7 @@ const Me = () => {
                       />
                     ) : companyForm.currentAvatarUrl ? (
                       <img
-                        src={`http://localhost:8000/${companyForm.currentAvatarUrl}`}
+                        src={`${BASE_URL}/${companyForm.currentAvatarUrl}`}
                         alt="Avatar hiện tại"
                         className="w-full h-full object-cover"
                       />
@@ -527,7 +526,7 @@ const Me = () => {
                     )
                   ) : company.avatarUrl ? (
                     <img
-                      src={`http://localhost:8000/${company.avatarUrl}`}
+                      src={`${BASE_URL}/${company.avatarUrl}`}
                       alt="Avatar Công ty"
                       className="w-full h-full object-cover"
                     />

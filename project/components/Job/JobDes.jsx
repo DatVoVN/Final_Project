@@ -110,7 +110,7 @@ const JobDes = ({ jobs }) => {
                   <img
                     src={
                       job.company?.avatarUrl
-                        ? `http://localhost:8000/${job.company.avatarUrl}`
+                        ? `${BASE_URL}/${job.company.avatarUrl}`
                         : "/company.png"
                     }
                     alt={job.company?.name}

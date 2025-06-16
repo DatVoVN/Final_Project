@@ -8,6 +8,7 @@ import {
 } from "react-icons/hi";
 import { BiRadioCircle, BiRadioCircleMarked } from "react-icons/bi";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 const EditJobFormModal = ({ job, onClose, onUpdated }) => {
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -80,12 +81,16 @@ const EditJobFormModal = ({ job, onClose, onUpdated }) => {
           .catch(() => ({ message: "Lỗi không xác định." }));
         throw new Error(errorData.message || `Lỗi ${response.status}`);
       }
+
       const responseData = await response.json();
+      toast.success("Cập nhật công việc thành công!");
+
       if (onUpdated) onUpdated();
       onClose();
       window.location.reload();
     } catch (err) {
       setError(err.message);
+      toast.error(`Cập nhật thất bại`);
     } finally {
       setIsLoading(false);
     }
