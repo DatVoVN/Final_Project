@@ -20,7 +20,7 @@ const FavoriteCompaniesPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const companiesPerPage = 1;
+  const companiesPerPage = 3;
 
   useEffect(() => {
     const fetchFavoriteCompanies = async (page = 1) => {

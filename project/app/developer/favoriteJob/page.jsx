@@ -18,7 +18,7 @@ const FavoriteJobPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const jobsPerPage = 3;
+  const jobsPerPage = 6;
 
   useEffect(() => {
     const fetchFavoriteJobs = async (page = 1) => {

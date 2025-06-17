@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, X } from "lucide-react";
 import BASE_URL from "@/utils/config";
+import Link from "next/link";
 const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-xl shadow-lg ${className}`}>{children}</div>
 );
@@ -55,7 +56,7 @@ export default function CvSuggestJobs() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl flex items-center justify-center transition-colors"
+        className="z-40 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl flex items-center justify-center transition-colors"
         aria-label="Phân tích CV"
       >
         <Upload className="w-6 h-6" />
@@ -107,13 +108,13 @@ export default function CvSuggestJobs() {
                 {data && (
                   <div className="w-full mt-4 text-left">
                     <h2 className="text-lg font-medium mb-2">
-                      🔍 Kết quả phân tích CV
+                      KẾT QUẢ PHÂN TÍCH CV
                     </h2>
                     <p className="text-sm mb-1 text-gray-700">
-                      💼 Kỹ năng: {data.structuredCV.skills?.join(", ")}
+                      KỸ NĂNG: {data.structuredCV.skills?.join(", ")}
                     </p>
                     <p className="text-sm mb-2 text-gray-700">
-                      ✅ Roles phù hợp:{" "}
+                      ROLE PHÙ HỢP:{" "}
                       {data.suggestedRoles.map((r) => r.role).join(", ")}
                     </p>
 
@@ -135,10 +136,12 @@ export default function CvSuggestJobs() {
                               className="border-b last:border-0"
                             >
                               <td
-                                className="py-1 px-2 max-w-[200px] truncate"
+                                className="py-1 px-2 max-w-[200px] truncate text-blue-600 hover:underline"
                                 title={m.title}
                               >
-                                {m.title}
+                                <Link href={`/jobdetail/${m.jobId}`}>
+                                  {m.title}
+                                </Link>
                               </td>
                               <td className="py-1 px-2">{m.matchedRole}</td>
                               <td className="py-1 px-2 text-right">

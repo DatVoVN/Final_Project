@@ -134,7 +134,7 @@ const Page = () => {
         );
         const page = Number(currentSearchParams.get("page")) || 1;
         currentSearchParams.set("page", page);
-        currentSearchParams.set("limit", 2);
+        currentSearchParams.set("limit", 6);
 
         const url = id
           ? `${BASE_URL}/api/v1/developer/jobs/company/${id}?${currentSearchParams.toString()}`

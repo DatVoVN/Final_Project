@@ -140,8 +140,10 @@ export default function DeveloperPageStyled() {
           </div>
           <BlogIT />
           {/* <ChatbaseWidget /> */}
-          <CvSuggestJobs />
-          <ChatbotWidget />
+          <div className="fixed right-6 bottom-6 z-40 flex flex-col items-end space-y-4">
+            <ChatbotWidget />
+            <CvSuggestJobs />
+          </div>
         </div>
       </section>
     </>
