@@ -122,7 +122,7 @@ const OverViewPage = () => {
                           <img
                             src={
                               company.avatarUrl
-                                ? `${BASE_URL}/${company.avatarUrl}`
+                                ? `${company.avatarUrl}`
                                 : "/images/company.png"
                             }
                             alt={company.name}
