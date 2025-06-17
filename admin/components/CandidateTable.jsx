@@ -23,8 +23,8 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
   };
 
   const getAvatarUrl = (url) => {
-    if (!url) return "/default-avatar.png";
-    return url.startsWith("http") ? url : `${BASE_URL}${url}`;
+    if (!url) return "./images/R.jpg";
+    return url.startsWith("http") ? url : `${url}`;
   };
 
   return (
@@ -49,9 +49,13 @@ const CandidateTable = ({ candidates, onViewProfile, onDelete }) => {
             >
               <td className="px-6 py-4">
                 <img
-                  src={getAvatarUrl(candidate.avatarUrl)}
-                  alt={candidate.fullName}
+                  src={getAvatarUrl(candidate?.avatarUrl)}
+                  alt={candidate?.fullName || "Ảnh ứng viên"}
                   className="w-14 h-14 object-cover rounded"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/images/R.jpg";
+                  }}
                 />
               </td>
               <td className="px-6 py-4 font-medium text-gray-50 whitespace-nowrap">

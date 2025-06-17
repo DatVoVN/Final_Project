@@ -67,7 +67,7 @@ const ProfileModal = ({ isOpen, onClose, candidate }) => {
                 <div className="flex justify-center mb-4">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative">
                     <img
-                      src={`${BASE_URL}${candidate.avatarUrl}`}
+                      src={`${candidate.avatarUrl}`}
                       alt="Candidate avatar"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -122,7 +122,7 @@ const ProfileModal = ({ isOpen, onClose, candidate }) => {
                   label="CV"
                   value={
                     <a
-                      href={`${BASE_URL}${candidate.cvUrl}`}
+                      href={`${candidate.cvUrl}`}
                       className="text-cyan-400 hover:text-cyan-300 underline"
                       target="_blank"
                       rel="noopener noreferrer"

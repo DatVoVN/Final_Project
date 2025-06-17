@@ -24,7 +24,7 @@ export default function DeveloperPageStyled() {
         const formattedCompanies = data.map((item) => ({
           id: item.companyId,
           companyName: item.name,
-          logoUrl: `${BASE_URL}/${item.avatarUrl}`,
+          logoUrl: `${item.avatarUrl}`,
           skills: item.languages || [],
           location: item.city,
           jobCount: item.jobCount,
@@ -140,10 +140,6 @@ export default function DeveloperPageStyled() {
           </div>
           <BlogIT />
           {/* <ChatbaseWidget /> */}
-          <div className="fixed right-6 bottom-6 z-40 flex flex-col items-end space-y-4">
-            <ChatbotWidget />
-            <CvSuggestJobs />
-          </div>
         </div>
       </section>
     </>

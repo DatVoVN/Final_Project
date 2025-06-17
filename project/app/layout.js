@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/context/authContext";
 import { Toaster } from "react-hot-toast";
+import ChatbotWidget from "@/components/ChatbotWidget";
+import CvSuggestJobs from "@/components/CVSuggestJobs/CvSuggestJobs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +44,10 @@ export default function RootLayout({ children }) {
             {!shouldHideAnyHeader && (isEmployerRoute ? <></> : <Header />)}
 
             <main className="flex-1">{children}</main>
+            <div className="fixed right-6 bottom-6 z-40 flex flex-col items-end space-y-4">
+              <ChatbotWidget />
+              <CvSuggestJobs />
+            </div>
             {!shouldHideFooter && <Footer />}
           </div>
         </AuthProvider>

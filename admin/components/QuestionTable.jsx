@@ -43,7 +43,7 @@ const QuestionTable = ({ questions, onView, onDelete }) => {
                   src={
                     q.candidate.avatarUrl?.startsWith("http")
                       ? q.candidate.avatarUrl
-                      : `${BASE_URL}${q.candidate.avatarUrl}`
+                      : `${q.candidate.avatarUrl}`
                   }
                   alt={q.candidate.fullName}
                   className="w-8 h-8 rounded-full object-cover"

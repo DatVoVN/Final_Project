@@ -107,7 +107,7 @@ const QuestionCard = ({ question, onDeleted, isLast }) => {
 
   const candidateName = question.candidate?.fullName || "Ẩn danh";
   const candidateAvatar = question.candidate?.avatarUrl
-    ? `${BASE_URL}${question.candidate.avatarUrl}`
+    ? `${question.candidate.avatarUrl}`
     : null;
 
   return (

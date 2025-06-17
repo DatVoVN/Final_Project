@@ -44,7 +44,7 @@ const FeedTable = ({ posts, onView, onDelete }) => {
                   src={
                     post.author?.avatarUrl?.startsWith("http")
                       ? post.author.avatarUrl
-                      : `${BASE_URL}${post.author?.avatarUrl || "/R.jpg"}`
+                      : `${post.author?.avatarUrl || "/R.jpg"}`
                   }
                   alt={post.author?.fullName || "Tác giả"}
                   className="w-8 h-8 rounded-full object-cover"

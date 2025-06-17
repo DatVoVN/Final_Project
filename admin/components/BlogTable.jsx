@@ -43,7 +43,7 @@ const BlogTable = ({ blogs, onView, onEdit, onDelete }) => {
                   src={
                     blog.imageUrl?.startsWith("http")
                       ? blog.imageUrl
-                      : `${BASE_URL}${blog.imageUrl}`
+                      : `${blog.imageUrl}`
                   }
                   alt={blog.title}
                   className="w-14 h-14 object-cover rounded"

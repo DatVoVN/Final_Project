@@ -183,7 +183,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
 
       setSuccess(result.message || "Nộp hồ sơ thành công!");
       setHasApplied(true);
-      toast.success("🎉 Ứng tuyển thành công!");
+      toast.success("Ứng tuyển thành công!");
     } catch (err) {
       setError(err.message || "Đã xảy ra lỗi khi nộp hồ sơ.");
     } finally {
@@ -241,8 +241,9 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const logoSrc = company?.avatarUrl
     ? company.avatarUrl.startsWith("http")
       ? company.avatarUrl
-      : `${BASE_URL}/${company.avatarUrl}`
+      : `${company.avatarUrl}`
     : "/company.png";
+  console.log(userData);
 
   return (
     <div className="bg-white p-4 md:px-10 py-3 md:py-4 rounded-lg shadow-md border border-gray-100 mb-5">
@@ -394,7 +395,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
                     </label>
                     <div className="w-full rounded-lg border border-gray-200 bg-gray-50/50 px-4 py-3 transition-colors hover:bg-gray-50 group">
                       <a
-                        href={`${BASE_URL}${userData.cvUrl}`}
+                        href={`${userData.cvUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"

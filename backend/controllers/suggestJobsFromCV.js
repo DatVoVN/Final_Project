@@ -16,7 +16,6 @@ const cosine = (a, b) => {
   return dot / (magA * magB || 1e-6);
 };
 
-// Skill normalization map
 const MAP = {
   javascript: ["js", "java script"],
   "node.js": ["node", "nodejs"],
@@ -30,7 +29,6 @@ const canon = (s = "") => {
   return low;
 };
 
-// Extract key CV data via OpenAI
 async function extractCVData(buffer) {
   const text = (await pdfParse(buffer)).text.slice(0, 3000);
   const prompt = `Trả JSON: {summary, skills[], education, experience}\nCV:\n"""${text}"""`;
@@ -43,7 +41,6 @@ async function extractCVData(buffer) {
   return JSON.parse(choices[0].message.content);
 }
 
-// Suggest roles from CV content
 async function suggestRoles(cvText) {
   const prompt = `Phân tích CV và đề xuất roles + reasoning JSON:\n{\n  \"roles\":[],\n  \"reasoning\":{}\n}\nCV:\n"""${cvText.slice(
     0,
@@ -58,7 +55,6 @@ async function suggestRoles(cvText) {
   return JSON.parse(choices[0].message.content);
 }
 
-// Rule-based scoring against role profiles
 function ruleScore(cvSkills, roleKey) {
   const profile = roleProfiles[roleKey] || {};
   const cvCan = cvSkills.map(canon);
@@ -74,8 +70,6 @@ function ruleScore(cvSkills, roleKey) {
 exports.suggestJobsFromCV = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chưa upload CV PDF" });
-
-    // 1. Parse CV and get embedding
     const cvData = await extractCVData(req.file.buffer);
     const cvText = `Skills:${cvData.skills.join(",")} Edu:${
       cvData.education
@@ -93,7 +87,6 @@ exports.suggestJobsFromCV = async (req, res) => {
     const matches = [];
 
     for (const job of jobs) {
-      // Ensure jobEmbedding exists
       if (!Array.isArray(job.jobEmbedding) || job.jobEmbedding.length === 0) {
         const embedSource = `${job.title} ${job.description} ${job.requirements}`;
         const { data } = await openai.embeddings.create({
@@ -106,24 +99,14 @@ exports.suggestJobsFromCV = async (req, res) => {
           { jobEmbedding: job.jobEmbedding }
         );
       }
-
-      // Compute similarity
       const sim = cosine(cvEmbedding, job.jobEmbedding);
       const titleKey = job.title.trim().toLowerCase();
-
-      // Flexible match: substring or exact
       const matchRole =
         roles.find((r) => titleKey.includes(r.toLowerCase())) ||
         roles.find((r) => r.toLowerCase().includes(titleKey));
       const rs = matchRole ? ruleScore(cvData.skills, matchRole) : 0;
       const bonus = matchRole ? 0.2 : -0.05;
       const finalScore = 0.5 * sim + 0.4 * rs + bonus;
-
-      console.log(
-        `Job: ${job.title} | sim: ${sim.toFixed(2)}, rule: ${rs.toFixed(
-          2
-        )}, final: ${finalScore.toFixed(2)}`
-      );
 
       if (finalScore >= 0.2) {
         matches.push({

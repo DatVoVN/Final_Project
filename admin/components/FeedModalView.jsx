@@ -35,11 +35,14 @@ const CommentItem = ({ comment }) => {
         src={
           comment.user?.avatarUrl?.startsWith("http")
             ? comment.user.avatarUrl
-            : `${BASE_URL}${comment.user?.avatarUrl || ""}`
+            : comment.user?.avatarUrl
+            ? comment.user.avatarUrl
+            : "/images/R.jpg"
         }
         alt={comment.user?.fullName || "Ẩn danh"}
         className="w-10 h-10 rounded-full object-cover"
       />
+
       <div className="flex-1">
         <div className="text-white font-semibold">
           {comment.user?.fullName || "Ẩn danh"}
@@ -104,7 +107,7 @@ const FeedModalView = ({ isOpen, onClose, post }) => {
                 src={
                   post.imageUrl.startsWith("http")
                     ? post.imageUrl
-                    : `${BASE_URL}${post.imageUrl}`
+                    : `${post.imageUrl}`
                 }
                 alt="Post image"
                 className="w-full max-h-64 object-cover"

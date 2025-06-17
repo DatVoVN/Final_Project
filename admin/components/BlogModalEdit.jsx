@@ -161,7 +161,7 @@ const BlogModalEdit = ({ isOpen, onClose, blog, onUpdate, blogId }) => {
               <div>
                 <p className="text-sm text-slate-400">Ảnh hiện tại:</p>
                 <img
-                  src={`${BASE_URL}${form.imageUrl}`}
+                  src={`${form.imageUrl}`}
                   alt="Current Blog"
                   className="w-full max-h-60 object-cover rounded-lg border border-slate-600"
                 />

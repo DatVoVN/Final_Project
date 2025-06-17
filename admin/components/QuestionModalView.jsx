@@ -23,7 +23,7 @@ const AnswerCard = ({ answer }) => (
       src={
         answer.candidate.avatarUrl?.startsWith("http")
           ? answer.candidate.avatarUrl
-          : `${BASE_URL}${answer.candidate.avatarUrl}`
+          : `${answer.candidate.avatarUrl}`
       }
       alt={answer.candidate.fullName}
       className="w-10 h-10 rounded-full object-cover"

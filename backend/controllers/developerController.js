@@ -3,6 +3,34 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Review = require("../models/Review");
 const sendEmail = require("../utils/email");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const slugify = require("slugify");
+const bucket = require("../utils/firebaseAdmin");
+
+async function uploadAvatarToFirebase(file) {
+  const ext = path.extname(file.originalname);
+  const baseName = path.basename(file.originalname, ext);
+  const safeName = slugify(baseName, { lower: true, strict: true });
+  const filename = `companies/avatar-${Date.now()}-${safeName}-${uuidv4()}${ext}`;
+  const firebaseFile = bucket.file(filename);
+
+  return new Promise((resolve, reject) => {
+    const stream = firebaseFile.createWriteStream({
+      metadata: { contentType: file.mimetype },
+    });
+
+    stream.on("error", reject);
+
+    stream.on("finish", async () => {
+      await firebaseFile.makePublic();
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+      resolve({ publicUrl, filename });
+    });
+
+    stream.end(file.buffer);
+  });
+}
 //////// ĐĂNG BÀI VÀ NHẬN ỨNG VIÊN ////////////////////
 exports.getApplicantsForJob = async (req, res) => {
   try {
@@ -272,6 +300,76 @@ exports.updateMyInfo = async (req, res) => {
   }
 };
 // update công ty
+// exports.updateMyCompany = async (req, res) => {
+//   try {
+//     const companyId = req.user.company;
+
+//     if (!companyId) {
+//       return res
+//         .status(400)
+//         .json({ message: "Người dùng không thuộc công ty nào." });
+//     }
+
+//     const allowedFields = [
+//       "email",
+//       "address",
+//       "description",
+//       "avatarUrl",
+//       "overview",
+//       "companySize",
+//       "overtimePolicy",
+//       "languages",
+//     ];
+
+//     const updateData = {};
+
+//     allowedFields.forEach((field) => {
+//       if (req.body[field] !== undefined) {
+//         updateData[field] = req.body[field];
+//       }
+//     });
+//     if (req.body.workingDays) {
+//       try {
+//         const workingDays =
+//           typeof req.body.workingDays === "string"
+//             ? JSON.parse(req.body.workingDays)
+//             : req.body.workingDays;
+
+//         if (workingDays.from && workingDays.to) {
+//           updateData.workingDays = {
+//             from: workingDays.from,
+//             to: workingDays.to,
+//           };
+//         }
+//       } catch (err) {
+//         return res
+//           .status(400)
+//           .json({ message: "Dữ liệu workingDays không hợp lệ." });
+//       }
+//     }
+//     if (req.file) {
+//       updateData.avatarUrl = `uploads/avatars/${req.file.filename}`;
+//     }
+
+//     const updatedCompany = await Company.findByIdAndUpdate(
+//       companyId,
+//       updateData,
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!updatedCompany) {
+//       return res.status(404).json({ message: "Không tìm thấy công ty." });
+//     }
+
+//     res.status(200).json({
+//       message: "Cập nhật thông tin công ty thành công.",
+//       data: updatedCompany,
+//     });
+//   } catch (error) {
+//     console.error("Lỗi cập nhật công ty:", error);
+//     res.status(500).json({ message: "Lỗi server", error: error.message });
+//   }
+// };
 exports.updateMyCompany = async (req, res) => {
   try {
     const companyId = req.user.company;
@@ -286,7 +384,6 @@ exports.updateMyCompany = async (req, res) => {
       "email",
       "address",
       "description",
-      "avatarUrl",
       "overview",
       "companySize",
       "overtimePolicy",
@@ -300,6 +397,7 @@ exports.updateMyCompany = async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
+
     if (req.body.workingDays) {
       try {
         const workingDays =
@@ -319,8 +417,24 @@ exports.updateMyCompany = async (req, res) => {
           .json({ message: "Dữ liệu workingDays không hợp lệ." });
       }
     }
+
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({ message: "Không tìm thấy công ty." });
+    }
+
     if (req.file) {
-      updateData.avatarUrl = `uploads/avatars/${req.file.filename}`;
+      if (company.avatarPublicId) {
+        try {
+          await bucket.file(company.avatarPublicId).delete();
+        } catch (err) {
+          console.warn("⚠️ Không thể xoá avatar cũ:", err.message);
+        }
+      }
+
+      const { publicUrl, filename } = await uploadAvatarToFirebase(req.file);
+      updateData.avatarUrl = publicUrl;
+      updateData.avatarPublicId = filename;
     }
 
     const updatedCompany = await Company.findByIdAndUpdate(
@@ -328,10 +442,6 @@ exports.updateMyCompany = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     );
-
-    if (!updatedCompany) {
-      return res.status(404).json({ message: "Không tìm thấy công ty." });
-    }
 
     res.status(200).json({
       message: "Cập nhật thông tin công ty thành công.",
@@ -342,6 +452,7 @@ exports.updateMyCompany = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+
 /// filter công ty bằng tên
 exports.getCompaniesByName = async (req, res) => {
   try {
@@ -753,7 +864,7 @@ exports.searchCompany = async (req, res) => {
     }
 
     if (city) {
-      matchConditions.city = { $regex: city, $options: "i" }; // Tìm gần đúng tên thành phố
+      matchConditions.city = { $regex: city, $options: "i" };
     }
 
     const companies = await Company.aggregate([
@@ -980,15 +1091,11 @@ exports.createJobPosting = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại." });
     }
-
-    // ✅ Kiểm tra lượt đăng bài
     if (user.postsRemaining <= 0) {
       return res.status(403).json({
         message: "Bạn đã hết lượt đăng bài. Vui lòng mua thêm gói để tiếp tục.",
       });
     }
-
-    // ✅ Kiểm tra hạn sử dụng gói
     if (!user.packageExpires || new Date() > user.packageExpires) {
       return res.status(403).json({
         message: "Gói của bạn đã hết hạn. Vui lòng mua thêm gói để tiếp tục.",

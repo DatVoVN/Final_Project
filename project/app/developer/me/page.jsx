@@ -370,45 +370,69 @@ const ProfilePage = () => {
   };
 
   const handleDeleteCv = async () => {
-    if (
-      !window.confirm(
-        "Bạn có chắc chắn muốn xóa CV này không? Hành động này không thể hoàn tác."
-      )
-    ) {
-      return;
-    }
     if (!token) {
-      setCvError("Lỗi xác thực. Vui lòng đăng nhập lại.");
+      toast.error("Lỗi xác thực. Vui lòng đăng nhập lại.");
       return;
     }
-    setIsDeletingCv(true);
-    setCvError(null);
-    try {
-      const response = await fetch(`${BASE_URL}/api/v1/candidates/delete-cv`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const responseData = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          responseData.message || `Lỗi ${response.status}: Không thể xóa CV.`
-        );
-      }
-      setCandidateData((prevData) => {
-        if (!prevData) return null;
-        const { cvUrl, ...rest } = prevData;
-        return rest;
-      });
-    } catch (error) {
-      console.error("Lỗi khi xóa CV:", error);
-      setCvError(error.message || "Đã xảy ra lỗi không mong muốn khi xóa CV.");
-    } finally {
-      setIsDeletingCv(false);
-    }
+
+    const toastId = toast.custom((t) => (
+      <div className="bg-white shadow-lg p-4 rounded-lg border w-[320px]">
+        <p className="text-gray-800 font-semibold mb-2">
+          Bạn có chắc chắn muốn xóa CV này không?
+        </p>
+        <p className="text-sm text-gray-600 mb-3">
+          Hành động này không thể hoàn tác.
+        </p>
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 text-sm"
+          >
+            Huỷ
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setIsDeletingCv(true);
+              try {
+                const res = await fetch(
+                  `${BASE_URL}/api/v1/candidates/delete-cv`,
+                  {
+                    method: "DELETE",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+                const data = await res.json();
+
+                if (!res.ok)
+                  throw new Error(data.message || "Không thể xóa CV.");
+
+                setCandidateData((prevData) => {
+                  if (!prevData) return null;
+                  const { cvUrl, ...rest } = prevData;
+                  return rest;
+                });
+
+                toast.success("CV đã được xóa.");
+              } catch (err) {
+                console.error(err);
+                toast.error(err.message || "Đã xảy ra lỗi khi xóa CV.");
+              } finally {
+                setIsDeletingCv(false);
+              }
+            }}
+            className="px-3 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-sm"
+          >
+            Xoá
+          </button>
+        </div>
+      </div>
+    ));
   };
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setPasswordError(null);
@@ -500,7 +524,7 @@ const ProfilePage = () => {
                   <img
                     src={
                       candidateData?.avatarUrl
-                        ? `${BASE_URL}${candidateData.avatarUrl}`
+                        ? candidateData.avatarUrl
                         : "/R.jpg"
                     }
                     alt="Ảnh đại diện"
@@ -877,7 +901,7 @@ const ProfilePage = () => {
                   <div className="flex items-center gap-3.5 overflow-hidden mr-2 flex-1 min-w-0">
                     <i className="bi bi-file-earmark-pdf-fill text-red-500 text-4xl flex-shrink-0"></i>{" "}
                     <a
-                      href={`${BASE_URL}${candidateData.cvUrl}?${Date.now()}`}
+                      href={`${candidateData.cvUrl}&timestamp=${Date.now()}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-medium text-blue-600 hover:text-blue-700 hover:underline truncate"

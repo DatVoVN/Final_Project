@@ -6,6 +6,9 @@ const JobPosting = require("../models/JobPosting");
 const Company = require("../models/Company");
 const Review = require("../models/Review");
 const deleteFileIfExists = require("../helper/deleteFileIfExists");
+const bucket = require("../utils/firebaseAdmin");
+const { v4: uuidv4 } = require("uuid");
+
 ////////////////  ỨNG TUYỂN JOB ///////////////////
 /// Ứng tuyển
 const applyToJob = async (req, res) => {
@@ -63,13 +66,10 @@ const unapplyFromJob = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
 
-    // Filter all occurrences of jobId from appliedJobs
     candidate.appliedJobs = candidate.appliedJobs.filter(
       (id) => id.toString() !== jobId.toString()
     );
     await candidate.save();
-
-    // Xóa ứng viên khỏi job.applicants
     await JobPosting.updateOne(
       { _id: jobId },
       { $pull: { applicants: { candidate: candidateId } } }
@@ -132,13 +132,11 @@ const updateReview = async (req, res) => {
     const { rating, comment } = req.body;
     const candidateId = req.user.id;
 
-    // Kiểm tra company tồn tại
     const company = await Company.findById(companyId);
     if (!company) {
       return res.status(404).json({ message: "Không tìm thấy công ty." });
     }
 
-    // Tìm review của ứng viên với công ty này
     const review = await Review.findOne({
       company: companyId,
       candidate: candidateId,
@@ -150,7 +148,6 @@ const updateReview = async (req, res) => {
         .json({ message: "Bạn chưa đánh giá công ty này." });
     }
 
-    // Cập nhật đánh giá
     review.rating = rating ?? review.rating;
     review.comment = comment ?? review.comment;
     await review.save();
@@ -193,160 +190,273 @@ const getCompanyWithReviews = async (req, res) => {
 };
 ///////////////////// CV ///////////////////////////
 // Controller xử lý upload CV
+// const uploadCV = async (req, res) => {
+//   try {
+//     const candidateId = req.params.id || req.user.id;
+//     if (!candidateId) {
+//       return res.status(400).json({ message: "Thiếu thông tin ứng viên." });
+//     }
+//     const candidate = await Candidate.findById(candidateId);
+//     if (!candidate) {
+//       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+//     }
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Vui lòng chọn file PDF." });
+//     }
+//     if (candidate.cvUrl) {
+//       const oldPath = path.join(__dirname, "..", candidate.cvUrl);
+//       if (
+//         fs.existsSync(oldPath) &&
+//         candidate.cvUrl.startsWith("/uploads/cv/")
+//       ) {
+//         try {
+//           fs.unlinkSync(oldPath);
+//           console.log(`Deleted old CV: ${oldPath}`);
+//         } catch (unlinkErr) {
+//           console.error(`Error deleting old CV ${oldPath}:`, unlinkErr);
+//         }
+//       }
+//     }
+//     candidate.cvUrl = `/uploads/cv/${req.file.filename}`;
+//     await candidate.save();
+//     res.status(200).json({
+//       message: "Tải CV thành công!",
+//       cvUrl: candidate.cvUrl,
+//     });
+//   } catch (err) {
+//     console.error("Error uploading CV:", err);
+//     if (req.file && req.file.path) {
+//       try {
+//         fs.unlinkSync(req.file.path);
+//         console.log(`Deleted uploaded file due to error: ${req.file.path}`);
+//       } catch (cleanupErr) {
+//         console.error(
+//           `Error cleaning up uploaded file ${req.file.path}:`,
+//           cleanupErr
+//         );
+//       }
+//     }
+//     res.status(500).json({ message: "Lỗi server", error: err.message });
+//   }
+// };
+// // Controller cập nhật CV
+// const updateCV = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const candidate = await Candidate.findById(userId);
+//     if (!candidate) {
+//       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+//     }
+//     if (!req.file) {
+//       return res.status(400).json({ message: "Vui lòng chọn file PDF mới." });
+//     }
+//     if (candidate.cvUrl) {
+//       const oldPath = path.join(__dirname, "..", candidate.cvUrl);
+//       if (
+//         fs.existsSync(oldPath) &&
+//         candidate.cvUrl.startsWith("/uploads/cv/")
+//       ) {
+//         try {
+//           fs.unlinkSync(oldPath);
+//           console.log(`Deleted old CV for update: ${oldPath}`);
+//         } catch (unlinkErr) {
+//           console.error(
+//             `Error deleting old CV ${oldPath} during update:`,
+//             unlinkErr
+//           );
+//         }
+//       }
+//     }
+//     candidate.cvUrl = `/uploads/cv/${req.file.filename}`;
+//     await candidate.save();
+//     res.status(200).json({
+//       message: "Cập nhật CV thành công!",
+//       cvUrl: candidate.cvUrl,
+//     });
+//   } catch (err) {
+//     console.error("Error updating CV:", err);
+//     if (req.file && req.file.path) {
+//       try {
+//         fs.unlinkSync(req.file.path);
+//         console.log(
+//           `Deleted newly uploaded file due to error: ${req.file.path}`
+//         );
+//       } catch (cleanupErr) {
+//         console.error(
+//           `Error cleaning up newly uploaded file ${req.file.path}:`,
+//           cleanupErr
+//         );
+//       }
+//     }
+//     res.status(500).json({ message: "Lỗi server", error: err.message });
+//   }
+// };
+// /// Controller xóa CV
+// const deleteCV = async (req, res) => {
+//   try {
+//     console.log("User from request:", req.user);
+//     if (!req.user || !req.user.id) {
+//       return res.status(401).json({ message: "Xác thực không hợp lệ." });
+//     }
+//     const userId = req.user.id;
+//     const candidate = await Candidate.findById(userId);
+//     if (!candidate) {
+//       return res
+//         .status(404)
+//         .json({ message: "Không tìm thấy hồ sơ ứng viên." });
+//     }
+//     if (!candidate.cvUrl) {
+//       return res.status(400).json({ message: "Không có CV nào để xóa." });
+//     }
+//     const currentCvPath = candidate.cvUrl;
+//     console.log("Current CV Path from DB:", currentCvPath);
+
+//     candidate.cvUrl = undefined;
+//     await candidate.save();
+//     console.log("Candidate saved successfully (cvUrl removed).");
+//     let deleted = false;
+//     try {
+//       deleted = await deleteFileIfExists(currentCvPath);
+//     } catch (fileError) {
+//       deleted = false;
+//     }
+
+//     if (deleted) {
+//       res.status(200).json({ message: "Xóa CV thành công!" });
+//     } else {
+//       console.warn(
+//         `Physical file deletion failed or file not found for path: ${currentCvPath}`
+//       );
+//       res.status(200).json({
+//         message:
+//           "Đã xóa thông tin CV khỏi hồ sơ, nhưng file vật lý không tồn tại hoặc có lỗi khi xóa.",
+//         warning: `File not found or deletion error for path: ${currentCvPath}`,
+//       });
+//     }
+//   } catch (err) {
+//     console.error("Error in deleteCV handler:", err);
+//     if (err.name === "ValidationError") {
+//       const errors = Object.values(err.errors).map((el) => ({
+//         field: el.path,
+//         message: el.message,
+//       }));
+//       return res
+//         .status(400)
+//         .json({ message: "Lỗi validation khi xóa CV.", errors: errors });
+//     }
+//     res
+//       .status(500)
+//       .json({ message: "Lỗi server khi xóa CV.", error: err.message });
+//   }
+// };
 const uploadCV = async (req, res) => {
   try {
     const candidateId = req.params.id || req.user.id;
-    if (!candidateId) {
-      return res.status(400).json({ message: "Thiếu thông tin ứng viên." });
+    if (!candidateId || !req.file) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu thông tin hoặc file PDF." });
     }
+
     const candidate = await Candidate.findById(candidateId);
-    if (!candidate) {
+    if (!candidate)
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
-    }
-    if (!req.file) {
-      return res.status(400).json({ message: "Vui lòng chọn file PDF." });
-    }
     if (candidate.cvUrl) {
-      const oldPath = path.join(__dirname, "..", candidate.cvUrl);
-      if (
-        fs.existsSync(oldPath) &&
-        candidate.cvUrl.startsWith("/uploads/cv/")
-      ) {
-        try {
-          fs.unlinkSync(oldPath);
-          console.log(`Deleted old CV: ${oldPath}`);
-        } catch (unlinkErr) {
-          console.error(`Error deleting old CV ${oldPath}:`, unlinkErr);
-        }
-      }
+      const oldFileName = decodeURIComponent(
+        candidate.cvUrl.split("/o/")[1].split("?")[0]
+      );
+      await bucket
+        .file(oldFileName)
+        .delete()
+        .catch(() => {});
     }
-    candidate.cvUrl = `/uploads/cv/${req.file.filename}`;
-    await candidate.save();
-    res.status(200).json({
-      message: "Tải CV thành công!",
-      cvUrl: candidate.cvUrl,
+    const newFileName = `cv-${uuidv4()}.pdf`;
+    const file = bucket.file(`cvs/${newFileName}`);
+
+    await file.save(req.file.buffer, {
+      metadata: { contentType: req.file.mimetype },
     });
+    const encodedPath = encodeURIComponent(`cvs/${newFileName}`);
+    const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media`;
+
+    candidate.cvUrl = publicUrl;
+    await candidate.save();
+
+    res.status(200).json({ message: "Tải CV thành công!", cvUrl: publicUrl });
   } catch (err) {
-    console.error("Error uploading CV:", err);
-    if (req.file && req.file.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-        console.log(`Deleted uploaded file due to error: ${req.file.path}`);
-      } catch (cleanupErr) {
-        console.error(
-          `Error cleaning up uploaded file ${req.file.path}:`,
-          cleanupErr
-        );
-      }
-    }
-    res.status(500).json({ message: "Lỗi server", error: err.message });
+    console.error(" Error uploading CV:", err);
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi upload CV.", error: err.message });
   }
 };
-// Controller cập nhật CV
 const updateCV = async (req, res) => {
   try {
     const userId = req.user.id;
-    const candidate = await Candidate.findById(userId);
-    if (!candidate) {
-      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
-    }
-    if (!req.file) {
+    if (!req.file)
       return res.status(400).json({ message: "Vui lòng chọn file PDF mới." });
-    }
+
+    const candidate = await Candidate.findById(userId);
+    if (!candidate)
+      return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     if (candidate.cvUrl) {
-      const oldPath = path.join(__dirname, "..", candidate.cvUrl);
-      if (
-        fs.existsSync(oldPath) &&
-        candidate.cvUrl.startsWith("/uploads/cv/")
-      ) {
-        try {
-          fs.unlinkSync(oldPath);
-          console.log(`Deleted old CV for update: ${oldPath}`);
-        } catch (unlinkErr) {
-          console.error(
-            `Error deleting old CV ${oldPath} during update:`,
-            unlinkErr
-          );
-        }
-      }
+      const oldFileName = decodeURIComponent(
+        candidate.cvUrl.split("/o/")[1].split("?")[0]
+      );
+      await bucket
+        .file(oldFileName)
+        .delete()
+        .catch(() => {});
     }
-    candidate.cvUrl = `/uploads/cv/${req.file.filename}`;
-    await candidate.save();
-    res.status(200).json({
-      message: "Cập nhật CV thành công!",
-      cvUrl: candidate.cvUrl,
+    const newFileName = `cv-${uuidv4()}.pdf`;
+    const file = bucket.file(`cvs/${newFileName}`);
+
+    await file.save(req.file.buffer, {
+      metadata: { contentType: req.file.mimetype },
     });
+
+    const encodedPath = encodeURIComponent(`cvs/${newFileName}`);
+    const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media`;
+
+    candidate.cvUrl = publicUrl;
+    await candidate.save();
+
+    res
+      .status(200)
+      .json({ message: "Cập nhật CV thành công!", cvUrl: publicUrl });
   } catch (err) {
     console.error("Error updating CV:", err);
-    if (req.file && req.file.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-        console.log(
-          `Deleted newly uploaded file due to error: ${req.file.path}`
-        );
-      } catch (cleanupErr) {
-        console.error(
-          `Error cleaning up newly uploaded file ${req.file.path}:`,
-          cleanupErr
-        );
-      }
-    }
-    res.status(500).json({ message: "Lỗi server", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi cập nhật CV.", error: err.message });
   }
 };
-/// Controller xóa CV
 const deleteCV = async (req, res) => {
   try {
-    console.log("User from request:", req.user);
-    if (!req.user || !req.user.id) {
+    if (!req.user || !req.user.id)
       return res.status(401).json({ message: "Xác thực không hợp lệ." });
-    }
+
     const userId = req.user.id;
     const candidate = await Candidate.findById(userId);
-    if (!candidate) {
+    if (!candidate)
       return res
         .status(404)
         .json({ message: "Không tìm thấy hồ sơ ứng viên." });
-    }
-    if (!candidate.cvUrl) {
+    if (!candidate.cvUrl)
       return res.status(400).json({ message: "Không có CV nào để xóa." });
-    }
-    const currentCvPath = candidate.cvUrl;
-    console.log("Current CV Path from DB:", currentCvPath);
+
+    const fileName = candidate.cvUrl.split("/").pop();
+    await bucket
+      .file(`cvs/${fileName}`)
+      .delete()
+      .catch(() => {});
 
     candidate.cvUrl = undefined;
     await candidate.save();
-    console.log("Candidate saved successfully (cvUrl removed).");
-    let deleted = false;
-    try {
-      deleted = await deleteFileIfExists(currentCvPath);
-    } catch (fileError) {
-      deleted = false;
-    }
 
-    if (deleted) {
-      res.status(200).json({ message: "Xóa CV thành công!" });
-    } else {
-      console.warn(
-        `Physical file deletion failed or file not found for path: ${currentCvPath}`
-      );
-      res.status(200).json({
-        message:
-          "Đã xóa thông tin CV khỏi hồ sơ, nhưng file vật lý không tồn tại hoặc có lỗi khi xóa.",
-        warning: `File not found or deletion error for path: ${currentCvPath}`,
-      });
-    }
+    res.status(200).json({ message: "Xóa CV thành công!" });
   } catch (err) {
-    console.error("Error in deleteCV handler:", err);
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map((el) => ({
-        field: el.path,
-        message: el.message,
-      }));
-      return res
-        .status(400)
-        .json({ message: "Lỗi validation khi xóa CV.", errors: errors });
-    }
+    console.error("Error deleting CV:", err);
     res
       .status(500)
       .json({ message: "Lỗi server khi xóa CV.", error: err.message });
@@ -402,16 +512,8 @@ const updateMyInfo = async (req, res) => {
     }
 
     // Lấy các trường được phép cập nhật từ req.body dựa trên Schema
-    const {
-      fullName,
-      phone,
-      gender,
-      dateOfBirth,
-      address,
-      // Thêm các trường tùy chỉnh khác nếu có trong schema và muốn cho phép cập nhật
-    } = req.body;
+    const { fullName, phone, gender, dateOfBirth, address } = req.body;
 
-    // Danh sách các trường được phép cập nhật
     const allowedUpdates = {};
     if (fullName !== undefined) allowedUpdates.fullName = fullName;
     if (phone !== undefined) allowedUpdates.phone = phone;
@@ -453,130 +555,249 @@ const updateMyInfo = async (req, res) => {
   }
 };
 /////////////////////////// AVATAR //////////////////////////////
+// const updateMyAvatar = async (req, res) => {
+//   try {
+//     const userId = req.user.id || req.userId;
+//     console.log("userId từ token:", userId);
+
+//     // Tìm ứng viên bằng _id
+//     const candidate = await Candidate.findById(userId);
+//     if (!candidate) {
+//       console.log("Không tìm thấy candidate với userId:", userId);
+//       if (req.file?.path && fs.existsSync(req.file.path)) {
+//         deleteFileIfExists(req.file.path);
+//       }
+//       return res
+//         .status(404)
+//         .json({ message: "Không tìm thấy thông tin người dùng." });
+//     }
+
+//     if (!req.file) {
+//       return res
+//         .status(400)
+//         .json({ message: "Vui lòng chọn file ảnh đại diện." });
+//     }
+
+//     // Xóa avatar cũ nếu có
+//     if (candidate.avatarUrl) {
+//       const oldAvatarPath = path.join(
+//         __dirname,
+//         "..",
+//         candidate.avatarUrl.replace(/^\//, "")
+//       );
+//       console.log("Xoá avatar cũ:", oldAvatarPath);
+//       deleteFileIfExists(oldAvatarPath);
+//     }
+
+//     // Gán avatar mới
+//     const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
+//     candidate.avatarUrl = newAvatarUrl;
+//     candidate.updatedAt = Date.now();
+
+//     // Lưu lại
+//     await candidate.save();
+
+//     console.log("Cập nhật avatar thành công.");
+
+//     res.status(200).json({
+//       message: "Cập nhật ảnh đại diện thành công.",
+//       avatarUrl: newAvatarUrl,
+//     });
+//   } catch (err) {
+//     console.error("Lỗi khi cập nhật avatar:", err);
+
+//     if (req.file?.path && fs.existsSync(req.file.path)) {
+//       deleteFileIfExists(req.file.path);
+//     }
+
+//     if (err.name === "ValidationError") {
+//       const errors = Object.values(err.errors).map((el) => ({
+//         field: el.path,
+//         message: el.message,
+//       }));
+//       return res
+//         .status(400)
+//         .json({ message: "Lỗi validation khi lưu avatar.", errors });
+//     }
+
+//     res.status(500).json({
+//       message: "Lỗi server khi cập nhật avatar.",
+//       error: err.message,
+//     });
+//   }
+// };
+
+// const uploadAvatar = async (req, res) => {
+//   try {
+//     const userId = req.params.id;
+//     const candidate = await Candidate.findById(userId);
+
+//     if (!candidate) {
+//       if (req.file?.path && fs.existsSync(req.file.path)) {
+//         deleteFileIfExists(req.file.path);
+//       }
+//       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
+//     }
+
+//     if (!req.file) {
+//       return res
+//         .status(400)
+//         .json({ message: "Vui lòng chọn file ảnh đại diện." });
+//     }
+
+//     // Xóa avatar cũ nếu có
+//     if (candidate.avatarUrl) {
+//       const oldAvatarPath = path.join(
+//         __dirname,
+//         "..",
+//         candidate.avatarUrl.replace(/^\//, "")
+//       );
+//       deleteFileIfExists(oldAvatarPath);
+//     }
+
+//     // Gán avatar mới
+//     const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
+//     candidate.avatarUrl = newAvatarUrl;
+//     candidate.updatedAt = Date.now();
+
+//     // Lưu candidate vào DB
+//     await candidate.save();
+
+//     res.status(200).json({
+//       message: "Cập nhật ảnh đại diện thành công.",
+//       avatarUrl: newAvatarUrl,
+//     });
+//   } catch (err) {
+//     console.error("Error updating avatar:", err);
+
+//     // Nếu upload thành công nhưng save thất bại → xóa ảnh
+//     if (req.file?.path && fs.existsSync(req.file.path)) {
+//       deleteFileIfExists(req.file.path);
+//     }
+
+//     res.status(500).json({
+//       message: "Lỗi server khi cập nhật avatar.",
+//       error: err.message,
+//     });
+//   }
+// };
 const updateMyAvatar = async (req, res) => {
   try {
     const userId = req.user.id || req.userId;
-    console.log("➡️ userId từ token:", userId);
-
-    // Tìm ứng viên bằng _id
     const candidate = await Candidate.findById(userId);
+
     if (!candidate) {
-      console.log("❌ Không tìm thấy candidate với userId:", userId);
-      if (req.file?.path && fs.existsSync(req.file.path)) {
-        deleteFileIfExists(req.file.path);
-      }
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy thông tin người dùng." });
+      return res.status(404).json({ message: "Không tìm thấy người dùng." });
     }
 
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng chọn file ảnh đại diện." });
+      return res.status(400).json({ message: "Vui lòng chọn file ảnh." });
+    }
+    if (candidate.avatarPublicId) {
+      const oldFile = bucket.file(candidate.avatarPublicId);
+      try {
+        await oldFile.delete();
+      } catch (err) {
+        console.warn("Không thể xoá avatar cũ:", err.message);
+      }
     }
 
-    // Xóa avatar cũ nếu có
-    if (candidate.avatarUrl) {
-      const oldAvatarPath = path.join(
-        __dirname,
-        "..",
-        candidate.avatarUrl.replace(/^\//, "")
-      );
-      console.log("🧹 Xoá avatar cũ:", oldAvatarPath);
-      deleteFileIfExists(oldAvatarPath);
-    }
+    const filename = `avatars/avatar-${uuidv4()}${req.file.originalname.slice(
+      req.file.originalname.lastIndexOf(".")
+    )}`;
+    const fileUpload = bucket.file(filename);
 
-    // Gán avatar mới
-    const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
-    candidate.avatarUrl = newAvatarUrl;
-    candidate.updatedAt = Date.now();
-
-    // Lưu lại
-    await candidate.save();
-
-    console.log("✅ Cập nhật avatar thành công.");
-
-    res.status(200).json({
-      message: "Cập nhật ảnh đại diện thành công.",
-      avatarUrl: newAvatarUrl,
+    const stream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: req.file.mimetype,
+      },
     });
+
+    stream.on("error", (err) => {
+      console.error("Lỗi khi upload avatar:", err);
+      return res.status(500).json({ message: "Lỗi upload avatar." });
+    });
+
+    stream.on("finish", async () => {
+      await fileUpload.makePublic();
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+
+      candidate.avatarUrl = publicUrl;
+      candidate.avatarPublicId = filename;
+      candidate.updatedAt = Date.now();
+
+      await candidate.save();
+
+      return res.status(200).json({
+        message: "Cập nhật ảnh đại diện thành công.",
+        avatarUrl: publicUrl,
+      });
+    });
+
+    stream.end(req.file.buffer);
   } catch (err) {
-    console.error("❌ Lỗi khi cập nhật avatar:", err);
-
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      deleteFileIfExists(req.file.path);
-    }
-
-    if (err.name === "ValidationError") {
-      const errors = Object.values(err.errors).map((el) => ({
-        field: el.path,
-        message: el.message,
-      }));
-      return res
-        .status(400)
-        .json({ message: "Lỗi validation khi lưu avatar.", errors });
-    }
-
-    res.status(500).json({
-      message: "Lỗi server khi cập nhật avatar.",
-      error: err.message,
-    });
+    console.error("Lỗi server:", err);
+    return res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
-
 const uploadAvatar = async (req, res) => {
   try {
     const userId = req.params.id;
     const candidate = await Candidate.findById(userId);
 
     if (!candidate) {
-      if (req.file?.path && fs.existsSync(req.file.path)) {
-        deleteFileIfExists(req.file.path);
-      }
       return res.status(404).json({ message: "Không tìm thấy ứng viên." });
     }
 
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng chọn file ảnh đại diện." });
+      return res.status(400).json({ message: "Vui lòng chọn file ảnh." });
     }
 
-    // Xóa avatar cũ nếu có
-    if (candidate.avatarUrl) {
-      const oldAvatarPath = path.join(
-        __dirname,
-        "..",
-        candidate.avatarUrl.replace(/^\//, "")
-      );
-      deleteFileIfExists(oldAvatarPath);
+    if (candidate.avatarPublicId) {
+      const oldFile = bucket.file(candidate.avatarPublicId);
+      try {
+        await oldFile.delete();
+      } catch (err) {
+        console.warn("Không thể xoá avatar cũ:", err.message);
+      }
     }
 
-    // Gán avatar mới
-    const newAvatarUrl = `/uploads/avatars/${req.file.filename}`;
-    candidate.avatarUrl = newAvatarUrl;
-    candidate.updatedAt = Date.now();
+    const filename = `avatars/avatar-${uuidv4()}${req.file.originalname.slice(
+      req.file.originalname.lastIndexOf(".")
+    )}`;
+    const fileUpload = bucket.file(filename);
 
-    // Lưu candidate vào DB
-    await candidate.save();
-
-    res.status(200).json({
-      message: "Cập nhật ảnh đại diện thành công.",
-      avatarUrl: newAvatarUrl,
+    const stream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: req.file.mimetype,
+      },
     });
+
+    stream.on("error", (err) => {
+      console.error("Upload lỗi:", err);
+      return res.status(500).json({ message: "Upload avatar thất bại." });
+    });
+
+    stream.on("finish", async () => {
+      await fileUpload.makePublic();
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+
+      candidate.avatarUrl = publicUrl;
+      candidate.avatarPublicId = filename;
+      candidate.updatedAt = Date.now();
+
+      await candidate.save();
+
+      res.status(200).json({
+        message: "Cập nhật ảnh đại diện thành công.",
+        avatarUrl: publicUrl,
+      });
+    });
+
+    stream.end(req.file.buffer);
   } catch (err) {
-    console.error("❌ Error updating avatar:", err);
-
-    // Nếu upload thành công nhưng save thất bại → xóa ảnh
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      deleteFileIfExists(req.file.path);
-    }
-
-    res.status(500).json({
-      message: "Lỗi server khi cập nhật avatar.",
-      error: err.message,
-    });
+    console.error("Server error:", err);
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
 //////////////////// FAVORITES JOB////////////////////////////////
@@ -598,8 +819,6 @@ const markJobAsInterested = async (req, res) => {
     if (!job) {
       return res.status(404).json({ message: "Không tìm thấy công việc." });
     }
-
-    // Kiểm tra xem ứng viên đã yêu thích công việc này chưa
     const alreadyInterested = job.likedByCandidates.some(
       (entry) => entry.candidate.toString() === userId.toString()
     );
@@ -609,17 +828,10 @@ const markJobAsInterested = async (req, res) => {
         .json({ message: "Ứng viên đã quan tâm công việc này rồi." });
     }
 
-    // Thêm công việc vào danh sách yêu thích của ứng viên
     candidate.interestedJobs.push(jobId);
     await candidate.save();
-
-    // Cập nhật trạng thái likedByCandidates của công việc
     job.likedByCandidates.push({ candidate: candidate._id });
     await job.save();
-
-    console.log(
-      `Ứng viên ${candidate.email} đã quan tâm công việc ${job.title}`
-    );
 
     res.status(200).json({
       message: "Đã thêm vào danh sách công việc quan tâm.",
@@ -666,9 +878,6 @@ const unmarkJobAsInterested = async (req, res) => {
     );
     await job.save();
 
-    console.log(
-      `Ứng viên ${candidate.email} đã bỏ quan tâm công việc có ID: ${jobId}`
-    );
     res
       .status(200)
       .json({ message: "Đã gỡ công việc khỏi danh sách quan tâm." });
@@ -704,8 +913,6 @@ const getInterestedJobs = async (req, res) => {
         currentPage: 1,
       });
     }
-
-    // Phân trang
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -713,7 +920,6 @@ const getInterestedJobs = async (req, res) => {
     const totalJobs = interestedJobIds.length;
     const totalPages = Math.ceil(totalJobs / limit);
 
-    // Cắt danh sách ID theo trang
     const paginatedJobIds = interestedJobIds.slice(skip, skip + limit);
 
     const jobs = await JobPosting.find({ _id: { $in: paginatedJobIds } })

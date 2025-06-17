@@ -10,6 +10,7 @@ const nextConfig = {
       "yourcdn.com",
       "res.cloudinary.com",
       "final-project-c62o.onrender.com",
+      "storage.googleapis.com",
     ],
   },
 };

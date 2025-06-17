@@ -196,7 +196,7 @@ const FavoriteJobPage = () => {
                     <img
                       src={
                         job.company?.avatarUrl
-                          ? `${BASE_URL}/${job.company.avatarUrl}`
+                          ? `${job.company.avatarUrl}`
                           : "/company.png"
                       }
                       alt={job.company?.name}

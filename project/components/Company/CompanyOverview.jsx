@@ -131,7 +131,7 @@ const CompanyOverview = ({ searchQuery, city }) => {
                   <img
                     src={
                       company.avatarUrl
-                        ? `${BASE_URL}/${company.avatarUrl}`
+                        ? `${company.avatarUrl}`
                         : "/company.png"
                     }
                     alt={`${company.name || "Company"} logo`}

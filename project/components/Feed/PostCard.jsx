@@ -140,6 +140,12 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
   };
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return;
+
+    if (!token) {
+      toast.error("Bạn cần đăng nhập để bình luận.");
+      return;
+    }
+
     try {
       const res = await fetch(`${BASE_URL}/api/v1/post/${post._id}/comment`, {
         method: "POST",
@@ -150,14 +156,22 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
         body: JSON.stringify({ content: newComment }),
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(`${errorData.message || "Lỗi khi gửi bình luận."}`);
+        return;
+      }
+
       const data = await res.json();
       setComments(data.comments);
       setNewComment("");
       toast.success("Bình luận thành công!");
     } catch (err) {
-      toast.error("Bạn không có quyền comment. Vui lòng đăng nhập.");
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+      console.error("Lỗi gửi bình luận:", err.message);
     }
   };
+
   // Cập nhật bài đăng
   const handleSaveEdit = async () => {
     try {
@@ -316,11 +330,7 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative h-12 w-12 flex-shrink-0">
           <Image
-            src={
-              post.author?.avatarUrl
-                ? `${BASE_URL}${post.author.avatarUrl}`
-                : "/R.jpg"
-            }
+            src={post.author?.avatarUrl ? `${post.author.avatarUrl}` : "/R.jpg"}
             alt="avatar"
             layout="fill"
             className="rounded-full object-cover border-2 border-white shadow-sm"
@@ -383,7 +393,7 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
         <div className="my-6 flex justify-center">
           <div className="relative w-full max-w-2xl h-96 rounded-xl overflow-hidden shadow-md">
             <Image
-              src={`${BASE_URL}${currentImage}`}
+              src={`${currentImage}`}
               alt="post"
               layout="fill"
               objectFit="cover"
@@ -439,11 +449,7 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
           <div key={index} className="flex gap-3">
             <div className="relative h-10 w-10 flex-shrink-0">
               <Image
-                src={
-                  c.user?.avatarUrl
-                    ? `${BASE_URL}${c.user.avatarUrl}`
-                    : "/R.jpg"
-                }
+                src={c.user?.avatarUrl ? `${c.user.avatarUrl}` : "/R.jpg"}
                 alt="comment avatar"
                 layout="fill"
                 className="rounded-full object-cover border-2 border-white"
@@ -566,7 +572,6 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
         </button>
       </div>
 
-      {/* Edit/Delete Buttons */}
       {(canEdit || canDelete) && !isEditing && (
         <div className="mt-4 flex gap-3 border-t pt-4">
           {canEdit && (

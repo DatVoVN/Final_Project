@@ -137,7 +137,7 @@ const ApplicantManagementPage = () => {
       </td>
       <td className="px-4 py-3 flex items-center justify-center">
         <a
-          href={`${BASE_URL}${applicant.candidate?.cvUrl}` || "#"}
+          href={`${applicant.candidate?.cvUrl}` || "#"}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 text-blue-600 hover:bg-blue-100 rounded"

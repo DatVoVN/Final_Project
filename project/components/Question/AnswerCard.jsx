@@ -93,7 +93,7 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
   };
 
   const avatarUrl = answer.candidate?.avatarUrl
-    ? `${BASE_URL}${answer.candidate.avatarUrl}`
+    ? `${answer.candidate.avatarUrl}`
     : null;
 
   return (

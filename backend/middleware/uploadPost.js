@@ -1,24 +1,40 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const slugify = require("slugify");
+// const multer = require("multer");
+// const path = require("path");
+// const fs = require("fs");
+// const slugify = require("slugify");
 
-const uploadDir = path.join(__dirname, "../uploads/posts");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const baseName = path.basename(file.originalname, ext);
-    const safeName = slugify(baseName, { lower: true, strict: true });
-    const uniqueName = `${Date.now()}-${safeName}${ext}`;
-    cb(null, uniqueName);
-  },
-});
+// const uploadDir = path.join(__dirname, "../uploads/posts");
+// if (!fs.existsSync(uploadDir)) {
+//   fs.mkdirSync(uploadDir, { recursive: true });
+// }
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, uploadDir);
+//   },
+//   filename: function (req, file, cb) {
+//     const ext = path.extname(file.originalname);
+//     const baseName = path.basename(file.originalname, ext);
+//     const safeName = slugify(baseName, { lower: true, strict: true });
+//     const uniqueName = `${Date.now()}-${safeName}${ext}`;
+//     cb(null, uniqueName);
+//   },
+// });
+// const fileFilter = (req, file, cb) => {
+//   if (file.mimetype.startsWith("image/")) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error("File không hợp lệ. Chỉ chấp nhận ảnh."), false);
+//   }
+// };
+// const upload = multer({
+//   storage,
+//   fileFilter,
+//   limits: { fileSize: 5 * 1024 * 1024 },
+// });
+
+// module.exports = upload;
+const multer = require("multer");
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -27,7 +43,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });

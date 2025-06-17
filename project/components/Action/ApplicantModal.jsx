@@ -188,7 +188,7 @@ const ApplicantModal = ({ jobId, onClose }) => {
                     <td className="px-4 py-3">
                       {candidate?.avatarUrl && (
                         <img
-                          src={`${BASE_URL}${candidate.avatarUrl}`}
+                          src={`${candidate.avatarUrl}`}
                           alt="avatar"
                           width={40}
                           height={40}
@@ -209,7 +209,7 @@ const ApplicantModal = ({ jobId, onClose }) => {
                     <td className="px-4 py-3 text-center">
                       {candidate.cvUrl ? (
                         <a
-                          href={`${BASE_URL}${candidate.cvUrl}`}
+                          href={`${candidate.cvUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700"

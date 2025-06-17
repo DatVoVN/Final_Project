@@ -305,11 +305,7 @@ export default function PostCardE({ post, onDelete, fetchPosts }) {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative h-12 w-12 flex-shrink-0">
           <Image
-            src={
-              post.author?.avatarUrl
-                ? `${BASE_URL}${post.author.avatarUrl}`
-                : "/R.jpg"
-            }
+            src={post.author?.avatarUrl ? `${post.author.avatarUrl}` : "/R.jpg"}
             alt="avatar"
             layout="fill"
             className="rounded-full object-cover border-2 border-white shadow-sm"
@@ -372,7 +368,7 @@ export default function PostCardE({ post, onDelete, fetchPosts }) {
         <div className="my-6 flex justify-center">
           <div className="relative w-full max-w-2xl h-96 rounded-xl overflow-hidden shadow-md">
             <Image
-              src={`${BASE_URL}${currentImage}`}
+              src={`${currentImage}`}
               alt="post"
               layout="fill"
               objectFit="cover"
@@ -428,11 +424,7 @@ export default function PostCardE({ post, onDelete, fetchPosts }) {
           <div key={index} className="flex gap-3">
             <div className="relative h-10 w-10 flex-shrink-0">
               <Image
-                src={
-                  c.user?.avatarUrl
-                    ? `${BASE_URL}${c.user.avatarUrl}`
-                    : "/R.jpg"
-                }
+                src={c.user?.avatarUrl ? `${c.user.avatarUrl}` : "/R.jpg"}
                 alt="comment avatar"
                 layout="fill"
                 className="rounded-full object-cover border-2 border-white"

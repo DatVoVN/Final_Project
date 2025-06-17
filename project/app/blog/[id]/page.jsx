@@ -98,11 +98,11 @@ const BlogDetail = () => {
 
   const authorName = blog.author?.name || "Admin";
   const authorAvatar = blog.author?.avatarUrl
-    ? `${BASE_URL}${blog.author.avatarUrl}`
+    ? `${blog.author.avatarUrl}`
     : null;
 
   const heroImageUrl = blog.imageUrl
-    ? `${BASE_URL}${blog.imageUrl}`
+    ? `${blog.imageUrl}`
     : "/images/default-blog-hero.jpg";
 
   return (

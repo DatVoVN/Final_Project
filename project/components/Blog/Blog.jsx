@@ -46,9 +46,7 @@ const Blog = ({
       {/* Phần Ảnh */}
       <div className="relative overflow-hidden aspect-w-16 aspect-h-9 sm:aspect-h-10">
         <img
-          src={
-            imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`
-          }
+          src={imageUrl.startsWith("http") ? imageUrl : `${imageUrl}`}
           alt={title || "Blog Thumbnail"}
           className="w-full h-full object-cover
             transition-transform duration-500 ease-out group-hover:scale-105"

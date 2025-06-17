@@ -26,6 +26,7 @@ const CandidateSchema = new mongoose.Schema({
   role: { type: String, default: "candidate" },
   interestedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "JobPosting" }],
   likedCompanies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Company" }],
+  avatarPublicId: { type: String },
   /// Tạo CV
   structuredCV: {
     summary: { type: String },

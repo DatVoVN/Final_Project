@@ -58,12 +58,12 @@ const ChatbotWidget = () => {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+          className="fixed bottom-20 right-6 z-50 w-full max-w-md"
           onClick={() => setOpen(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md mx-auto"
+            className="relative mx-auto"
           >
             <button
               onClick={() => setOpen(false)}

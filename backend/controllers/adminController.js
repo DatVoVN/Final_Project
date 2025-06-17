@@ -476,7 +476,7 @@ exports.updatePackage = async (req, res) => {
 
     res.json({ message: "Đã cập nhật gói thành công.", data: updated });
   } catch (error) {
-    console.error("🔥 Chi tiết lỗi khi cập nhật gói:");
+    console.error("Chi tiết lỗi khi cập nhật gói:");
     console.error("Message:", error.message);
     console.error("Stack:", error.stack);
     res.status(500).json({
@@ -507,7 +507,7 @@ exports.deleteQuestionByAdmin = async (req, res) => {
     await Question.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Đã xóa câu hỏi thành công" });
   } catch (err) {
-    console.error("❌ Lỗi khi xóa câu hỏi:", err);
+    console.error("Lỗi khi xóa câu hỏi:", err);
     res.status(500).json({ message: "Lỗi server khi xóa câu hỏi" });
   }
 };
@@ -524,7 +524,7 @@ exports.deletePostByAdmin = async (req, res) => {
 
     res.status(200).json({ message: "Đã xóa bài viết thành công" });
   } catch (err) {
-    console.error("❌ Lỗi khi xóa bài viết:", err);
+    console.error("Lỗi khi xóa bài viết:", err);
     res.status(500).json({ message: "Lỗi server khi xóa bài viết" });
   }
 };

@@ -79,7 +79,7 @@ const CompanyModalView = ({ isOpen, onClose, company }) => {
     "
                     >
                       <img
-                        src={`${BASE_URL}/${company.avatarUrl}`}
+                        src={`${company.avatarUrl}`}
                         alt="Company logo"
                         className="w-full h-full object-cover"
                         onError={(e) => {

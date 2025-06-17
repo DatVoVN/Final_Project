@@ -45,8 +45,6 @@ const authController = {
         isActive: false,
         isRejected: false,
       });
-
-      console.log("Thông tin user mới:", newUser);
       await newUser.save();
 
       res.status(201).json({
@@ -79,7 +77,6 @@ const authController = {
           .status(403)
           .json({ message: "Tài khoản chưa được admin duyệt." });
       }
-      console.log("Stored password hash:", user.password);
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res
@@ -178,7 +175,6 @@ const authController = {
       }
 
       await candidateToProcess.save();
-      console.log(`OTP saved/updated for ${normalizedEmail}`);
 
       res.status(200).json({
         message:
@@ -203,9 +199,6 @@ const authController = {
       const candidate = await Candidate.findOne({ email: normalizedEmail });
 
       if (!candidate || candidate.isVerified) {
-        console.log(
-          `Resend OTP request for non-existent or verified email: ${normalizedEmail}`
-        );
         return res.status(400).json({
           message:
             "Nếu email đã đăng ký và chưa xác thực, OTP sẽ được gửi lại.",
@@ -242,7 +235,6 @@ const authController = {
       }
 
       await candidate.save();
-      console.log(`Resent OTP saved for ${normalizedEmail}`);
 
       res
         .status(200)
@@ -318,7 +310,6 @@ const authController = {
 
       // *** KIỂM TRA XÁC THỰC ***
       if (!candidate.isVerified) {
-        console.log(`Login attempt for unverified email: ${normalizedEmail}`);
         return res.status(403).json({
           message:
             "Tài khoản chưa được xác thực. Vui lòng kiểm tra email hoặc yêu cầu gửi lại OTP.",
@@ -463,7 +454,7 @@ const authController = {
       }
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+      const otpExpires = Date.now() + 10 * 60 * 1000;
 
       employer.otp = otp;
       employer.otpExpires = otpExpires;

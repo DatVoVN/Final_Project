@@ -33,7 +33,6 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URL);
-    console.log("MongoDB connected");
   } catch (error) {
     console.error("MongoDB connection error:", error);
     process.exit(1);
@@ -62,5 +61,5 @@ app.get("/health", (_, res) => res.send("OK"));
 app.use("/api/payment", require("./routes/payment"));
 // START SERVER
 app.listen(8000, () => {
-  console.log("🚀 Server running on port 8000");
+  console.log("Server running on port 8000");
 });

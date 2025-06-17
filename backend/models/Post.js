@@ -15,7 +15,8 @@ const commentSchema = new mongoose.Schema(
 const postSchema = new mongoose.Schema(
   {
     content: { type: String, required: true },
-    imageUrl: { type: String },
+    imageUrl: String,
+    imagePublicId: String,
     author: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "authorType",

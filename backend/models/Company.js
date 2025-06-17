@@ -18,6 +18,8 @@ const CompanySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    avatarPublicId: String,
+
     companySize: {
       type: Number,
       default: 0,

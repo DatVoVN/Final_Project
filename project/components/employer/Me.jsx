@@ -517,7 +517,7 @@ const Me = () => {
                       />
                     ) : companyForm.currentAvatarUrl ? (
                       <img
-                        src={`${BASE_URL}/${companyForm.currentAvatarUrl}`}
+                        src={`${companyForm.currentAvatarUrl}`}
                         alt="Avatar hiện tại"
                         className="w-full h-full object-cover"
                       />
@@ -526,7 +526,7 @@ const Me = () => {
                     )
                   ) : company.avatarUrl ? (
                     <img
-                      src={`${BASE_URL}/${company.avatarUrl}`}
+                      src={`${company.avatarUrl}`}
                       alt="Avatar Công ty"
                       className="w-full h-full object-cover"
                     />

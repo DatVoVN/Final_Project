@@ -136,7 +136,7 @@ const Header = () => {
               src={
                 user.avatarUrl.startsWith("http")
                   ? user.avatarUrl
-                  : `${BASE_URL}${user.avatarUrl}`
+                  : `${user.avatarUrl}`
               }
               alt={user.fullName || "User Avatar"}
               width={32}
@@ -146,7 +146,7 @@ const Header = () => {
           ) : (
             <FaUserCircle className="text-2xl xl:text-3xl text-blue-400" />
           )}
-          <span className="hidden sm:inline truncate max-w-[120px]">
+          <span className="hidden sm:inline block truncate max-w-[100px] overflow-hidden whitespace-nowrap">
             {user.fullName || "User"}
           </span>
           {isUserMenuOpen ? (
