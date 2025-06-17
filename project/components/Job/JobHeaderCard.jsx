@@ -394,7 +394,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
                     </label>
                     <div className="w-full rounded-lg border border-gray-200 bg-gray-50/50 px-4 py-3 transition-colors hover:bg-gray-50 group">
                       <a
-                        href={`http://localhost:8000${userData.cvUrl}`}
+                        href={`${BASE_URL}${userData.cvUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"

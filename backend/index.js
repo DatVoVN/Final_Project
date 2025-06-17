@@ -58,7 +58,7 @@ app.use("/api", suggestRoutes);
 // app.use("/api/stripe", require("./routes/stripeWebhook"));
 app.use("/api/payment", require("./routes/manualPaymentCheck"));
 app.use("/api/checkout", require("./routes/checkoutAll"));
-app.post("/health", (_, res) => res.send("OK"));
+app.get("/health", (_, res) => res.send("OK"));
 app.use("/api/payment", require("./routes/payment"));
 // START SERVER
 app.listen(8000, () => {
