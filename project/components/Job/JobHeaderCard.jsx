@@ -241,7 +241,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const logoSrc = company?.avatarUrl
     ? company.avatarUrl.startsWith("http")
       ? company.avatarUrl
-      : `${company.avatarUrl}`
+      : `/${company.avatarUrl.replace(/^\/?/, "")}`
     : "/company.png";
 
   return (
@@ -250,7 +250,6 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
         <div className="shrink-0">
           <ImageWithFallback
             src={logoSrc}
-            fallbackSrc="/company.png"
             alt={`${company?.name || "Company"} logo`}
             width={80}
             height={80}

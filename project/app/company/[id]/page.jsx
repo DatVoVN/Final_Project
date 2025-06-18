@@ -150,6 +150,11 @@ const CompanyPage = () => {
           .map((skill) => skill.trim())
           .filter((skill) => skill)
       : [];
+
+  const avatarUrl = companyDetails.avatarUrl?.startsWith("http")
+    ? companyDetails.avatarUrl
+    : `/${companyDetails.avatarUrl?.replace(/^\/?/, "")}`;
+
   return (
     <div className="h-auto w-full bg-gray-50 pb-10">
       <div className="w-full h-auto md:h-80 grid grid-cols-1 md:grid-cols-2 bg-white border border-gray-200 shadow-md rounded-xl p-6 gap-6 md:gap-8 mb-5">
@@ -157,7 +162,7 @@ const CompanyPage = () => {
           <div className="flex flex-col sm:flex-row gap-6 items-center text-center sm:text-left p-6 bg-white rounded-xl shadow-md border border-gray-100 w-full max-w-4xl">
             <div className="flex-shrink-0">
               <img
-                src={companyDetails.avatarUrl || "/company.png"}
+                src={avatarUrl}
                 alt={`${companyDetails.name || "Company"} logo`}
                 className="w-28 h-28 object-cover rounded-xl shadow-inner border border-gray-200"
                 onError={(e) => {

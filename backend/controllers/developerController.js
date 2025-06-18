@@ -484,10 +484,10 @@ exports.getCompanyById = async (req, res) => {
     if (!company) {
       return res.status(404).json({ message: "Không tìm thấy công ty." });
     }
-    if (company.avatarUrl) {
-      company.avatarUrl = `${req.protocol}://${req.get("host")}/${
-        company.avatarUrl
-      }`;
+    if (company.avatarUrl && !company.avatarUrl.startsWith("http")) {
+      company.avatarUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/${company.avatarUrl.replace(/^\/?/, "")}`;
     }
 
     res.status(200).json({
