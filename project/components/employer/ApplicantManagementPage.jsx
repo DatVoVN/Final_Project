@@ -11,6 +11,7 @@ import {
 import { VscVmRunning } from "react-icons/vsc";
 import Pagination from "../Pagination";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
 const ApplicantManagementPage = () => {
   const [selectedJob, setSelectedJob] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -137,7 +138,13 @@ const ApplicantManagementPage = () => {
       </td>
       <td className="px-4 py-3 flex items-center justify-center">
         <a
-          href={`${applicant.candidate?.cvUrl}` || "#"}
+          href={applicant.candidate?.cvUrl || "#"}
+          onClick={(e) => {
+            if (!applicant.candidate?.cvUrl) {
+              e.preventDefault();
+              toast.error("Ứng viên chưa tải lên CV.");
+            }
+          }}
           target="_blank"
           rel="noopener noreferrer"
           className="p-1 text-blue-600 hover:bg-blue-100 rounded"

@@ -534,10 +534,62 @@ exports.getAllCompany = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const totalCompaniesAggregation = await Company.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          let: { companyId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$company", "$$companyId"] },
+                    { $eq: ["$isActive", true] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "activeUsers",
+        },
+      },
+      {
+        $match: {
+          "activeUsers.0": { $exists: true },
+        },
+      },
+      {
+        $count: "total",
+      },
+    ]);
 
-    const totalCompanies = await Company.countDocuments();
-
+    const totalCompanies = totalCompaniesAggregation[0]?.total || 0;
     const companies = await Company.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          let: { companyId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$company", "$$companyId"] },
+                    { $eq: ["$isActive", true] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "activeUsers",
+        },
+      },
+      {
+        $match: {
+          "activeUsers.0": { $exists: true },
+        },
+      },
       {
         $lookup: {
           from: "reviews",
@@ -563,7 +615,9 @@ exports.getAllCompany = async (req, res) => {
     ]);
 
     if (companies.length === 0) {
-      return res.status(404).json({ message: "Chưa có công ty nào" });
+      return res
+        .status(404)
+        .json({ message: "Chưa có công ty nào có user đang hoạt động." });
     }
 
     const totalPages = Math.ceil(totalCompanies / limit);
@@ -579,7 +633,7 @@ exports.getAllCompany = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách company:", error);
-    res.status(500).json({ message: "Lỗi server khi lấy danh sách company." });
+    res.status(500).json({ message: "Lỗi server khi lấy danh sách công ty." });
   }
 };
 

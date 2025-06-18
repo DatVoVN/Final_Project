@@ -43,7 +43,7 @@ const BlogIT = () => {
               title={largeBlog.title}
               excerpt={largeBlog.excerpt}
               fullText={largeBlog.content}
-              link={`/blog/${largeBlog.slug}`}
+              link={`/blog/${largeBlog._id}`}
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 lg:gap-8 h-full">
@@ -56,7 +56,7 @@ const BlogIT = () => {
                   imageUrl={blog.imageUrl}
                   title={blog.title}
                   excerpt={blog.excerpt}
-                  link={`/blog/${blog.slug}`}
+                  link={`/blog/${blog._id}`}
                 />
               </div>
             ))}

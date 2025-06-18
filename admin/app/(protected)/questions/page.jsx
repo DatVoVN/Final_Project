@@ -65,10 +65,10 @@ const QuestionPage = () => {
 
                   if (!res.ok) throw new Error("Xóa thất bại");
 
-                  toast.success("✅ Xóa câu hỏi thành công");
+                  toast.success("Xóa câu hỏi thành công");
                   fetchQuestions(currentPage);
                 } catch (err) {
-                  toast.error("❌ Không thể xóa câu hỏi");
+                  toast.error("Không thể xóa câu hỏi");
                   console.error(err);
                 } finally {
                   toast.dismiss(t.id);

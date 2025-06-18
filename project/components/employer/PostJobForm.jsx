@@ -156,13 +156,6 @@ const PostJobForm = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Đăng Tin Tuyển Dụng Mới
             </h2>
-            <a
-              href="#"
-              className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-            >
-              <HiOutlineInformationCircle className="h-4 w-4" />
-              Hướng dẫn
-            </a>
           </div>
 
           <div className="space-y-4">

@@ -89,10 +89,10 @@ const BlogPage = () => {
 
                   if (!res.ok) throw new Error("Delete failed");
 
-                  toast.success("✅ Xóa bài viết thành công");
+                  toast.success("Xóa bài viết thành công");
                   fetchBlogs(currentPage);
                 } catch (error) {
-                  toast.error("❌ Có lỗi xảy ra khi xóa bài viết");
+                  toast.error("Có lỗi xảy ra khi xóa bài viết");
                   console.error("Lỗi xóa blog:", error);
                 } finally {
                   toast.dismiss(t.id);

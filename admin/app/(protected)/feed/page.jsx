@@ -63,10 +63,10 @@ const FeedPage = () => {
 
                   if (!res.ok) throw new Error("Xóa thất bại");
 
-                  toast.success("✅ Xóa bài viết thành công");
+                  toast.success("Xóa bài viết thành công");
                   fetchPosts(currentPage);
                 } catch (err) {
-                  toast.error("❌ Không thể xóa bài viết");
+                  toast.error("Không thể xóa bài viết");
                   console.error(err);
                 } finally {
                   toast.dismiss(t.id);

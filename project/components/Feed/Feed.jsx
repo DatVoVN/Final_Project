@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import PostCard from "./PostCard";
 import Pagination from "../Pagination";

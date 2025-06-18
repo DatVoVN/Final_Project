@@ -68,7 +68,7 @@ const Page = () => {
     toast(
       (t) => (
         <div className="text-sm text-white">
-          <p>Bạn có chắc chắn muốn xóa developer này?</p>
+          <p>Bạn có chắc chắn muốn xóa người tuyển dụng này?</p>
           <div className="flex gap-2 mt-2">
             <button
               onClick={async () => {
@@ -85,7 +85,7 @@ const Page = () => {
                   );
                   if (!res.ok) throw new Error("Delete failed");
 
-                  toast.success("✅ Đã xóa developer thành công");
+                  toast.success("Đã xóa developer thành công");
                   setDevelopers((prev) => prev.filter((dev) => dev._id !== id));
                 } catch (error) {
                   toast.error("❌ Có lỗi khi xóa developer");
@@ -136,7 +136,7 @@ const Page = () => {
         >
           <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
             <h2 className="text-xl font-bold text-white">
-              Danh sách Developer
+              Danh sách Người tuyển dụng
             </h2>
             <div className="flex items-center gap-4 flex-grow max-w-md">
               <input

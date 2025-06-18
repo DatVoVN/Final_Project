@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import BASE_URL from "@/utils/config";
+import { FaSpinner } from "react-icons/fa";
 const RequiredLabel = ({ label }) => (
   <>
     {label} <span className="text-red-500">*</span>
@@ -384,9 +385,9 @@ const Me = () => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center py-20 bg-gray-50 min-h-screen">
-        <ArrowPathIcon className="animate-spin h-8 w-8 text-indigo-600 mr-3" />
-        <p className="text-gray-600">Đang tải dữ liệu...</p>
+      <div className="flex flex-col items-center justify-center py-16">
+        <FaSpinner className="animate-spin text-indigo-500 text-4xl mb-4" />
+        <p className="text-slate-600">Đang tải thông tin...</p>
       </div>
     );
 

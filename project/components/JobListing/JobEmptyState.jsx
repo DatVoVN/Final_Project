@@ -1,11 +1,13 @@
 import React from "react";
+import { FaSpinner } from "react-icons/fa";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
 const JobEmptyState = ({ isLoading, error }) => {
   if (isLoading) {
     return (
-      <div className="text-center py-20 text-sm text-gray-500">
-        Đang tải dữ liệu...
+      <div className="flex flex-col items-center justify-center py-16">
+        <FaSpinner className="animate-spin text-indigo-500 text-4xl mb-4" />
+        <p className="text-slate-600">Đang tải tin...</p>
       </div>
     );
   }

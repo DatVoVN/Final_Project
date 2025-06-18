@@ -75,11 +75,11 @@ const JobPage = () => {
         setSelectedJob(data.data);
         setIsJobModalOpen(true);
       } else {
-        toast.error("❌ Không thể tải thông tin công việc");
+        toast.error("Không thể tải thông tin công việc");
       }
     } catch (error) {
       console.error("Lỗi khi xem chi tiết job:", error);
-      toast.error("❌ Có lỗi xảy ra khi lấy dữ liệu");
+      toast.error("Có lỗi xảy ra khi lấy dữ liệu");
     }
   };
 
@@ -105,15 +105,15 @@ const JobPage = () => {
                   const data = await res.json();
 
                   if (res.ok) {
-                    toast.success("✅ Đã xóa công việc thành công");
+                    toast.success("Đã xóa công việc thành công");
                     fetchJobs(currentPage);
                   } else {
                     toast.error(
-                      `❌ Xóa thất bại: ${data.message || "Không xác định"}`
+                      `Xóa thất bại: ${data.message || "Không xác định"}`
                     );
                   }
                 } catch (error) {
-                  toast.error("❌ Có lỗi xảy ra khi xóa");
+                  toast.error("Có lỗi xảy ra khi xóa");
                   console.error("Lỗi khi xóa:", error);
                 } finally {
                   toast.dismiss(t.id);

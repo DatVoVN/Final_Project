@@ -162,7 +162,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
       const msg = "Bạn không có quyền ứng tuyển. Vui lòng đăng nhập.";
       setError(msg);
       setIsProcessing(false);
-      alert(msg);
+      toast.error(msg);
       return;
     }
 
@@ -243,7 +243,6 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
       ? company.avatarUrl
       : `${company.avatarUrl}`
     : "/company.png";
-  console.log(userData);
 
   return (
     <div className="bg-white p-4 md:px-10 py-3 md:py-4 rounded-lg shadow-md border border-gray-100 mb-5">
@@ -251,7 +250,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
         <div className="shrink-0">
           <ImageWithFallback
             src={logoSrc}
-            fallbackSrc="/placeholder-logo.png"
+            fallbackSrc="/company.png"
             alt={`${company?.name || "Company"} logo`}
             width={80}
             height={80}

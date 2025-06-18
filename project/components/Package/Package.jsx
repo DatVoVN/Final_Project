@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import BASE_URL from "@/utils/config";
+import toast from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa";
 const Package = ({ pkg }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -9,7 +11,7 @@ const Package = ({ pkg }) => {
 
   const handleCheckout = () => {
     if (!token) {
-      alert("Bạn cần đăng nhập để mua gói.");
+      toast.error("Bạn cần đăng nhập để mua gói.");
       return;
     }
     setShowModal(true);
@@ -39,11 +41,11 @@ const Package = ({ pkg }) => {
       if (data.url || data.payUrl) {
         window.location.href = data.url || data.payUrl;
       } else {
-        alert(data.message || "Không thể tạo phiên thanh toán.");
+        toast.error(data.message || "Không thể tạo phiên thanh toán.");
       }
     } catch (err) {
       console.error("Lỗi tạo thanh toán:", err);
-      alert("Đã xảy ra lỗi khi tạo phiên thanh toán.");
+      toast.error("Đã xảy ra lỗi khi tạo phiên thanh toán.");
     }
   };
 
@@ -163,8 +165,9 @@ const PackageList = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+      <div className="flex flex-col items-center justify-center py-16">
+        <FaSpinner className="animate-spin text-indigo-500 text-4xl mb-4" />
+        <p className="text-slate-600">Đang tải gói dịch vụ...</p>
       </div>
     );
   }

@@ -92,12 +92,12 @@ const PackagePage = () => {
 
                   if (res.ok) {
                     setPackages((prev) => prev.filter((pkg) => pkg._id !== id));
-                    toast.success("✅ Đã xóa gói thành công");
+                    toast.success("Đã xóa gói thành công");
                   } else {
-                    toast.error("❌ Xóa gói thất bại");
+                    toast.error("Xóa gói thất bại");
                   }
                 } catch (error) {
-                  toast.error("❌ Có lỗi khi xóa");
+                  toast.error("Có lỗi khi xóa");
                   console.error("Lỗi khi xóa:", error);
                 } finally {
                   toast.dismiss(t.id);

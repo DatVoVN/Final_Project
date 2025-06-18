@@ -70,26 +70,61 @@ const AnswerCard = ({ answer, questionId, onUpdated }) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Bạn có chắc muốn xóa câu trả lời này?")) return;
-    try {
-      const token = Cookies.get("authToken");
-      const res = await fetch(
-        `${BASE_URL}/api/v1/question/${questionId}/answers/${answer._id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res.ok) {
-        const updated = await res.json();
-        onUpdated(updated);
-      } else {
-        alert("Xóa không thành công");
+  const handleDelete = () => {
+    toast(
+      (t) => (
+        <div className="text-sm text-white">
+          <p>Bạn có chắc chắn muốn xóa câu trả lời này?</p>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={async () => {
+                try {
+                  const token = Cookies.get("authToken");
+                  const res = await fetch(
+                    `${BASE_URL}/api/v1/question/${questionId}/answers/${answer._id}`,
+                    {
+                      method: "DELETE",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+
+                  if (res.ok) {
+                    const updated = await res.json();
+                    if (onUpdated) onUpdated(updated);
+                    toast.success("Đã xóa câu trả lời");
+                  } else {
+                    toast.error("Xóa câu trả lời thất bại");
+                  }
+                } catch (error) {
+                  toast.error("Đã xảy ra lỗi khi xóa");
+                  console.error("Lỗi khi xóa:", error);
+                } finally {
+                  toast.dismiss(t.id);
+                }
+              }}
+              className="px-3 py-1 text-sm bg-red-600 rounded hover:bg-red-500"
+            >
+              Xóa
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 10000,
+        style: {
+          background: "#1e1e1e",
+          color: "#fff",
+        },
       }
-    } catch (err) {
-      console.error("Lỗi khi xóa", err);
-    }
+    );
   };
 
   const avatarUrl = answer.candidate?.avatarUrl

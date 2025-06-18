@@ -71,7 +71,7 @@ const EmployerModal = ({ isOpen, onClose, employer }) => {
               <InfoRow
                 icon={BadgeCheck}
                 label="Vai trò"
-                value={employer.role}
+                value={employer.role === "employer" ? "Người tuyển dụng" : ""}
               />
               <InfoRow
                 icon={ShieldCheck}

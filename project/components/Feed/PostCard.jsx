@@ -91,15 +91,15 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
     setIsProcessing(true);
     try {
       const url = hasLiked
-        ? `http://localhost:8000/api/v1/post/${post._id}/unlike`
-        : `http://localhost:8000/api/v1/post/${post._id}/like`;
+        ? `${BASE_URL}/api/v1/post/${post._id}/unlike`
+        : `${BASE_URL}/api/v1/post/${post._id}/like`;
 
       const res = await axios.post(url, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       post.likes = res.data.likes;
       const check = await axios.get(
-        `http://localhost:8000/api/v1/post/${post._id}/check-like`,
+        `${BASE_URL}/api/v1/post/${post._id}/check-like`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const liked = check.data.liked;
@@ -183,7 +183,6 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Không đặt Content-Type khi dùng FormData
         },
         body: formData,
       });
@@ -212,14 +211,14 @@ export default function PostCard({ post, onDelete, fetchPosts }) {
                     headers: { Authorization: `Bearer ${token}` },
                   });
 
-                  toast.success("✅ Đã xóa bài viết");
+                  toast.success("Đã xóa bài viết");
                   if (typeof onDelete === "function") {
                     onDelete?.(post._id);
                   }
 
                   fetchPosts();
                 } catch (err) {
-                  toast.error("❌ Lỗi khi xóa bài viết");
+                  toast.error("Lỗi khi xóa bài viết");
                   console.error("Lỗi khi xóa bài đăng:", err.message);
                 } finally {
                   toast.dismiss(t.id);
