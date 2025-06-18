@@ -259,7 +259,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
         <div className="flex-grow w-full">
           {company?.name && (
             <Link
-              href={`/company/detail/${company._id}`}
+              href={`/company/${company._id}`}
               className="text-sm text-gray-600 hover:text-blue-600 mb-1 block"
             >
               {company.name}
@@ -393,10 +393,20 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
                     </label>
                     <div className="w-full rounded-lg border border-gray-200 bg-gray-50/50 px-4 py-3 transition-colors hover:bg-gray-50 group">
                       <a
-                        href={`${userData.cvUrl}`}
+                        href={userData.cvUrl || "#"}
+                        onClick={(e) => {
+                          if (!userData.cvUrl) {
+                            e.preventDefault();
+                            toast.error("Bạn chưa tải lên CV.");
+                          }
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        className={`inline-flex items-center gap-2 font-medium transition-colors ${
+                          userData.cvUrl
+                            ? "text-blue-600 hover:text-blue-700"
+                            : "text-gray-400 cursor-not-allowed"
+                        }`}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -410,7 +420,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Xem CV (PDF)
+                        {userData.cvUrl ? "Xem CV (PDF)" : "Chưa có CV"}
                       </a>
                     </div>
                   </div>
