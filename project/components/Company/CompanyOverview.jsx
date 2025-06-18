@@ -33,13 +33,13 @@ const CompanyOverview = ({ searchQuery, city }) => {
         ...(searchQuery && { name: searchQuery }),
         ...(city && { city: city }),
         page,
-        limit: 6,
+        limit: 4,
       }).toString();
 
       const url =
         searchQuery || city
           ? `${baseURL}/search?${queryParams}`
-          : `${baseURL}?page=${page}&limit=6`;
+          : `${baseURL}?page=${page}&limit=4`;
 
       const response = await axios.get(url);
       setCompanies(response.data.companies || []);

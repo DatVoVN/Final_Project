@@ -14,7 +14,7 @@ const JobKeywords = ({ job, company }) => {
           <Link
             key={tag}
             className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200"
-            href={`/jobs/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+            href={`#`}
           >
             {tag}
           </Link>

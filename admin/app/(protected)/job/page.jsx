@@ -31,7 +31,7 @@ const JobPage = () => {
     try {
       const token = Cookies.get("adminToken");
       const res = await fetch(
-        `${BASE_URL}/api/v1/admin/jobs?page=${page}&limit=5&search=${searchQuery}`,
+        `${BASE_URL}/api/v1/admin/jobs?page=${page}&limit=6&search=${searchQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -39,11 +39,10 @@ const JobPage = () => {
         }
       );
       const data = await res.json();
-
       if (res.ok) {
         setJobs(data.jobPostings || []);
-        setCurrentPage(data.currentPage || 1);
-        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.pagination?.currentPage || 1);
+        setTotalPages(data.pagination?.totalPages || 1);
       } else {
         console.error("Lỗi khi tải job:", data.message);
       }

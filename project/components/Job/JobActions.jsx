@@ -8,7 +8,6 @@ const JobActions = ({ jobId }) => {
   const handleShare = () => console.log("Share job:", jobId);
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert("Đã sao chép liên kết!");
   };
 
   return (

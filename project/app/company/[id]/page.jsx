@@ -141,15 +141,15 @@ const CompanyPage = () => {
   if (!companyDetails)
     return <div className="text-center p-10">Không tìm thấy công ty.</div>;
 
-  const skills =
-    companyDetails?.languages &&
-    companyDetails.languages.length > 0 &&
-    typeof companyDetails.languages[0] === "string"
-      ? companyDetails.languages[0]
-          .split(",")
-          .map((skill) => skill.trim())
-          .filter((skill) => skill)
-      : [];
+  const skills = Array.isArray(companyDetails?.languages)
+    ? companyDetails.languages
+        .flatMap((item) =>
+          typeof item === "string"
+            ? item.split(",").map((skill) => skill.trim())
+            : []
+        )
+        .filter((skill) => skill)
+    : [];
 
   const avatarUrl = companyDetails.avatarUrl?.startsWith("http")
     ? companyDetails.avatarUrl
