@@ -1,15 +1,31 @@
-// components/ImageWithFallback.jsx
 "use client";
-
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const ImageWithFallback = ({ src, fallbackSrc, alt, ...props }) => {
-  const handleError = (e) => {
-    e.target.onerror = null;
-    e.target.src = fallbackSrc;
-  };
+const ImageWithFallback = ({
+  src,
+  fallbackSrc = "/company.png",
+  alt,
+  ...props
+}) => {
+  const [imgSrc, setImgSrc] = useState(src);
 
-  return <Image src={src} alt={alt} onError={handleError} {...props} />;
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+
+  return (
+    <Image
+      src={imgSrc || fallbackSrc}
+      alt={alt}
+      onError={() => {
+        if (imgSrc !== fallbackSrc) {
+          setImgSrc(fallbackSrc);
+        }
+      }}
+      {...props}
+    />
+  );
 };
 
 export default ImageWithFallback;
