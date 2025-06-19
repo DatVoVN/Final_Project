@@ -79,7 +79,7 @@ const JobTableRow = ({
               setIsLoading(true);
               try {
                 const response = await fetch(
-                  `{BASE_URL}/api/v1/developer/jobs/${job._id}`,
+                  `${BASE_URL}/api/v1/developer/jobs/${job._id}`,
                   {
                     method: "DELETE",
                     headers: {
