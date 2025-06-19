@@ -126,7 +126,6 @@ export default function CvSuggestJobs() {
                             <th className="py-1 px-2 text-left">Role</th>
                             <th className="py-1 px-2 text-right">% Trùng</th>
                             <th className="py-1 px-2 text-right">Điểm</th>
-                            <th className="py-1 px-2 text-left">Lý do</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -149,9 +148,6 @@ export default function CvSuggestJobs() {
                               </td>
                               <td className="py-1 px-2 text-right">
                                 {m.score}
-                              </td>
-                              <td className="py-1 px-2 text-left">
-                                {m.reason}
                               </td>
                             </tr>
                           ))}
