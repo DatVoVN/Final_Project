@@ -38,7 +38,7 @@ const Page = () => {
         setCurrentPage(data.currentPage || 1);
         setTotalPages(data.totalPages || 1);
       } else {
-        console.error("Lỗi khi tải developers:", data.message);
+        console.error("Lỗi khi tải người tuyển dụng:", data.message);
       }
     } catch (error) {
       console.error("Lỗi khi gọi API:", error);
@@ -85,11 +85,11 @@ const Page = () => {
                   );
                   if (!res.ok) throw new Error("Delete failed");
 
-                  toast.success("Đã xóa developer thành công");
+                  toast.success("Đã xóa người tuyển dụng thành công");
                   setDevelopers((prev) => prev.filter((dev) => dev._id !== id));
                 } catch (error) {
-                  toast.error("❌ Có lỗi khi xóa developer");
-                  console.error("Lỗi khi xóa developer:", error);
+                  toast.error("Có lỗi khi xóa người tuyển dụng");
+                  console.error("Lỗi khi xóa người tuyển dụng:", error);
                 } finally {
                   toast.dismiss(t.id);
                 }
@@ -175,7 +175,31 @@ const Page = () => {
           )}
 
           {loading ? (
-            <p className="text-gray-300">Đang tải dữ liệu...</p>
+            <div className="flex items-center justify-center py-10">
+              <svg
+                className="animate-spin h-8 w-8 text-white mr-3"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              <span className="text-white text-base font-medium">
+                Đang tải dữ liệu...
+              </span>
+            </div>
           ) : (
             <DeveloperTable
               developers={developers}

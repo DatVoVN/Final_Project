@@ -6,7 +6,7 @@ const DeveloperTable = ({ developers, onViewCompany, onDelete }) => {
   if (!developers || developers.length === 0) {
     return (
       <p className="text-center text-gray-400 py-8">
-        Không có dữ liệu developer.
+        Không có dữ liệu người tuyển dụng.
       </p>
     );
   }
@@ -54,7 +54,7 @@ const DeveloperTable = ({ developers, onViewCompany, onDelete }) => {
                 <button
                   onClick={() => onDelete && onDelete(dev._id)}
                   className="p-1.5 rounded-full text-red-400 hover:bg-red-700 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                  title="Xóa developer"
+                  title="Xóa người tuyển dụng"
                 >
                   <Trash size={18} />
                 </button>
