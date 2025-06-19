@@ -24,11 +24,6 @@ router.post("/check-stripe", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    console.log("🔍 Stripe session retrieved:", {
-      sessionId: session.id,
-      status: session.status,
-      payment_status: session.payment_status,
-    });
     if (session.payment_status !== "paid") {
       return res
         .status(200)
@@ -78,7 +73,7 @@ router.post("/check-stripe", async (req, res) => {
     await user.save();
     return res.status(200).json({ status: "paid", updated: true });
   } catch (err) {
-    console.error("❌ Stripe manual error:", err.message);
+    console.error("Stripe manual error:", err.message);
     res.status(500).json({ message: "Lỗi khi kiểm tra Stripe" });
   }
 });
@@ -126,7 +121,7 @@ router.post("/check-payos", async (req, res) => {
 
     return res.status(200).json({ status: "paid", updated: true });
   } catch (err) {
-    console.error("❌ PayOS manual error:", err.message);
+    console.error("PayOS manual error:", err.message);
     res.status(500).json({ message: "Lỗi khi kiểm tra PayOS" });
   }
 });

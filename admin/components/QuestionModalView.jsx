@@ -21,16 +21,18 @@ const AnswerCard = ({ answer }) => (
   <div className="flex items-start gap-4 bg-slate-750 p-4 rounded-xl border border-slate-700 hover:bg-slate-700/60 transition">
     <img
       src={
-        answer.candidate.avatarUrl?.startsWith("http")
+        answer.candidate?.avatarUrl?.startsWith("http")
           ? answer.candidate.avatarUrl
-          : `${answer.candidate.avatarUrl}`
+          : answer.candidate?.avatarUrl
+          ? answer.candidate.avatarUrl
+          : "/images/R.jpg"
       }
-      alt={answer.candidate.fullName}
+      alt={answer.candidate?.fullName || "Ẩn danh"}
       className="w-10 h-10 rounded-full object-cover"
     />
     <div className="flex-1">
       <div className="text-white font-semibold">
-        {answer.candidate.fullName}
+        {answer.candidate?.fullName || "Ẩn danh"}
       </div>
       <div className="text-slate-400 text-xs mb-1">
         {new Date(answer.createdAt).toLocaleString("vi-VN")}

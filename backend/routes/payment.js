@@ -27,7 +27,7 @@ router.get("/my-receipts", protectEmployer, async (req, res) => {
       receipts,
     });
   } catch (err) {
-    console.error("❌ Lỗi khi lấy hóa đơn:", err.message);
+    console.error("Lỗi khi lấy hóa đơn:", err.message);
     res.status(500).json({ message: "Lỗi server khi lấy hóa đơn" });
   }
 });

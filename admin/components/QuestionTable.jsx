@@ -41,14 +41,19 @@ const QuestionTable = ({ questions, onView, onDelete }) => {
               <td className="px-4 py-3 whitespace-nowrap flex items-center gap-2">
                 <img
                   src={
-                    q.candidate.avatarUrl?.startsWith("http")
+                    q.candidate?.avatarUrl?.startsWith("http")
                       ? q.candidate.avatarUrl
-                      : `${q.candidate.avatarUrl}`
+                      : q.candidate?.avatarUrl
+                      ? `${q.candidate.avatarUrl}`
+                      : "/images/R.jpg"
                   }
-                  alt={q.candidate.fullName}
+                  alt={q.candidate?.fullName || "avatar"}
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <span className="text-white">{q.candidate.fullName}</span>
+
+                <span className="text-white">
+                  {q.candidate?.fullName || "Ẩn danh"}
+                </span>
               </td>
               <td className="px-4 py-3 max-w-md truncate">{q.content}</td>
               <td className="px-4 py-3 text-center">{q.answers.length}</td>
