@@ -43,12 +43,11 @@ const ViewCV = () => {
     if (!cvData) return;
 
     const doc = new jsPDF();
-    doc.setFont("Roboto-Regular");
+    doc.setFont("Roboto-Regular", "normal");
+    // doc.setFont("helvetica", "normal");
 
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;
-
-    // Header
     doc.setFontSize(24);
     doc.setTextColor(40, 53, 147);
     doc.text("HỒ SƠ CÁ NHÂN", pageWidth / 2, y, { align: "center" });
@@ -63,7 +62,7 @@ const ViewCV = () => {
     );
     y += 25;
 
-    // Summary
+    // Tóm tắt
     doc.setFontSize(16);
     doc.setTextColor(30, 41, 59);
     doc.text("TÓM TẮT", 20, (y += 10));
@@ -76,8 +75,6 @@ const ViewCV = () => {
     );
     doc.text(summaryLines, 20, y + 10);
     y += summaryLines.length * 7 + 15;
-
-    // Education Table
     if (cvData.education?.length > 0) {
       doc.setFontSize(16);
       doc.text("HỌC VẤN", 20, y);
@@ -97,6 +94,7 @@ const ViewCV = () => {
         body: eduData,
         styles: {
           font: "Roboto-Regular",
+          fontStyle: "normal",
           fontSize: 10,
           cellPadding: 3,
           textColor: [55, 65, 81],
@@ -104,7 +102,7 @@ const ViewCV = () => {
         headStyles: {
           fillColor: [79, 70, 229],
           textColor: 255,
-          fontStyle: "bold",
+          fontStyle: "normal",
         },
         theme: "grid",
         margin: { left: 20, right: 20 },
@@ -112,8 +110,6 @@ const ViewCV = () => {
 
       y = doc.lastAutoTable.finalY + 10;
     }
-
-    // Experience Table
     if (cvData.experience?.length > 0) {
       doc.setFontSize(16);
       doc.text("KINH NGHIỆM LÀM VIỆC", 20, y);
@@ -133,6 +129,7 @@ const ViewCV = () => {
         body: expData,
         styles: {
           font: "Roboto-Regular",
+          fontStyle: "normal",
           fontSize: 10,
           cellPadding: 3,
           textColor: [55, 65, 81],
@@ -140,7 +137,7 @@ const ViewCV = () => {
         headStyles: {
           fillColor: [79, 70, 229],
           textColor: 255,
-          fontStyle: "bold",
+          fontStyle: "normal",
         },
         theme: "grid",
         margin: { left: 20, right: 20 },
@@ -148,8 +145,6 @@ const ViewCV = () => {
 
       y = doc.lastAutoTable.finalY + 10;
     }
-
-    // Skills
     if (cvData.skills?.length > 0) {
       doc.setFontSize(16);
       doc.text("KỸ NĂNG", 20, y);
@@ -162,8 +157,6 @@ const ViewCV = () => {
       doc.text(skillsText, 20, y + 10);
       y += skillsText.length * 7 + 15;
     }
-
-    // Languages
     if (cvData.languages?.length > 0) {
       doc.setFontSize(16);
       doc.text("NGÔN NGỮ", 20, y);
@@ -175,8 +168,6 @@ const ViewCV = () => {
       );
       doc.text(langText, 20, y + 10);
     }
-
-    // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -225,7 +216,6 @@ const ViewCV = () => {
 
       {cvData ? (
         <div className="space-y-6">
-          {/* Summary Card */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
               Tóm tắt bản thân
@@ -331,8 +321,6 @@ const ViewCV = () => {
               </div>
             </div>
           )}
-
-          {/* Skills Card */}
           {cvData.skills && cvData.skills.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Kỹ năng</h2>

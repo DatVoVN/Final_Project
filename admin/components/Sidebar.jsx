@@ -19,6 +19,7 @@ import {
   LogOut,
   MessageSquare,
   LayoutGrid,
+  BookOpenCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -41,6 +42,7 @@ const ICONS = {
   FileStack,
   MessageSquare,
   LayoutGrid,
+  BookOpenCheck,
 };
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

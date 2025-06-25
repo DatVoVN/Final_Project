@@ -49,6 +49,10 @@ const OverViewPage = () => {
       try {
         const res = await fetch(`${BASE_URL}/api/v1/admin/stat`);
         const json = await res.json();
+         json.data.jobsPerDay = [
+        { _id: "2025-06-24", count: 1 },
+        { _id: "2025-06-25", count: 2 },
+      ];
         setStats(json.data);
       } catch (err) {
         console.error("Lỗi khi lấy dữ liệu thống kê:", err);
@@ -92,12 +96,12 @@ const OverViewPage = () => {
           <StatCard name="Job" icon={SquareActivity} value={stats.jobs} />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-[#1e1e1e] backdrop-blur-md shadow-lg rounded-xl border border-[#1f1f1f] p-6"
+            className="h-full bg-[#1e1e1e] backdrop-blur-md shadow-lg rounded-xl border border-[#1f1f1f] p-6"
           >
             <h3 className="text-lg font-semibold text-gray-300 mb-4">
               Top công ty nhiều việc làm
@@ -162,7 +166,7 @@ const OverViewPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-[#1e1e1e] backdrop-blur-md shadow-lg rounded-xl border border-[#1f1f1f] p-6"
+              className="h-full bg-[#1e1e1e] backdrop-blur-md shadow-lg rounded-xl border border-[#1f1f1f] p-6"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-300">

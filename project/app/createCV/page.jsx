@@ -44,7 +44,6 @@ export default function CreateCV() {
     },
   });
 
-  // Field arrays
   const {
     fields: eduFields,
     append: appendEdu,
@@ -114,7 +113,6 @@ export default function CreateCV() {
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Tóm tắt cá nhân */}
         <div className="bg-white p-5 rounded-lg shadow-md border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span className="bg-blue-100 text-blue-800 p-1 rounded">
@@ -129,8 +127,6 @@ export default function CreateCV() {
             placeholder="Mô tả kinh nghiệm, kỹ năng và mục tiêu nghề nghiệp của bạn..."
           />
         </div>
-
-        {/* Học vấn */}
         <div className="bg-white p-5 rounded-lg shadow-md border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
@@ -323,8 +319,6 @@ export default function CreateCV() {
             ))}
           </div>
         </div>
-
-        {/* Ngôn ngữ */}
         <div className="bg-white p-5 rounded-lg shadow-md border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
@@ -413,8 +407,6 @@ export default function CreateCV() {
     </div>
   );
 }
-
-// Custom Input Component
 const InputField = ({ label, type = "text", placeholder = "", ...props }) => (
   <div className="space-y-1">
     {label && (

@@ -149,7 +149,6 @@ export default function EditCV() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Summary Section */}
         <SectionCard title="Tóm tắt cá nhân">
           <TextAreaField
             label="Mô tả về bản thân và mục tiêu nghề nghiệp"
@@ -160,8 +159,6 @@ export default function EditCV() {
             })}
           />
         </SectionCard>
-
-        {/* Education Section */}
         <SectionCard
           title="Học vấn"
           onAdd={() => appendEdu(createNewEducation())}
@@ -230,8 +227,6 @@ export default function EditCV() {
             </div>
           ))}
         </SectionCard>
-
-        {/* Experience Section */}
         <SectionCard
           title="Kinh nghiệm làm việc"
           onAdd={() => appendExp(createNewExperience())}
@@ -325,8 +320,6 @@ export default function EditCV() {
             ))}
           </div>
         </SectionCard>
-
-        {/* Languages Section */}
         <SectionCard title="Ngôn ngữ" onAdd={() => appendLang("")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {langFields.map((field, index) => (
@@ -347,8 +340,6 @@ export default function EditCV() {
             ))}
           </div>
         </SectionCard>
-
-        {/* Submit Button */}
         <div className="sticky bottom-4 bg-white p-4 rounded-xl shadow-lg z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
@@ -388,8 +379,6 @@ export default function EditCV() {
     </div>
   );
 }
-
-// Reusable Components
 const SectionCard = ({ title, children, onAdd }) => (
   <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
     <div className="flex justify-between items-center mb-4">
