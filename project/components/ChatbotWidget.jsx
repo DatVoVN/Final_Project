@@ -101,7 +101,9 @@ const ChatbotWidget = () => {
                         : "mr-auto bg-gray-100"
                     }`}
                   >
-                    <div>{msg.text}</div>
+                    {msg.matchedJobs && msg.matchedJobs.length > 0 ? null : (
+                      <div>{msg.text}</div>
+                    )}
                     {msg.matchedJobs && msg.matchedJobs.length > 0 && (
                       <ul className="mt-2 space-y-1 text-left list-disc list-inside">
                         {msg.matchedJobs.map((job, i) => (

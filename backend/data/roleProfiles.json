@@ -1,97 +1,112 @@
 {
-  "Backend Developer": {
-    "description": "Thiết kế, xây dựng và duy trì API, dịch vụ máy chủ & cơ sở dữ liệu.",
-    "requiredSkills": ["Java", "Spring", "SQL", "REST"],
-    "preferredSkills": ["Docker", "Microservices", "AWS", "Kubernetes"]
-  },
   "Frontend Developer": {
-    "description": "Phát triển giao diện web tương tác và tối ưu hiệu năng.",
-    "requiredSkills": ["JavaScript", "ReactJS", "HTML", "CSS"],
-    "preferredSkills": ["TypeScript", "Next.js", "Redux", "Unit Testing"]
+    "description": "Phát triển giao diện người dùng cho ứng dụng web, tập trung vào trải nghiệm và hiệu năng.",
+    "requiredSkills": ["HTML", "CSS", "JavaScript"],
+    "preferredSkills": ["React", "Next.js", "TypeScript", "Redux"]
+  },
+  "Backend Developer": {
+    "description": "Xây dựng hệ thống máy chủ, API, cơ sở dữ liệu và xử lý nghiệp vụ phía sau.",
+    "requiredSkills": ["Node.js", "Java", "Python", "SQL"],
+    "preferredSkills": ["REST API", "Microservices", "Docker", "MongoDB"]
   },
   "Full‑Stack Developer": {
-    "description": "Thành thạo cả frontend lẫn backend, đảm bảo luồng dữ liệu end‑to‑end.",
+    "description": "Thành thạo cả frontend và backend, có khả năng xử lý toàn bộ hệ thống end-to-end.",
     "requiredSkills": ["JavaScript", "Node.js", "React", "SQL"],
     "preferredSkills": ["GraphQL", "Docker", "CI/CD", "AWS"]
   },
   "Mobile Developer": {
-    "description": "Xây dựng ứng dụng di động native hoặc cross‑platform.",
+    "description": "Phát triển ứng dụng di động native (Android/iOS) hoặc cross-platform.",
     "requiredSkills": ["Kotlin", "Swift", "Android", "iOS"],
-    "preferredSkills": ["Flutter", "React Native", "REST", "Firebase"]
+    "preferredSkills": ["Flutter", "React Native", "Firebase", "REST"]
+  },
+  "Web Developer": {
+    "description": "Phát triển ứng dụng web toàn diện từ thiết kế đến triển khai backend.",
+    "requiredSkills": ["HTML", "CSS", "JavaScript", "REST"],
+    "preferredSkills": ["Vue.js", "Node.js", "GraphQL", "Webpack"]
   },
   "DevOps Engineer": {
-    "description": "Tự động hoá, giám sát và triển khai hạ tầng CI/CD.",
+    "description": "Tự động hoá quy trình phát triển và triển khai phần mềm.",
     "requiredSkills": ["Linux", "Docker", "CI/CD", "AWS"],
-    "preferredSkills": ["Kubernetes", "Terraform", "Prometheus", "Bash"]
+    "preferredSkills": ["Kubernetes", "Terraform", "Monitoring", "Bash"]
   },
-  "Data Engineer": {
-    "description": "Thiết kế pipeline dữ liệu, kho dữ liệu và ETL.",
-    "requiredSkills": ["Python", "SQL", "ETL", "Airflow"],
-    "preferredSkills": ["Spark", "Kafka", "AWS Glue", "Delta Lake"]
-  },
-  "Data Scientist": {
-    "description": "Phân tích và xây mô hình dự đoán từ tập dữ liệu lớn.",
-    "requiredSkills": ["Python", "Pandas", "Machine Learning", "Statistics"],
-    "preferredSkills": ["TensorFlow", "PyTorch", "Spark", "Docker"]
+  "Cloud Engineer": {
+    "description": "Triển khai và duy trì hệ thống hạ tầng trên nền tảng đám mây.",
+    "requiredSkills": ["AWS", "GCP", "Azure", "Infrastructure as Code"],
+    "preferredSkills": ["Kubernetes", "Serverless", "Terraform", "CI/CD"]
   },
   "Machine Learning Engineer": {
-    "description": "Triển khai và tối ưu hoá mô hình ML trong sản phẩm.",
-    "requiredSkills": ["Python", "TensorFlow", "PyTorch", "Docker"],
-    "preferredSkills": ["Kubeflow", "AWS Sagemaker", "MLOps", "CI/CD"]
+    "description": "Xây dựng, huấn luyện và triển khai mô hình học máy vào sản phẩm thực tế.",
+    "requiredSkills": ["Python", "TensorFlow", "PyTorch", "Machine Learning"],
+    "preferredSkills": ["Docker", "Kubeflow", "Sagemaker", "MLOps"]
+  },
+  "Data Engineer": {
+    "description": "Thiết kế pipeline xử lý dữ liệu, ETL và tối ưu lưu trữ dữ liệu lớn.",
+    "requiredSkills": ["Python", "SQL", "ETL", "Airflow"],
+    "preferredSkills": ["Spark", "Kafka", "BigQuery", "AWS Glue"]
+  },
+  "Data Scientist": {
+    "description": "Phân tích dữ liệu, tìm insight và xây dựng mô hình dự đoán.",
+    "requiredSkills": ["Python", "Pandas", "Statistics", "Machine Learning"],
+    "preferredSkills": ["Scikit-learn", "TensorFlow", "A/B Testing", "SQL"]
+  },
+  "Data Analyst": {
+    "description": "Phân tích dữ liệu, trực quan hóa và xây dựng báo cáo hỗ trợ quyết định.",
+    "requiredSkills": ["SQL", "Excel", "Data Visualization", "Statistics"],
+    "preferredSkills": [
+      "Power BI",
+      "Tableau",
+      "Python",
+      "Business Intelligence"
+    ]
   },
   "QA Engineer": {
-    "description": "Thiết kế & thực thi test case để đảm bảo chất lượng phần mềm.",
-    "requiredSkills": ["Test Automation", "Selenium", "API Testing", "JIRA"],
+    "description": "Kiểm thử phần mềm nhằm đảm bảo chất lượng và độ ổn định trước khi triển khai.",
+    "requiredSkills": ["Test Cases", "Selenium", "API Testing", "JIRA"],
     "preferredSkills": ["Cypress", "Playwright", "Performance Testing", "CI/CD"]
   },
   "Security Engineer": {
-    "description": "Bảo mật hệ thống, phát hiện & khắc phục lỗ hổng.",
+    "description": "Bảo mật hệ thống, phát hiện và ngăn chặn các lỗ hổng bảo mật.",
     "requiredSkills": [
       "Network Security",
-      "Penetration Testing",
       "OWASP",
-      "Linux"
+      "Linux",
+      "Penetration Testing"
     ],
     "preferredSkills": ["SIEM", "Cloud Security", "Cryptography", "Docker"]
   },
-  "Cloud Architect": {
-    "description": "Thiết kế kiến trúc hệ thống trên nền tảng đám mây.",
-    "requiredSkills": ["AWS", "Networking", "Infrastructure as Code", "CI/CD"],
-    "preferredSkills": ["Azure", "GCP", "Kubernetes", "Cost Optimization"]
-  },
-  "Product Manager": {
-    "description": "Xác định vision, roadmap và ưu tiên tính năng sản phẩm.",
-    "requiredSkills": [
-      "Product Strategy",
-      "User Research",
-      "Agile",
-      "Roadmapping"
-    ],
-    "preferredSkills": ["Data Analytics", "A/B Testing", "UX", "SQL"]
-  },
-  "Project Manager": {
-    "description": "Lập kế hoạch, theo dõi tiến độ và quản lý nguồn lực dự án.",
-    "requiredSkills": [
-      "Project Planning",
-      "Scrum",
-      "Risk Management",
-      "Communication"
-    ],
-    "preferredSkills": [
-      "JIRA",
-      "MS Project",
-      "Budgeting",
-      "Stakeholder Management"
-    ]
-  },
   "UI/UX Designer": {
-    "description": "Thiết kế trải nghiệm người dùng và giao diện trực quan.",
+    "description": "Thiết kế trải nghiệm người dùng và giao diện trực quan cho ứng dụng.",
     "requiredSkills": ["Figma", "Wireframing", "Prototyping", "User Research"],
     "preferredSkills": [
       "Design Systems",
       "Accessibility",
       "Motion Design",
       "A/B Testing"
+    ]
+  },
+  "Product Manager": {
+    "description": "Xác định mục tiêu sản phẩm, quản lý tính năng và phối hợp với team kỹ thuật.",
+    "requiredSkills": [
+      "Product Strategy",
+      "Agile",
+      "User Research",
+      "Roadmapping"
+    ],
+    "preferredSkills": ["Analytics", "A/B Testing", "UX", "SQL"]
+  },
+  "Project Manager": {
+    "description": "Quản lý tiến độ, phạm vi, ngân sách và các bên liên quan trong dự án.",
+    "requiredSkills": [
+      "Scrum",
+      "Communication",
+      "Project Planning",
+      "Risk Management"
+    ],
+    "preferredSkills": [
+      "JIRA",
+      "MS Project",
+      "Stakeholder Management",
+      "Budgeting"
     ]
   }
 }
