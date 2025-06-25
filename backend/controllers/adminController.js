@@ -336,6 +336,7 @@ exports.getAllJob = async (req, res) => {
 
     const query = {
       title: { $regex: search, $options: "i" },
+      status: "approved",
     };
 
     const totalJobs = await JobPosting.countDocuments(query);
@@ -526,5 +527,140 @@ exports.deletePostByAdmin = async (req, res) => {
   } catch (err) {
     console.error("Lỗi khi xóa bài viết:", err);
     res.status(500).json({ message: "Lỗi server khi xóa bài viết" });
+  }
+};
+//////////////QUẢN LÝ TIN ĐĂNG//////////////
+//// admin duyệt bài đăng
+exports.approveJobPosting = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await JobPosting.findById(jobId).populate(
+      "employer",
+      "email fullName"
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: "Không tìm thấy bài đăng." });
+    }
+
+    job.status = "approved";
+    await job.save();
+    if (job.employer?.email) {
+      await sendEmail({
+        email: job.employer.email,
+        subject: `Bài đăng "${job.title}" đã được duyệt`,
+        message: `Xin chào ${
+          job.employer.fullName || "bạn"
+        },\n\nBài đăng công việc của bạn với tiêu đề "${
+          job.title
+        }" đã được duyệt thành công và sẽ sớm hiển thị trên hệ thống.\n\nTrân trọng,\nBan quản trị hệ thống.`,
+      });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Bài đăng đã được duyệt và email đã được gửi." });
+  } catch (error) {
+    console.error("Lỗi khi duyệt bài đăng:", error);
+    res.status(500).json({ message: "Lỗi server khi duyệt bài đăng." });
+  }
+};
+
+//// admin lấy toàn bộ bài đăng cần duyệt
+exports.getPendingJobPostings = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter = { status: "pending" };
+
+    const totalJobs = await JobPosting.countDocuments(filter);
+    const jobs = await JobPosting.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("company", "name logoUrl")
+      .populate("employer", "fullName email");
+
+    res.status(200).json({
+      message: "Danh sách bài đăng đang chờ duyệt.",
+      jobs,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: totalJobs,
+        totalPages: Math.ceil(totalJobs / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách pending jobs:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi lấy danh sách pending jobs." });
+  }
+};
+// Từ chối bài đăng tuyển dụng
+exports.rejectJobPosting = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const { reason } = req.body;
+
+    const job = await JobPosting.findById(jobId).populate(
+      "employer",
+      "email fullName"
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: "Không tìm thấy bài đăng." });
+    }
+
+    const emailToSend = job.employer?.email;
+    const fullName = job.employer?.fullName || "bạn";
+    const jobTitle = job.title;
+    const rejectionReason = reason?.trim() || null;
+    if (emailToSend) {
+      const message = `Xin chào ${fullName},\n\nBài đăng công việc của bạn với tiêu đề "${jobTitle}" đã bị từ chối.${
+        rejectionReason ? `\n\nLý do: ${rejectionReason}` : ""
+      }\n\nVui lòng cập nhật hoặc gửi lại thông tin chính xác hơn.\n\nTrân trọng,\nBan quản trị hệ thống`;
+
+      await sendEmail({
+        email: emailToSend,
+        subject: `Bài đăng "${jobTitle}" đã bị từ chối`,
+        message,
+      });
+    }
+    await job.deleteOne();
+
+    res
+      .status(200)
+      .json({ message: "Bài đăng đã bị từ chối và xoá khỏi hệ thống." });
+  } catch (error) {
+    console.error("Lỗi khi từ chối và xoá bài đăng:", error);
+    res.status(500).json({ message: "Lỗi server khi xử lý từ chối bài đăng." });
+  }
+};
+
+//// Lấy thông tin bài đăng
+exports.getJobPostingById = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await JobPosting.findById(jobId)
+      .populate("company")
+      .populate("employer");
+
+    if (!job) {
+      return res.status(404).json({ message: "Không tìm thấy bài đăng." });
+    }
+
+    res.status(200).json({
+      message: "Lấy thông tin bài đăng thành công.",
+      job,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết bài đăng:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy chi tiết bài đăng." });
   }
 };

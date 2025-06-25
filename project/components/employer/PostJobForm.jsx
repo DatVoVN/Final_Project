@@ -106,7 +106,7 @@ const PostJobForm = () => {
         throw new Error(result.message || "Đã xảy ra lỗi khi đăng tin.");
       }
 
-      setSuccess("Đăng tin tuyển dụng thành công!");
+      setSuccess("Bạn hãy chờ Admin duyệt bài đăng!");
 
       setFormData({
         title: "",

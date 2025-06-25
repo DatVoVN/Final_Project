@@ -2,6 +2,7 @@
   "sidebarItems": [
     { "name": "Bảng điều khiển", "icon": "House", "href": "/" },
     { "name": "Tài khoản", "icon": "UserCheck", "href": "/account" },
+    { "name": "Duyệt việc làm", "icon": "UserCheck", "href": "/adminApproved" },
     { "name": "Việc làm", "icon": "File", "href": "/job" },
     {
       "name": "Ứng viên",

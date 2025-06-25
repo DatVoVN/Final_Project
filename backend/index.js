@@ -50,7 +50,8 @@ app.use("/api/v1/question", questionRouter);
 app.use("/api/v1/post", postRouter);
 
 ///chatbot
-app.use("/api", require("./routes/chatbot"));
+// app.use("/api", require("./routes/chatbot"));
+app.use("/api", require("./routes/jobChatRouter"));
 /// suggest
 app.use("/api/v1/cv", cvRoutes);
 app.use("/api", suggestRoutes);

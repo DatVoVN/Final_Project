@@ -29,7 +29,6 @@ const InfoRow = ({ icon: Icon, label, value }) => (
 
 const JobDetailModal = ({ isOpen, onClose, job }) => {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-lg flex items-center justify-center p-4">
       <div className="bg-slate-800 rounded-xl shadow-2xl w-full max-w-3xl border border-slate-700">

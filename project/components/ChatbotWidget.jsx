@@ -8,7 +8,11 @@ const ChatbotWidget = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Xin chào! Bạn cần hỏi gì về hệ thống?" },
+    {
+      from: "bot",
+      text: "Xin chào! Bạn cần hỏi gì về hệ thống?",
+      matchedJobs: [],
+    },
   ]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
@@ -29,13 +33,23 @@ const ChatbotWidget = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/chat`, { question: input });
-      const botMessage = { from: "bot", text: res.data.answer };
+      const res = await axios.post(`${BASE_URL}/api/chat`, {
+        question: input,
+      });
+      const botMessage = {
+        from: "bot",
+        text: res.data.answer,
+        matchedJobs: res.data.matchedJobs || [],
+      };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "❌ Lỗi: Không thể kết nối đến chatbot." },
+        {
+          from: "bot",
+          text: "Lỗi: Không thể kết nối đến chatbot.",
+          matchedJobs: [],
+        },
       ]);
     } finally {
       setLoading(false);
@@ -81,13 +95,30 @@ const ChatbotWidget = () => {
                 {messages.map((msg, index) => (
                   <div
                     key={index}
-                    className={`p-2 rounded-md max-w-[80%] whitespace-pre-line ${
+                    className={`p-2 rounded-md max-w-[90%] whitespace-pre-line ${
                       msg.from === "user"
                         ? "ml-auto bg-blue-100 text-right"
                         : "mr-auto bg-gray-100"
                     }`}
                   >
-                    {msg.text}
+                    <div>{msg.text}</div>
+                    {msg.matchedJobs && msg.matchedJobs.length > 0 && (
+                      <ul className="mt-2 space-y-1 text-left list-disc list-inside">
+                        {msg.matchedJobs.map((job, i) => (
+                          <li key={i}>
+                            <a
+                              href={job.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {job.title}
+                            </a>{" "}
+                            – {job.salary || "?"} triệu – {job.city}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 ))}
                 {loading && (

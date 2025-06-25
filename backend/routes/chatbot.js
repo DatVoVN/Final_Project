@@ -50,13 +50,13 @@ Hãy sử dụng thông tin trên để trả lời một cách chính xác và 
 
   return res.data.choices[0].message.content;
 }
-router.post("/chat", async (req, res) => {
+router.post("/jobchat", async (req, res) => {
   const { question } = req.body;
   if (!question) return res.status(400).json({ error: "Missing question" });
 
   try {
     const userEmbedding = await getEmbedding(question);
-    const SIM_THRESHOLD = 0.5;
+    const SIM_THRESHOLD = 0.3;
     const TOP_K = 3;
     const scoredFAQs = faqData
       .map((item) => ({

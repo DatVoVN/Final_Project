@@ -27,6 +27,7 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const [hasApplied, setHasApplied] = useState(initialAppliedStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const checkIfApplied = async () => {
     const token = Cookies.get("authToken");
     if (!token) {
@@ -65,52 +66,6 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
   const isUnderReview = job.status === "pending";
   const isFirstApplicantOpportunity =
     !job.applicants || job.applicants.length === 0;
-
-  // const handleApply = async () => {
-  //   setIsProcessing(true);
-  //   setError(null);
-  //   setSuccess(null);
-
-  //   const token = Cookies.get("authToken");
-
-  //   if (!token) {
-  //     const msg = "Bạn không có quyền ứng tuyển. Vui lòng đăng nhập.";
-  //     setError(msg);
-  //     setIsProcessing(false);
-  //     alert(msg);
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(
-  //       "http://localhost:8000/api/v1/candidates/apply",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //         body: JSON.stringify({ jobId: job._id }),
-  //       }
-  //     );
-
-  //     const result = await response.json();
-
-  //     if (!response.ok) {
-  //       throw new Error(result.message || "Nộp hồ sơ thất bại.");
-  //     }
-
-  //     setSuccess(result.message || "Nộp hồ sơ thành công!");
-  //     setHasApplied(true);
-
-  //     // Optional: alert hoặc toast tùy bạn muốn UI sao
-  //   } catch (err) {
-  //     console.error("Apply Error:", err);
-  //     setError(err.message || "Đã xảy ra lỗi khi nộp hồ sơ.");
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
   const handleApply = async () => {
     setIsProcessing(true);
     setError(null);
@@ -324,7 +279,9 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 w-full md:w-auto">
               <button
-                onClick={hasApplied ? handleCancelApply : handleApply}
+                onClick={
+                  hasApplied ? () => setIsConfirmCancelOpen(true) : handleApply
+                }
                 disabled={isProcessing}
                 className={`flex items-center justify-center gap-2 font-semibold py-2.5 px-6 rounded-md transition-colors w-full md:w-auto text-white
     ${
@@ -449,6 +406,35 @@ const JobHeaderCard = ({ job, company, initialAppliedStatus = false }) => {
                   Xác nhận ứng tuyển
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {isConfirmCancelOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Xác nhận hủy ứng tuyển
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Bạn có chắc chắn muốn hủy ứng tuyển công việc này không?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setIsConfirmCancelOpen(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmCancelOpen(false);
+                  handleCancelApply();
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Đồng ý hủy
+              </button>
             </div>
           </div>
         </div>

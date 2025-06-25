@@ -111,7 +111,11 @@ const jobPostingSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
     postedDate: {
       type: Date,
       default: Date.now,

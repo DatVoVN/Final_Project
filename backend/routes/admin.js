@@ -57,4 +57,21 @@ router.delete(
 );
 //////////FEED////////////////////////
 router.delete("/posts/:id", protectAdmin, adminController.deletePostByAdmin);
+////////// QUAN LY BAI DANG/////////////////
+router.get(
+  "/jobs/pending",
+  protectAdmin,
+  adminController.getPendingJobPostings
+);
+router.patch(
+  "/jobs/approve/:jobId",
+  protectAdmin,
+  adminController.approveJobPosting
+);
+router.patch(
+  "/jobs/reject/:jobId",
+  protectAdmin,
+  adminController.rejectJobPosting
+);
+router.get("/jobs/:jobId", adminController.getJobPostingById);
 module.exports = router;
